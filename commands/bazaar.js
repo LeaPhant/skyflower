@@ -92,11 +92,6 @@ module.exports = {
             }
         ];
 
-        if(!amount){
-            amount = 1;
-            stacks = true;
-        }
-
         if(amount){
             fields.push({
                 name: "⠀",
