@@ -51,7 +51,7 @@ module.exports = {
 
         itemSearch = itemSearch.join(" ").toLowerCase();
 
-        const itemResults = await db
+        let itemResults = await db
         .collection('items')
         .find({ $text: { $search: itemSearch }})
         .toArray();
@@ -61,14 +61,31 @@ module.exports = {
 
         let resultMatch;
 
-        for(const result of itemResults)
+        for(const result of itemResults){
             if(result.name.toLowerCase() == itemSearch)
                 resultMatch = result;
 
+            if('tag' in result)
+                result.tag = result.tag.split(" ");
+            else
+                result.tag = [];
+
+
+
+            result.tag.push(...result.name.toLowerCase().split(" "));
+
+            result.tagMatches = 0;
+
+            for(const part of itemSearch.split(" "))
+                for(const tag of result.tag)
+                    if(tag == part)
+                        result.tagMatches++;
+        }
+
+        itemResults = itemResults.sort((a, b) => b.tagMatches - a.tagMatches);
+
         if(!resultMatch)
             resultMatch = itemResults[0];
-
-        console.log(resultMatch);
 
         const bazaarResponse = await axios('https://sky.lea.moe/api/bazaar');
         const products = bazaarResponse.data;
