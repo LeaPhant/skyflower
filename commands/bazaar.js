@@ -93,7 +93,7 @@ module.exports = {
             }
         ];
 
-        if(amount){
+        if(amount || amount == 0){
             fields.push({
                 name: "⠀",
                 value: "⠀",
@@ -105,21 +105,21 @@ module.exports = {
 
                 fields.push({
                     name: `Buy ${amount.toLocaleString()} × 64`,
-                    value: formatNumber(amount * 64 * bazaarProduct.buyPrice, false, 100),
+                    value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.buyPrice, false, 100),
                     inline: true
                 }, {
                     name: `Sell ${amount.toLocaleString()} × 64`,
-                    value: formatNumber(amount * 64 * bazaarProduct.sellPrice, false, 100),
+                    value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.sellPrice, false, 100),
                     inline: true
                 });
             }else{
                 fields.push({
                     name: `Buy ${amount.toLocaleString()}`,
-                    value: formatNumber(amount * bazaarProduct.buyPrice, false, 100),
+                    value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.buyPrice, false, 100),
                     inline: true
                 }, {
                     name: `Sell ${amount.toLocaleString()}`,
-                    value: formatNumber(amount * bazaarProduct.sellPrice, false, 100),
+                    value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.sellPrice, false, 100),
                     inline: true
                 });
             }
