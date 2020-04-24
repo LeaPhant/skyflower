@@ -1,6 +1,7 @@
 const { formatNumber } = require('../helper.js');
 const config = require('../config.json');
 const axios = require('axios');
+const math = require('mathjs');
 
 module.exports = {
     command: 'bazaar',
@@ -31,8 +32,8 @@ module.exports = {
         let item;
         let itemSearch = "";
 
-        if(!isNaN(argv[1]))
-            amount = parseInt(argv[1]);
+        if(!isNaN(parseInt(argv[1])))
+            amount = math.evaluate(argv[1]);
 
         if(amount !== undefined && argv.length < 2)
             return helper.commandHelp(module.exports.command);
