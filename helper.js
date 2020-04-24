@@ -30,9 +30,9 @@ module.exports = {
     formatNumber: (number, floor, rounding = 10) => {
         if(number < 1000)
             if(floor)
-                return (Math.floor(number / 1000 * rounding) / rounding).toFixed(rounding.toString().length - 1)
+                return (Math.floor(number * rounding) / rounding).toFixed(rounding.toString().length - 2)
             else
-                return (Math.ceil(number / 1000 * rounding) / rounding).toFixed(rounding.toString().length - 1)
+                return (Math.ceil(number * rounding) / rounding).toFixed(rounding.toString().length - 2)
         else if(number < 10000)
             if(floor)
                 return (Math.floor(number / 1000 * rounding) / rounding).toFixed(rounding.toString().length - 1) + 'K';
