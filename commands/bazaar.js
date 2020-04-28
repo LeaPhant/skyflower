@@ -50,6 +50,11 @@ module.exports = {
         if(amount == undefined)
             itemSearch = argv.slice(1);
 
+        for(const [index, part] of itemSearch.entries()){
+            if(part == 'e' || part == 'ench')
+                itemSearch[index] = 'enchanted';
+        }
+
         itemSearch = itemSearch.join(" ").toLowerCase();
 
         let itemResults = await db
