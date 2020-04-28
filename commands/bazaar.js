@@ -70,8 +70,6 @@ module.exports = {
             else
                 result.tag = [];
 
-
-
             result.tag.push(...result.name.toLowerCase().split(" "));
 
             result.tagMatches = 0;
@@ -97,7 +95,7 @@ module.exports = {
 
         const bazaarProduct = matchProducts[0];
 
-        const fields = [
+        let fields = [
             {
                 name: "Buy Price",
                 value: formatNumber(bazaarProduct.buyPrice, false, 100),
@@ -111,16 +109,10 @@ module.exports = {
         ];
 
         if(amount || amount == 0){
-            fields.push({
-                name: "⠀",
-                value: "⠀",
-                inline: false
-            });
-
             if(stacks){
                 const name = amount > 1 ? `Buy ${amount.toLocaleString()} × 64` : `Buy 64`;
 
-                fields.push({
+                fields = [{
                     name: `Buy ${amount.toLocaleString()} × 64`,
                     value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.buyPrice, false, 100),
                     inline: true
@@ -128,9 +120,9 @@ module.exports = {
                     name: `Sell ${amount.toLocaleString()} × 64`,
                     value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.sellPrice, false, 100),
                     inline: true
-                });
+                }];
             }else{
-                fields.push({
+                fields = [{
                     name: `Buy ${amount.toLocaleString()}`,
                     value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.buyPrice, false, 100),
                     inline: true
@@ -138,7 +130,7 @@ module.exports = {
                     name: `Sell ${amount.toLocaleString()}`,
                     value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.sellPrice, false, 100),
                     inline: true
-                });
+                }];
             }
         }
 
@@ -148,7 +140,11 @@ module.exports = {
             thumbnail: {
                 url: `https://sky.lea.moe/item/${resultMatch.id}`
             },
-            fields
+            fields,
+            footer: {
+                icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/704802034217648188/8efff00435c84dab9d0c2efd41e1f0b6.png",
+                text: "Bazaar – prices update every minute"
+            }
         }};
     }
 };
