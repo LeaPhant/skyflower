@@ -2,6 +2,7 @@ const { formatNumber } = require('../helper.js');
 const config = require('../config.json');
 const axios = require('axios');
 const math = require('mathjs');
+const Levenshtein = require('levenshtein');
 
 module.exports = {
     command: 'bazaar',
@@ -53,7 +54,7 @@ module.exports = {
 
         let itemResults = await db
         .collection('items')
-        .find({ $text: { $search: itemSearch }})
+        .find({ bazaar: true, $text: { $search: itemSearch }})
         .toArray();
 
         if(itemResults.length == 0)
@@ -74,13 +75,23 @@ module.exports = {
 
             result.tagMatches = 0;
 
+            const l = new Levenshtein(result.name, itemSearch);
+
+            result.distance = l.distance;
+
             for(const part of itemSearch.split(" "))
                 for(const tag of result.tag)
                     if(tag == part)
                         result.tagMatches++;
         }
 
-        itemResults = itemResults.sort((a, b) => b.tagMatches - a.tagMatches);
+        itemResults = itemResults.sort((a, b) => {
+            if(a.tagMatches > b.tagMatches) return -1;
+	        if(a.tagMatches < b.tagMatches) return 1;
+
+            if(a.distance < b.distance) return -1;
+            if(a.distance > b.distance) return 1;
+        });
 
         if(!resultMatch)
             resultMatch = itemResults[0];
