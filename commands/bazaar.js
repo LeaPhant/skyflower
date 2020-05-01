@@ -8,7 +8,7 @@ module.exports = {
     command: 'bazaar',
     argsRequired: 1,
     description: [
-        "Check prices for items on Bazaar.",
+        "Check prices for one or items on Bazaar.",
     ],
     usage: '[amount] <item>',
     example: [
@@ -23,6 +23,10 @@ module.exports = {
         {
             run: "bazaar 10 stacks catas",
             result: `Returns Bazaar price for 10 stacks of Catalysts.`
+        },
+        {
+            run: "bazaar 3 stacks estring + 3 stacks ebone",
+            result: "Returns total summary for 3 stacks of Enchanted String and 3 stacks of Enchanted Bone"
         }
     ],
     call: async obj => {
