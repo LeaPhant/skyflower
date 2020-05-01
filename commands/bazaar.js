@@ -5,7 +5,7 @@ const math = require('mathjs');
 const Levenshtein = require('levenshtein');
 
 module.exports = {
-    command: ['bazaar', 'bazzar', 'b'],
+    command: ['bazaar', 'bazzar', 'baz', 'b'],
     argsRequired: 1,
     description: [
         "Check prices for one or items on Bazaar.",
