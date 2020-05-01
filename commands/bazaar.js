@@ -8,7 +8,7 @@ module.exports = {
     command: ['bazaar', 'bazzar', 'baz', 'b'],
     argsRequired: 1,
     description: [
-        "Check prices for one or items on Bazaar.",
+        "Check prices for one or more items on Bazaar.",
     ],
     usage: '[amount] <item>',
     example: [
