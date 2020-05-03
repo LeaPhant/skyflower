@@ -53,7 +53,7 @@ module.exports = {
         let totalBuy = 0;
         let totalSell = 0;
 
-        for(const part of summary){
+        for(const [index, part] of summary.entries()){
             const argv_ = part.split(" ");
 
             if(!isNaN(parseInt(argv_[0])))
@@ -136,7 +136,7 @@ module.exports = {
 
             let itemName = "";
 
-            if(summary.length > 1){
+            if(summary.length > 1 && index < 6){
                 embed.fields.push({
                     name: `${resultMatch.name}⠀`,
                     value: "⠀",
@@ -151,42 +151,48 @@ module.exports = {
                     totalBuy += amount * 64 * bazaarProduct.buyPrice;
                     totalSell += amount * 64 * bazaarProduct.sellPrice;
 
-                    embed.fields.push({
-                        name: `Buy ${amount.toLocaleString()} × 64`,
-                        value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.buyPrice, false, 100),
-                        inline: true
-                    }, {
-                        name: `Sell ${amount.toLocaleString()} × 64`,
-                        value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.sellPrice, false, 100),
-                        inline: true
-                    });
+                    if(index < 6){
+                        embed.fields.push({
+                            name: `Buy ${amount.toLocaleString()} × 64`,
+                            value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.buyPrice, false, 100),
+                            inline: true
+                        }, {
+                            name: `Sell ${amount.toLocaleString()} × 64`,
+                            value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.sellPrice, false, 100),
+                            inline: true
+                        });
+                    }
                 }else{
                     totalBuy += amount * bazaarProduct.buyPrice;
                     totalSell += amount * bazaarProduct.sellPrice;
 
-                    embed.fields.push({
-                        name: `Buy ${amount.toLocaleString()}`,
-                        value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.buyPrice, false, 100),
-                        inline: true
-                    }, {
-                        name: `Sell ${amount.toLocaleString()}`,
-                        value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.sellPrice, false, 100),
-                        inline: true
-                    });
+                    if(index < 6){
+                        embed.fields.push({
+                            name: `Buy ${amount.toLocaleString()}`,
+                            value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.buyPrice, false, 100),
+                            inline: true
+                        }, {
+                            name: `Sell ${amount.toLocaleString()}`,
+                            value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.sellPrice, false, 100),
+                            inline: true
+                        });
+                    }
                 }
             }else{
                 totalBuy += bazaarProduct.buyPrice;
                 totalSell += bazaarProduct.sellPrice;
 
-                embed.fields.push({
-                    name: "Buy Price",
-                    value: formatNumber(bazaarProduct.buyPrice, false, 100),
-                    inline: true
-                }, {
-                    name: "Sell Price",
-                    value: formatNumber(bazaarProduct.sellPrice, false, 100),
-                    inline: true
-                });
+                if(index < 6){
+                    embed.fields.push({
+                        name: "Buy Price",
+                        value: formatNumber(bazaarProduct.buyPrice, false, 100),
+                        inline: true
+                    }, {
+                        name: "Sell Price",
+                        value: formatNumber(bazaarProduct.sellPrice, false, 100),
+                        inline: true
+                    });
+                }
             }
 
             if(summary.length == 1){
@@ -199,6 +205,22 @@ module.exports = {
 
         if(summary.length > 1){
             embed.title = "Bazaar Summary";
+
+            if(summary.length > 6){
+                embed.fields.push({
+                    name: `${summary.length - 6} more item${summary.length == 7 ? '' : 's'}…`,
+                    value: "⠀",
+                    inline: true
+                }, {
+                    name: "⠀",
+                    value: "⠀",
+                    inline: true
+                }, {
+                    name: "⠀",
+                    value: "⠀",
+                    inline: true
+                });
+            }
 
             embed.fields.push({
                 name: "Summary",
