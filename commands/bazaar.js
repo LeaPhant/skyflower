@@ -138,7 +138,7 @@ module.exports = {
 
             if(summary.length > 1){
                 embed.fields.push({
-                    name: resultMatch.name,
+                    name: `${resultMatch.name}⠀`,
                     value: "⠀",
                     inline: true
                 });
