@@ -165,8 +165,27 @@ module.exports = {
 
             if(amount || amount == 0){
                 if(coinsMode){
+                    let buyText = "";
+                    let sellText = "";
+
                     const itemsBuy = Math.floor(amount / bazaarProduct.buyPrice);
                     const itemsSell = Math.ceil(amount / bazaarProduct.sellPrice);
+
+                    buyText += `Buy ${itemsBuy.toLocaleString()}`;
+                    sellText += `Sell ${itemsSell.toLocaleString()}`;
+
+                    let buyStacks = `${ Math.round(itemsBuy / 64) } × 64`;
+                    let sellStacks = `${ Math.round(itemsSell / 64) } × 64`;
+
+                    if(itemsBuy >= 128 && itemsSell >= 128){
+                        buyText += ` (${buyStacks})`;
+                        sellText += ` (${sellStacks})`;
+                    }
+
+                    if(itemsBuy >= 1280 && itemsSell >= 1280){
+                        buyText = buyStacks;
+                        sellText = sellStacks;
+                    }
 
                     totalBuy += itemsBuy * bazaarProduct.buyPrice;
                     totalSell += itemsSell * bazaarProduct.sellPrice;
@@ -174,11 +193,11 @@ module.exports = {
                     if(index < 6){
                         embed.fields.push({
                             name: `Spend ${formatNumber(amount, false, 10)}`,
-                            value: `Buy ${itemsBuy.toLocaleString()}`,
+                            value: buyText,
                             inline: true
                         }, {
                             name: `Earn ${formatNumber(amount, false, 10)}`,
-                            value: `Sell ${itemsSell.toLocaleString()}`,
+                            value: sellText,
                             inline: true
                         });
                     }
