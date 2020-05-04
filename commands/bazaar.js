@@ -17,16 +17,16 @@ module.exports = {
             result: `Returns Bazaar price for Enchanted Iron Ingot.`
         },
         {
-            run: "bazaar 5 sc3k",
-            result: `Returns Bazaar price for 5 Super Compactor 3000s.`
-        },
-        {
             run: "bazaar 10 stacks catas",
             result: `Returns Bazaar price for 10 stacks of Catalysts.`
         },
         {
             run: "bazaar 3 stacks estring + 3 stacks ebone",
             result: "Returns total summary for 3 stacks of Enchanted String and 3 stacks of Enchanted Bone"
+        },
+        {
+            run: "bazaar 50m summoning eye",
+            result: "Returns amount of summoning eyes you have to buy/sell to spend/earn 50 million coins"
         }
     ],
     call: async obj => {
@@ -53,11 +53,30 @@ module.exports = {
         let totalBuy = 0;
         let totalSell = 0;
 
+        let coinsMode = false;
+
         for(const [index, part] of summary.entries()){
             const argv_ = part.split(" ");
 
+            coinsMode = false;
+
             if(!isNaN(parseInt(argv_[0])))
-                amount = math.evaluate(argv_[0]);
+                amount = Math.ceil(math.evaluate(argv_[0]));
+
+            if(['k', 'm', 'b'].includes(argv_[0].charAt(argv_[0].length - 1).toLowerCase()) && !isNaN(parseFloat(argv_[0]))){
+                amount = parseFloat(argv_[0]);
+
+                switch(argv_[0].charAt(argv_[0].length - 1).toLowerCase()){
+                    case 'b':
+                        amount *= 1000;
+                    case 'm':
+                        amount *= 1000;
+                    case 'k':
+                        amount *= 1000;
+                }
+
+                coinsMode = true;
+            }
 
             if(amount !== undefined && argv_.length < 1)
                 return helper.commandHelp(module.exports.command);
@@ -145,37 +164,57 @@ module.exports = {
             }
 
             if(amount || amount == 0){
-                if(stacks){
-                    const name = amount > 1 ? `Buy ${amount.toLocaleString()} × 64` : `Buy 64`;
+                if(coinsMode){
+                    const itemsBuy = Math.floor(amount / bazaarProduct.buyPrice);
+                    const itemsSell = Math.ceil(amount / bazaarProduct.sellPrice);
 
-                    totalBuy += amount * 64 * bazaarProduct.buyPrice;
-                    totalSell += amount * 64 * bazaarProduct.sellPrice;
+                    totalBuy += itemsBuy * bazaarProduct.buyPrice;
+                    totalSell += itemsSell * bazaarProduct.sellPrice;
 
                     if(index < 6){
                         embed.fields.push({
-                            name: `Buy ${amount.toLocaleString()} × 64`,
-                            value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.buyPrice, false, 100),
+                            name: `Spend ${formatNumber(amount, false, 10)}`,
+                            value: `Buy ${itemsBuy.toLocaleString()}`,
                             inline: true
                         }, {
-                            name: `Sell ${amount.toLocaleString()} × 64`,
-                            value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.sellPrice, false, 100),
+                            name: `Earn ${formatNumber(amount, false, 10)}`,
+                            value: `Sell ${itemsSell.toLocaleString()}`,
                             inline: true
                         });
                     }
                 }else{
-                    totalBuy += amount * bazaarProduct.buyPrice;
-                    totalSell += amount * bazaarProduct.sellPrice;
+                    if(stacks){
+                        const name = amount > 1 ? `Buy ${amount.toLocaleString()} × 64` : `Buy 64`;
 
-                    if(index < 6){
-                        embed.fields.push({
-                            name: `Buy ${amount.toLocaleString()}`,
-                            value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.buyPrice, false, 100),
-                            inline: true
-                        }, {
-                            name: `Sell ${amount.toLocaleString()}`,
-                            value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.sellPrice, false, 100),
-                            inline: true
-                        });
+                        totalBuy += amount * 64 * bazaarProduct.buyPrice;
+                        totalSell += amount * 64 * bazaarProduct.sellPrice;
+
+                        if(index < 6){
+                            embed.fields.push({
+                                name: `Buy ${amount.toLocaleString()} × 64`,
+                                value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.buyPrice, false, 100),
+                                inline: true
+                            }, {
+                                name: `Sell ${amount.toLocaleString()} × 64`,
+                                value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.sellPrice, false, 100),
+                                inline: true
+                            });
+                        }
+                    }else{
+                        totalBuy += amount * bazaarProduct.buyPrice;
+                        totalSell += amount * bazaarProduct.sellPrice;
+
+                        if(index < 6){
+                            embed.fields.push({
+                                name: `Buy ${amount.toLocaleString()}`,
+                                value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.buyPrice, false, 100),
+                                inline: true
+                            }, {
+                                name: `Sell ${amount.toLocaleString()}`,
+                                value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.sellPrice, false, 100),
+                                inline: true
+                            });
+                        }
                     }
                 }
             }else{
@@ -227,11 +266,11 @@ module.exports = {
                 value: "⠀",
                 inline: true
             }, {
-                name: "Buy Total",
+                name: coinsMode ? "Spend Total" : "Buy Total",
                 value: formatNumber(totalBuy, false, 100),
                 inline: true
             }, {
-                name: "Sell Total",
+                name: coinsMode ? "Earn Total" : "Sell Total",
                 value: formatNumber(totalSell, false, 100),
                 inline: true
             });
