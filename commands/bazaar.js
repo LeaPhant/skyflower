@@ -60,9 +60,6 @@ module.exports = {
 
             coinsMode = false;
 
-            if(!isNaN(parseInt(argv_[0])))
-                amount = Math.ceil(math.evaluate(argv_[0]));
-
             if(['k', 'm', 'b'].includes(argv_[0].charAt(argv_[0].length - 1).toLowerCase()) && !isNaN(parseFloat(argv_[0]))){
                 amount = parseFloat(argv_[0]);
 
@@ -76,6 +73,8 @@ module.exports = {
                 }
 
                 coinsMode = true;
+            }else if(!isNaN(parseInt(argv_[0]))){
+                amount = Math.ceil(math.evaluate(argv_[0]));
             }
 
             if(amount !== undefined && argv_.length < 1)
@@ -174,8 +173,8 @@ module.exports = {
                     buyText += `Buy ${itemsBuy.toLocaleString()}`;
                     sellText += `Sell ${itemsSell.toLocaleString()}`;
 
-                    let buyStacks = `${ Math.round(itemsBuy / 64) } × 64`;
-                    let sellStacks = `${ Math.round(itemsSell / 64) } × 64`;
+                    let buyStacks = `${ Math.round(itemsBuy / 64).toLocaleString() } × 64`;
+                    let sellStacks = `${ Math.round(itemsSell / 64).toLocaleString() } × 64`;
 
                     if(itemsBuy >= 128 && itemsSell >= 128){
                         buyText += ` (${buyStacks})`;
