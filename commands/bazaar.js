@@ -32,7 +32,6 @@ module.exports = {
     call: async obj => {
         const { argv, db } = obj;
 
-        let amount;
         let stacks = false;
         let item;
         let itemSearch = "";
@@ -58,6 +57,7 @@ module.exports = {
         for(const [index, part] of summary.entries()){
             const argv_ = part.split(" ");
 
+            let amount;
             coinsMode = false;
 
             if(['k', 'm', 'b'].includes(argv_[0].charAt(argv_[0].length - 1).toLowerCase()) && !isNaN(parseFloat(argv_[0]))){
@@ -74,7 +74,7 @@ module.exports = {
 
                 coinsMode = true;
             }else if(!isNaN(parseInt(argv_[0]))){
-                amount = Math.ceil(math.evaluate(argv_[0]));
+                amount = Math.ceil(math.evaluate(argv_[0].replace(/x/g, '*')));
             }
 
             if(amount !== undefined && argv_.length < 1)
