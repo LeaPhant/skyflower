@@ -1,6 +1,6 @@
 async function main(){
 	if(require('semver').lt(process.version, '12.0.0'))
-		throw "skybot only runs on Node.js 10 or higher";
+		throw "skybot only runs on Node.js 12 or higher";
 
 	const Discord = require('discord.js');
 	const fs = require('fs-extra');
