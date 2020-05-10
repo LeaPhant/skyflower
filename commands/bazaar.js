@@ -254,6 +254,7 @@ module.exports = {
 
             if(summary.length == 1){
                 embed.title = resultMatch.name,
+                embed.url = `https://bzr.sh/product/${bazaarProduct.name.toLowerCase().replace(/\ /g, '_')}`
                 embed.thumbnail = {
                     url: `https://sky.lea.moe/item/${resultMatch.id}`
                 }
