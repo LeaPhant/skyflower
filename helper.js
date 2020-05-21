@@ -2,6 +2,7 @@ const moment = require('moment');
 const fs = require('fs-extra');
 const path = require('path');
 const axios = require('axios');
+const distance = require('jaro-winkler');
 
 const config = require('./config.json');
 
@@ -53,6 +54,57 @@ module.exports = {
             return (Math.floor(number / 1000 / 1000 / 1000 * rounding * 10) / (rounding * 10)).toFixed(rounding.toString().length) + 'B';
         else
             return (Math.ceil(number / 1000 / 1000 / 1000 * rounding * 10) / (rounding * 10)).toFixed(rounding.toString().length) + 'B';
+    },
+
+    searchItem: async (query, db, bazaar = false) => {
+        let resultMatch;
+
+        const dbQuery = { bazaar };
+
+        if(!bazaar)
+            dbQuery["$text"] = { "$search": query };
+
+        let itemResults = await db
+        .collection('items')
+        .find(dbQuery)
+        .toArray();
+
+        if(itemResults.length == 0)
+            throw "No matching item found.";
+
+        for(const result of itemResults){
+            if(result.name.toLowerCase() == query)
+                resultMatch = result;
+
+            if('tag' in result)
+                result.tag = result.tag.split(" ");
+            else
+                result.tag = [];
+
+            result.tag.push(...result.name.toLowerCase().split(" "));
+
+            result.tagMatches = 0;
+
+            result.distance = distance(result.name, query, { caseSensitive: false });
+
+            for(const part of query.split(" "))
+                for(const tag of result.tag)
+                    if(tag == part)
+                        result.tagMatches++;
+        }
+
+        itemResults = itemResults.sort((a, b) => {
+            if(a.tagMatches > b.tagMatches) return -1;
+            if(a.tagMatches < b.tagMatches) return 1;
+
+            if(a.distance > b.distance) return -1;
+            if(a.distance < b.distance) return 1;
+        });
+
+        if(!resultMatch)
+            resultMatch = itemResults[0];
+
+        return resultMatch;
     },
 
     commandHelp: commandName => {

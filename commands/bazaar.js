@@ -1,8 +1,8 @@
-const { formatNumber } = require('../helper.js');
+const helper = require('../helper');
+const { formatNumber } = helper;
 const config = require('../config.json');
 const axios = require('axios');
 const math = require('mathjs');
-const Levenshtein = require('levenshtein');
 
 module.exports = {
     command: ['bazaar', 'bazzar', 'baz', 'b'],
@@ -98,57 +98,12 @@ module.exports = {
 
             itemSearch = itemSearch.join(" ").toLowerCase();
 
-            let itemResults = await db
-            .collection('items')
-            .find({ bazaar: true, $text: { $search: itemSearch }})
-            .toArray();
-
-            if(itemResults.length == 0)
-                throw "No matching item found.";
-
-            let resultMatch;
-
-            for(const result of itemResults){
-                if(result.name.toLowerCase() == itemSearch)
-                    resultMatch = result;
-
-                if('tag' in result)
-                    result.tag = result.tag.split(" ");
-                else
-                    result.tag = [];
-
-                result.tag.push(...result.name.toLowerCase().split(" "));
-
-                result.tagMatches = 0;
-
-                const l = new Levenshtein(result.name, itemSearch);
-
-                result.distance = l.distance;
-
-                for(const part of itemSearch.split(" "))
-                    for(const tag of result.tag)
-                        if(tag == part)
-                            result.tagMatches++;
-            }
-
-            itemResults = itemResults.sort((a, b) => {
-                if(a.tagMatches > b.tagMatches) return -1;
-    	        if(a.tagMatches < b.tagMatches) return 1;
-
-                if(a.distance < b.distance) return -1;
-                if(a.distance > b.distance) return 1;
-            });
-
-            if(!resultMatch)
-                resultMatch = itemResults[0];
+            const resultMatch = await helper.searchItem(itemSearch, db, true);
 
             const bazaarResponse = await axios('https://sky.lea.moe/api/bazaar');
             const products = bazaarResponse.data;
 
             const matchProducts = products.filter(a => a.id == resultMatch.id);
-
-            if(matchProducts.length == 0)
-                throw "No matching item found.";
 
             const bazaarProduct = matchProducts[0];
 
