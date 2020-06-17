@@ -1,6 +1,6 @@
 const autovoteChannels = [
     "polls",
-    "suggestions"
+    "site-suggestions"
 ];
 
 module.exports = {
