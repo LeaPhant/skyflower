@@ -190,7 +190,7 @@ module.exports = {
 
             skillEmbed.fields = [];
 
-            if(skill.maxLevel == 50){
+            if(skill.level < skill.maxLevel && skill.maxLevel == 50){
                 skillEmbed.description += '\n\nXP left to reach...';
 
                 const levelKeys = _.keys(
