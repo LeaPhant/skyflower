@@ -290,7 +290,7 @@ async function main(){
 	client.on('message', onMessage);
 
 	client.on('ready', () => {
-		helper.log('flowabot is ready');
+		helper.log('skybot is ready');
 
 		if(config.credentials.discord_client_id)
 			helper.log(
