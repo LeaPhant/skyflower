@@ -4,6 +4,9 @@ const path = require('path');
 const axios = require('axios');
 const distance = require('jaro-winkler');
 
+const LocalStorage = require('node-localstorage').LocalStorage;
+const localStorage = new LocalStorage('./scratch');
+
 const config = require('./config.json');
 
 const sep = ' ✦ ';
@@ -26,6 +29,14 @@ module.exports = {
 
     error: (...params) => {
         console.error(`[${moment().toISOString()}]`, ...params);
+    },
+
+    setItem: (item, data) => {
+        localStorage.setItem(item, data);
+    },
+
+    getItem: item => {
+        return localStorage.getItem(item);
     },
 
     formatNumber: (number, floor, rounding = 10) => {

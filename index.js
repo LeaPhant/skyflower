@@ -25,6 +25,14 @@ async function main(){
 
 	const config = require('./config.json');
 
+	let last_message = {}
+
+	if(helper.getItem('last_message')){
+		last_message = JSON.parse(helper.getItem('last_message'));
+	}else{
+		helper.setItem('last_message', JSON.stringify(last_message));
+	}
+
 	function checkCommand(msg, command){
 	    if(!msg.content.startsWith(config.prefix))
 	        return false;
@@ -192,6 +200,7 @@ async function main(){
 	            if(command.call && typeof command.call === 'function'){
 	                const promise = command.call({
 	                    msg,
+						last_message,
 	                    argv,
 	                    client,
 						db
@@ -280,6 +289,7 @@ async function main(){
 	        if(handler.message && typeof handler.message === 'function'){
 	            handler.message({
 	                msg,
+					last_message,
 	                argv,
 	                client
 	            });
