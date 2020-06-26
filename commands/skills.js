@@ -167,7 +167,7 @@ module.exports = {
             if(skill.level == skill.maxLevel)
                 field['value'] = `**${helper.formatNumber(skill.xpCurrent, true)}** XP`;
             else
-                field['value'] = `**${helper.formatNumber(skill.xpCurrent, true)}** / ${helper.formatNumber(skill.xpForNext, false, 1)} XP`;
+                field['value'] = `**${helper.formatNumber(skill.xpCurrent, true)}** / ${helper.formatNumber(skill.xpForNext, false)} XP`;
 
             field['value'] += ` (**${helper.formatNumber(skill.xp, true)}**)`
 
