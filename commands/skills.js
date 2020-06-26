@@ -227,6 +227,10 @@ module.exports = {
             message.edit({ embed: skillEmbed(profile, skillName, embed) });
         });
 
+        collector.on('end', () => {
+            message.reactions.removeAll();
+        });
+
         return null;
     }
 };
