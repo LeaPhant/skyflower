@@ -68,9 +68,12 @@ const skillEmbed = (profile, skillName, embed) => {
     if(skill.level < skill.maxLevel && skill.maxLevel == 50){
         output.description += '\n\nXP left to reach...';
 
-        const levelKeys = _.keys(
+        let levelKeys = _.keys(
             _.pickBy(xpMax, (value, key) => new Number(key) > skill.level)
         ).sort((a, b) => a - b);
+
+        if(levelKeys.length > 3)
+            levelKeys = [...levelKeys.slice(0, 2), levelKeys.pop()];
 
         for(const key of levelKeys)
             output.fields.push({
