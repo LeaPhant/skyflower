@@ -31,9 +31,9 @@ module.exports = {
     formatNumber: (number, floor, rounding = 10) => {
         if(number < 1000)
             if(floor)
-                return (Math.floor(number * rounding) / rounding).toFixed(rounding.toString().length - 2)
+                return (Math.floor(number * rounding) / rounding).toFixed(Math.max(0, rounding.toString().length - 2))
             else
-                return (Math.ceil(number * rounding) / rounding).toFixed(rounding.toString().length - 2)
+                return (Math.ceil(number * rounding) / rounding).toFixed(Math.max(0, rounding.toString().length - 2))
         else if(number < 10000)
             if(floor)
                 return (Math.floor(number / 1000 * rounding) / rounding).toFixed(rounding.toString().length - 1) + 'K';
@@ -197,10 +197,10 @@ module.exports = {
         let emote;
 
         if(guild)
-            emote = guild.emojis.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
+            emote = guild.emojis.cache.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
 
         if(!emote)
-            emote = client.emojis.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
+            emote = client.emojis.cache.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
 
         return emote;
     },
@@ -226,6 +226,19 @@ module.exports = {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min)) + min;
+    },
+
+    capitalizeFirstLetter: word => {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+    },
+
+    titleCase: string => {
+       let split = string.toLowerCase().split(' ');
+
+       for(let i = 0; i < split.length; i++)
+            split[i] = split[i].charAt(0).toUpperCase() + split[i].substring(1);
+
+        return split.join(' ');
     },
 
     simplifyUsername: username => {
