@@ -100,7 +100,7 @@ module.exports = {
 
             const resultMatch = await helper.searchItem(itemSearch, db, true);
 
-            const bazaarResponse = await axios('https://sky.lea.moe/api/bazaar');
+            const bazaarResponse = await axios(`${config.sky_api_base}/api/bazaar`);
             const products = bazaarResponse.data;
 
             const matchProducts = products.filter(a => a.id == resultMatch.id);
