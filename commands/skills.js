@@ -17,6 +17,10 @@ const xpMaxRunecrafting = {
     25: 94450
 };
 
+const skillsSorted = [
+    "taming", "farming", "mining", "combat", "foraging", "fishing", "enchanting", "alchemy", "carpentry", "runecrafting"
+];
+
 const statModifier = (value, stat) => {
     let suffix = '';
 
@@ -34,6 +38,51 @@ const statModifier = (value, stat) => {
     return value + suffix;
 };
 
+const skillEmbed = (profile, skillName, embed) => {
+    const output = JSON.parse(JSON.stringify(embed));
+
+    const skill = profile.data.levels[skillName];
+    const name = helper.capitalizeFirstLetter(skillName);
+
+    output.author.name = `${profile.data.display_name}'s ${name} Skill (${profile.cute_name})`;
+    output.footer.text = 'sky.lea.moe';
+
+    const xpMaxRequired = skillName == 'runecrafting' ? xpMaxRunecrafting[skill.maxLevel] : xpMax[skill.maxLevel];
+    const progress = Math.floor(skill.xp / xpMaxRequired * 100);
+
+    output.description =
+      `Level: **${skill.level}** / ${skill.maxLevel}\n`
+    + `XP: **${Math.floor(skill.xp).toLocaleString()}** / ${xpMaxRequired.toLocaleString()} (**${progress}%**)\n`;
+
+    const skillBonus = profile.data.skill_bonus[skillName];
+    const bonusKeys = _.pickBy(skillBonus, value => value > 0);
+
+    if(_.keys(bonusKeys).length > 0)
+        output.description += '\nBonus:';
+
+    for(const key in bonusKeys)
+        output.description += `\n**+${statModifier(skillBonus[key], key)}** ${helper.titleCase(key.replace(/\_/g, ' '))}`
+
+    output.fields = [];
+
+    if(skill.level < skill.maxLevel && skill.maxLevel == 50){
+        output.description += '\n\nXP left to reach...';
+
+        const levelKeys = _.keys(
+            _.pickBy(xpMax, (value, key) => new Number(key) > skill.level)
+        ).sort((a, b) => a - b);
+
+        for(const key of levelKeys)
+            output.fields.push({
+                inline: true,
+                name: `Level ${key}`,
+                value: `${Math.round(xpMax[key] - skill.xp).toLocaleString()} XP`
+            });
+    }
+
+    return output;
+};
+
 module.exports = {
     command: ['skills', 's'],
     argsRequired: 1,
@@ -46,7 +95,7 @@ module.exports = {
             result: "Returns skills for LeaPhant."
         }
     ],
-    usage: '<username> [profile name]',
+    usage: '<username> [profile name] [skill name]',
     call: async obj => {
         const { argv, client, msg, db } = obj;
 
@@ -64,11 +113,21 @@ module.exports = {
         const { data } = response;
 
         let profile = data.profiles[_.findKey(data.profiles, a => a.current)];
+        let customProfile;
+        let customSkill;
 
-        if(argv.length > 2)
+        if(argv.length > 2 && !skillsSorted.includes(argv[2].toLowerCase())){
+            customProfile = argv[2].toLowerCase();
+
+            if(argv.length > 3 && skillsSorted.includes(argv[3].toLowerCase()))
+                customSkill = argv[3].toLowerCase();
+
             for(const key in data.profiles)
-                if(data.profiles[key].cute_name.toLowerCase() == argv[2].toLowerCase())
+                if(data.profiles[key].cute_name.toLowerCase() == customProfile)
                     profile = data.profiles[key];
+        }else if(argv.length > 2 && skillsSorted.includes(argv[2].toLowerCase())){
+            customSkill = argv[2].toLowerCase();
+        }
 
         const embed = {
             url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
@@ -88,10 +147,6 @@ module.exports = {
               + `Average Skill Level: **${(Math.floor(profile.data.average_level * 100) / 100).toFixed(2)}** (w/o progress: **${(Math.floor(profile.data.average_level_no_progress * 100) / 100).toFixed(2)}**)`,
             fields: []
         };
-
-        const skillsSorted = [
-            "taming", "farming", "mining", "combat", "foraging", "fishing", "enchanting", "alchemy", "carpentry", "runecrafting"
-        ];
 
         const reactions = [];
 
@@ -126,9 +181,16 @@ module.exports = {
             reactions.push(skillEmote);
         }
 
-        const message = await msg.channel.send({
-            embed
-        });
+        let currentSkill = null;
+        let message;
+
+        if(customSkill){
+            currentSkill = customSkill;
+
+            message = await msg.channel.send({ embed: skillEmbed(profile, customSkill, embed) });
+        }else{
+            message = await msg.channel.send({ embed });
+        }
 
         message.react('⬅️');
 
@@ -138,8 +200,6 @@ module.exports = {
             (reaction, user) => user.bot === false,
             { idle: 120 * 1000 }
         );
-
-        let currentSkill = null;
 
         collector.on('collect', async (reaction, user) => {
             reaction.users.remove(user.id).catch(console.error);
@@ -164,48 +224,7 @@ module.exports = {
 
             currentSkill = skillName;
 
-            const skillEmbed = JSON.parse(JSON.stringify(embed));
-
-            const skill = profile.data.levels[skillName];
-            const name = helper.capitalizeFirstLetter(skillName);
-
-            skillEmbed.author.name = `${profile.data.display_name}'s ${name} Skill`;
-            skillEmbed.footer.text = 'sky.lea.moe';
-
-            const xpMaxRequired = skillName == 'runecrafting' ? xpMaxRunecrafting[skill.maxLevel] : xpMax[skill.maxLevel];
-            const progress = Math.floor(skill.xp / xpMaxRequired * 100);
-
-            skillEmbed.description =
-              `Level: **${skill.level}** / ${skill.maxLevel}\n`
-            + `XP: **${Math.floor(skill.xp).toLocaleString()}** / ${xpMaxRequired.toLocaleString()} (**${progress}%**)\n`;
-
-            const skillBonus = profile.data.skill_bonus[skillName];
-            const bonusKeys = _.pickBy(skillBonus, value => value > 0);
-
-            if(_.keys(bonusKeys).length > 0)
-                skillEmbed.description += '\nBonus:';
-
-            for(const key in bonusKeys)
-                skillEmbed.description += `\n**+${statModifier(skillBonus[key], key)}** ${helper.titleCase(key.replace(/\_/g, ' '))}`
-
-            skillEmbed.fields = [];
-
-            if(skill.level < skill.maxLevel && skill.maxLevel == 50){
-                skillEmbed.description += '\n\nXP left to reach...';
-
-                const levelKeys = _.keys(
-                    _.pickBy(xpMax, (value, key) => new Number(key) > skill.level)
-                ).sort((a, b) => a - b);
-
-                for(const key of levelKeys)
-                    skillEmbed.fields.push({
-                        inline: true,
-                        name: `Level ${key}`,
-                        value: `${Math.round(xpMax[key] - skill.xp).toLocaleString()} XP`
-                    });
-            }
-
-            message.edit({ embed: skillEmbed });
+            message.edit({ embed: skillEmbed(profile, skillName, embed) });
         });
 
         return null;
