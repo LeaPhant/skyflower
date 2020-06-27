@@ -78,13 +78,6 @@ module.exports = {
             if(product.name.toLowerCase() == query)
                 resultMatch = product;
 
-            if(product.tag != null)
-                product.tag = product.tag.split(" ");
-            else
-                product.tag = [];
-
-            product.tag.push(...product.name.toLowerCase().split(" "));
-
             product.tagMatches = 0;
 
             product.distance = distance(product.name, query, { caseSensitive: false });

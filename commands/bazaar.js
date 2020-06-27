@@ -10,6 +10,18 @@ const updateProducts = async function(){
     const bazaarResponse = await axios(`${config.sky_api_base}/api/v2/bazaar`);
 
     products = bazaarResponse.data;
+
+    for(const productId in products){
+        const product = products[productId];
+
+        if(product.tag != null)
+            product.tag = product.tag.split(" ");
+        else
+            product.tag = [];
+
+        product.tag.push(...product.name.toLowerCase().split(" "));
+    }
+
 }
 
 updateProducts();
