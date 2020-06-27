@@ -4,6 +4,17 @@ const config = require('../config.json');
 const axios = require('axios');
 const math = require('mathjs');
 
+let products = {};
+
+const updateProducts = async function(){
+    const bazaarResponse = await axios(`${config.sky_api_base}/api/v2/bazaar`);
+
+    products = bazaarResponse.data;
+}
+
+updateProducts();
+setInterval(updateProducts, 60 * 1000);
+
 module.exports = {
     command: ['bazaar', 'bazzar', 'baz', 'b'],
     argsRequired: 1,
@@ -32,7 +43,6 @@ module.exports = {
     call: async obj => {
         const { argv, db } = obj;
 
-        let stacks = false;
         let item;
         let itemSearch = "";
 
@@ -44,9 +54,9 @@ module.exports = {
             color: 11809405,
             fields: [],
             footer: {
-                icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/704802034217648188/8efff00435c84dab9d0c2efd41e1f0b6.png",
-                text: "Bazaar – prices update every minute"
-            }
+                icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
+                text: `sky.lea.moe – !bazaar [amount] <item>`
+            },
         };
 
         let totalBuy = 0;
@@ -54,7 +64,11 @@ module.exports = {
 
         let coinsMode = false;
 
+        const bazaarResponse = await axios(`${config.sky_api_base}/api/v2/bazaar`);
+
         for(const [index, part] of summary.entries()){
+            let stacks = false;
+
             const argv_ = part.split(" ");
 
             let amount;
@@ -98,20 +112,13 @@ module.exports = {
 
             itemSearch = itemSearch.join(" ").toLowerCase();
 
-            const resultMatch = await helper.searchItem(itemSearch, db, true);
-
-            const bazaarResponse = await axios(`${config.sky_api_base}/api/bazaar`);
-            const products = bazaarResponse.data;
-
-            const matchProducts = products.filter(a => a.id == resultMatch.id);
-
-            const bazaarProduct = matchProducts[0];
+            const bazaarProduct = helper.getBazaarProduct(itemSearch, products);
 
             let itemName = "";
 
             if(summary.length > 1 && index < 6){
                 embed.fields.push({
-                    name: `${resultMatch.name}⠀`,
+                    name: `${bazaarProduct.name}⠀`,
                     value: "⠀",
                     inline: true
                 });
@@ -208,10 +215,10 @@ module.exports = {
             }
 
             if(summary.length == 1){
-                embed.title = resultMatch.name,
+                embed.title = bazaarProduct.name,
                 embed.url = `https://bazaartracker.com/product/${bazaarProduct.name.toLowerCase().replace(/\ /g, '_')}`
                 embed.thumbnail = {
-                    url: `https://sky.lea.moe/item/${resultMatch.id}`
+                    url: `https://sky.lea.moe/item/${bazaarProduct.id}`
                 }
             }
         }

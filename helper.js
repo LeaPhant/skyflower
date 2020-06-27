@@ -67,41 +67,32 @@ module.exports = {
             return (Math.ceil(number / 1000 / 1000 / 1000 * rounding * 10) / (rounding * 10)).toFixed(rounding.toString().length) + 'B';
     },
 
-    searchItem: async (query, db, bazaar = false) => {
+    getBazaarProduct: (query, products) => {
         let resultMatch;
+        let itemResults = [];
 
-        const dbQuery = { bazaar };
+        for(const key in products)
+            itemResults.push({...products[key]});
 
-        if(!bazaar)
-            dbQuery["$text"] = { "$search": query };
+        for(const product of itemResults){
+            if(product.name.toLowerCase() == query)
+                resultMatch = product;
 
-        let itemResults = await db
-        .collection('items')
-        .find(dbQuery)
-        .toArray();
-
-        if(itemResults.length == 0)
-            throw "No matching item found.";
-
-        for(const result of itemResults){
-            if(result.name.toLowerCase() == query)
-                resultMatch = result;
-
-            if('tag' in result)
-                result.tag = result.tag.split(" ");
+            if(product.tag != null)
+                product.tag = product.tag.split(" ");
             else
-                result.tag = [];
+                product.tag = [];
 
-            result.tag.push(...result.name.toLowerCase().split(" "));
+            product.tag.push(...product.name.toLowerCase().split(" "));
 
-            result.tagMatches = 0;
+            product.tagMatches = 0;
 
-            result.distance = distance(result.name, query, { caseSensitive: false });
+            product.distance = distance(product.name, query, { caseSensitive: false });
 
             for(const part of query.split(" "))
-                for(const tag of result.tag)
+                for(const tag of product.tag)
                     if(tag == part)
-                        result.tagMatches++;
+                        product.tagMatches++;
         }
 
         itemResults = itemResults.sort((a, b) => {
