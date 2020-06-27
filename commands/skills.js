@@ -81,7 +81,7 @@ const skillEmbed = (profile, skillName, embed) => {
             output.fields.push({
                 inline: true,
                 name: `Level ${key}`,
-                value: `${Math.round(xpMax[key] - skill.xp).toLocaleString()} XP`
+                value: `**${Math.round(xpMax[key] - skill.xp).toLocaleString()}** XP`
             });
     }
 
