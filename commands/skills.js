@@ -47,11 +47,14 @@ const skillEmbed = (profile, skillName, embed) => {
     output.author.name = `${profile.data.display_name}'s ${name} Skill (${profile.cute_name})`;
 
     const xpMaxRequired = skillName == 'runecrafting' ? xpMaxRunecrafting[skill.maxLevel] : xpMax[skill.maxLevel];
+
+    const currentProgress = Math.floor(skill.xpCurrent / skill.xpForNext * 100);
     const progress = Math.floor(skill.xp / xpMaxRequired * 100);
 
     output.description =
       `Level: **${skill.level}** / ${skill.maxLevel}\n`
-    + `XP: **${Math.floor(skill.xp).toLocaleString()}** / ${xpMaxRequired.toLocaleString()} (**${progress}%**)\n`;
+    + `Current XP: **${Math.floor(skill.xpCurrent).toLocaleString()}** / ${skill.xpForNext.toLocaleString()} (**${currentProgress}%**)\n`
+    + `Total XP: **${Math.floor(skill.xp).toLocaleString()}** / ${xpMaxRequired.toLocaleString()} (**${progress}%**)\n`;
 
     const skillBonus = profile.data.skill_bonus[skillName];
     const bonusKeys = _.pickBy(skillBonus, value => value > 0);
