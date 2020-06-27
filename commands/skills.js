@@ -45,7 +45,6 @@ const skillEmbed = (profile, skillName, embed) => {
     const name = helper.capitalizeFirstLetter(skillName);
 
     output.author.name = `${profile.data.display_name}'s ${name} Skill (${profile.cute_name})`;
-    output.footer.text = 'sky.lea.moe';
 
     const xpMaxRequired = skillName == 'runecrafting' ? xpMaxRunecrafting[skill.maxLevel] : xpMax[skill.maxLevel];
     const progress = Math.floor(skill.xp / xpMaxRequired * 100);
@@ -143,7 +142,7 @@ module.exports = {
             },
             footer: {
                 icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-                text: `sky.lea.moe – Total XP in parentheses`
+                text: `sky.lea.moe – !skills <user> [profile] [skill]`
             },
             description:
                 `Total Skill XP: **${helper.formatNumber(profile.data.total_skill_xp)}**\n`
@@ -168,9 +167,9 @@ module.exports = {
             };
 
             if(skill.level == skill.maxLevel)
-                field['value'] = `**${helper.formatNumber(skill.xpCurrent, true)}** XP`;
+                field['value'] = `**${skill.xpForNext === 0 ? '–' : helper.formatNumber(skill.xpCurrent, true)}** XP`;
             else
-                field['value'] = `**${helper.formatNumber(skill.xpCurrent, true)}** / ${helper.formatNumber(skill.xpForNext, false)} XP`;
+                field['value'] = `**${skill.xpForNext === 0 ? '–' : helper.formatNumber(skill.xpCurrent, true)}** / ${skill.xpForNext === 0 ? '–' : helper.formatNumber(skill.xpForNext, false)} XP`;
 
             field['value'] += ` (**${helper.formatNumber(skill.xp, true)}**)`
 
