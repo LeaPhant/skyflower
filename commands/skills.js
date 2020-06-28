@@ -51,7 +51,7 @@ const skillEmbed = (profile, skillName, embed) => {
     const currentProgress = Math.floor(skill.xpCurrent / skill.xpForNext * 100);
     const progress = Math.floor(skill.xp / xpMaxRequired * 100);
 
-    output.description = `Level: **${skill.level}** / ${skill.maxLevel}\n`;
+    output.description = `Level: **${skill.level}** / ${skill.maxLevel} (**#${skill.rank.toLocaleString()}**)\n`;
 
     if(skill.level == skill.maxLevel)
         output.description += `Current XP: **${Math.floor(skill.xpCurrent).toLocaleString()}**`;
@@ -170,7 +170,7 @@ module.exports = {
 
             const field = {
                 inline: true,
-                name: `${skillEmote.toString()} ${name} ${skill.level}${skill.level == skill.maxLevel ? '⁽ᵐᵃˣ⁾' : ''}`
+                name: `${skillEmote.toString()} ${name} **${skill.level}** (#${helper.formatNumber(skill.rank)})`
             };
 
             if(skill.level == skill.maxLevel)
