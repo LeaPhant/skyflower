@@ -51,10 +51,14 @@ const skillEmbed = (profile, skillName, embed) => {
     const currentProgress = Math.floor(skill.xpCurrent / skill.xpForNext * 100);
     const progress = Math.floor(skill.xp / xpMaxRequired * 100);
 
-    output.description =
-      `Level: **${skill.level}** / ${skill.maxLevel}\n`
-    + `Current XP: **${Math.floor(skill.xpCurrent).toLocaleString()}** / ${skill.xpForNext.toLocaleString()} (**${currentProgress}%**)\n`
-    + `Total XP: **${Math.floor(skill.xp).toLocaleString()}** / ${xpMaxRequired.toLocaleString()} (**${progress}%**)\n`;
+    output.description = `Level: **${skill.level}** / ${skill.maxLevel}\n`;
+
+    if(skill.level == skill.maxLevel)
+        output.description += `Current XP: **${Math.floor(skill.xpCurrent).toLocaleString()}**`;
+    else
+        output.description += `Current XP: **${Math.floor(skill.xpCurrent).toLocaleString()}** / ${skill.xpForNext.toLocaleString()} (**${currentProgress}%**)\n`;
+
+    output.description += `\nTotal XP: **${Math.floor(skill.xp).toLocaleString()}** / ${xpMaxRequired.toLocaleString()} (**${progress}%**)\n`;
 
     const skillBonus = profile.data.skill_bonus[skillName];
     const bonusKeys = _.pickBy(skillBonus, value => value > 0);
