@@ -153,7 +153,7 @@ module.exports = {
             },
             description:
                 `Total Skill XP: **${helper.formatNumber(profile.data.total_skill_xp)}**\n`
-              + `Average Skill Level: **${(Math.floor(profile.data.average_level * 100) / 100).toFixed(2)}** (w/o progress: **${(Math.floor(profile.data.average_level_no_progress * 100) / 100).toFixed(2)}**)`,
+              + `Average Skill Level: **${(Math.floor(profile.data.average_level * 100) / 100).toFixed(2)}** (**${(Math.floor(profile.data.average_level_no_progress * 100) / 100).toFixed(2)}**) (**#${helper.formatNumber(profile.data.average_level_rank)}**)`,
             fields: []
         };
 
