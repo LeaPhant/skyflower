@@ -56,15 +56,32 @@ const skillEmbed = (profile, skillName, embed) => {
     if(skill.level == skill.maxLevel)
         output.description += `Current XP: **${Math.floor(skill.xpCurrent).toLocaleString()}**`;
     else
-        output.description += `Current XP: **${Math.floor(skill.xpCurrent).toLocaleString()}** / ${skill.xpForNext.toLocaleString()} (**${currentProgress}%**)\n`;
+        output.description += `Current XP: **${Math.floor(skill.xpCurrent).toLocaleString()}** / ${skill.xpForNext.toLocaleString()} (**${currentProgress}%**)`;
 
     output.description += `\nTotal XP: **${Math.floor(skill.xp).toLocaleString()}** / ${xpMaxRequired.toLocaleString()} (**${progress}%**)\n`;
+
+    switch(skillName){
+        case "combat":
+            output.description += `\nMinion Ghast Kills: **${(profile.raw.stats.kills_generator_ghast || 0).toLocaleString()}**`;
+            break;
+        case "fishing":
+            output.description += `\nItems fished: **${(profile.raw.stats.items_fished || 0).toLocaleString()}**`;
+            break;
+        case "alchemy":
+            if('collection' in profile.raw)
+                output.description += `\nSugar Cane Collection: **${(profile.raw.collection.SUGAR_CANE || 0).toLocaleString()}**`;
+            break;
+        case "enchanting":
+            if('collection' in profile.raw)
+                output.description += `\nLapis Lazuli Collection: **${(profile.raw.collection['INK_SACK:4'] || 0).toLocaleString()}**`;
+            break;
+    }
 
     const skillBonus = profile.data.skill_bonus[skillName];
     const bonusKeys = _.pickBy(skillBonus, value => value > 0);
 
     if(_.keys(bonusKeys).length > 0)
-        output.description += '\nBonus:';
+        output.description += '\n\nBonus:';
 
     for(const key in bonusKeys)
         output.description += `\n**+${statModifier(skillBonus[key], key)}** ${helper.titleCase(key.replace(/\_/g, ' '))}`
