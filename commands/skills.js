@@ -125,15 +125,42 @@ module.exports = {
     call: async obj => {
         const { argv, client, msg, db } = obj;
 
+        const footer = {
+            icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
+            text: `sky.lea.moe – !skills <user> [profile] [skill]`
+        }
+
+        const message = await msg.channel.send({
+            embed : {
+                color: 11809405,
+                author: {
+                    name: `${argv[1]}'s Skills`
+                },
+                footer,
+                description: `Awaiting API response... ${helper.emote('beespin', null, client)}`
+            }
+        });
+
         let response;
 
         try{
             response = await axios.get(`${config.sky_api_base}/api/v2/profile/${argv[1]}`, { params: { key: config.credentials.sky_api_key }});
         }catch(e){
-            if(e.response != null && e.response.data != null && 'error' in e.response.data)
-                throw e.response.data.error;
+            let error = "Failed retrieving data from API.";
 
-            throw "Failed retrieving data from API.";
+            if(e.response != null && e.response.data != null && 'error' in e.response.data)
+                error = e.response.data.error;
+
+            await message.edit({
+                embed: {
+                    color: 0xf04a4a,
+                    author: {
+                        name: 'Error'
+                    },
+                    footer,
+                    description: error
+                }
+            });
         }
 
         const { data } = response;
@@ -164,10 +191,7 @@ module.exports = {
             thumbnail: {
                 url: `https://minotar.net/helm/${profile.data.uuid}/128`
             },
-            footer: {
-                icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-                text: `sky.lea.moe – !skills <user> [profile] [skill]`
-            },
+            footer,
             description:
                 `Total Skill XP: **${helper.formatNumber(profile.data.total_skill_xp)}**\n`
               + `Average Skill Level: **${(Math.floor(profile.data.average_level * 100) / 100).toFixed(2)}** (**${(Math.floor(profile.data.average_level_no_progress * 100) / 100).toFixed(2)}**) (**#${helper.formatNumber(profile.data.average_level_rank)}**)`,
@@ -208,14 +232,13 @@ module.exports = {
         }
 
         let currentSkill = null;
-        let message;
 
         if(customSkill){
             currentSkill = customSkill;
 
-            message = await msg.channel.send({ embed: skillEmbed(profile, customSkill, embed) });
+            await message.edit({ embed: skillEmbed(profile, customSkill, embed) });
         }else{
-            message = await msg.channel.send({ embed });
+            await message.edit({ embed });
         }
 
         reactions.unshift('⬅️');
