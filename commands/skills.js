@@ -218,7 +218,7 @@ module.exports = {
             message = await msg.channel.send({ embed });
         }
 
-        message.react('⬅️');
+        reactions.unshift('⬅️');
 
         reactions.map(a => message.react(a));
 
