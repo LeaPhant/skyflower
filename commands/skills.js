@@ -183,6 +183,7 @@ module.exports = {
         }
 
         const embed = {
+            color: 11809405,
             url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
             author: {
                 name: `${profile.data.display_name}'s Skills (${profile.cute_name})`,
