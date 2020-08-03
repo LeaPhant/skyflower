@@ -15,33 +15,21 @@ const rules = [
     },
     {
         rule: 3,
-        tags: ['hypixel', 'irl', 'scam', 'scams', 'scamming', 'skyblock'],
-        title: "Don't break Hypixel rules.",
-        content: "Participating in anything or discussing about anything that breaks Hypixel or SkyBlock rules isn't allowed. You can find the respective rules here: <https://hypixel.net/rules>, <https://hypixel.net/skyblock-rules>."
-    },
-    {
-        rule: 4,
         tags: ['english', 'language', 'lang'],
         title: "Try to mostly speak English.",
         content: "This is to ensure making the server as accessible as possible to everyone."
     },
     {
-        rule: 5,
+        rule: 4,
         tags: ['personal', 'doxx', 'doxxing'],
         title: "Don't leak personal info.",
         content: "Don't send personal stuff like full names, phone numbers, (e-mail) addresses and the like, **even if it's faked**. This applies to both other people's and your own info."
     },
     {
-        rule: 6,
+        rule: 5,
         tags: ['advertise', 'invites', 'ref'],
         title: "Don't advertise.",
         content: "Don't advertise other Discord servers or send ref links and similar spam. This rule applies to both the server and DMs with other server members."
-    },
-    {
-        rule: 7,
-        tags: ['trading'],
-        title: "No trading.",
-        content: "Don't advertise trades or auctions, it doesn't belong in here. This rule is more of a guideline and isn't enforced, however I'd appreciate if you used other servers or platforms to trade since I can't and don't wanna moderate trades in case of scams and similar stuff."
     }
 ];
 
