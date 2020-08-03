@@ -29,7 +29,6 @@ const statModifier = (value, stat) => {
             value = Math.floor(value * 100);
         case 'crit_chance':
         case 'crit_damage':
-        case 'damage_increase':
         case 'speed':
         case 'sea_creature_chance':
             suffix = '%';
