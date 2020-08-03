@@ -2,24 +2,21 @@ const helper = require('../helper.js');
 const config = require('../config.json');
 
 module.exports = {
-    command: 'help',
+    command: ['help', 'commands'],
     argsRequired: 0,
-    description: [
-        "Get help for a command.",
-        "",
-        "**List of all commands:** https://github.com/LeaPhant/skybot/blob/master/COMMANDS.md"
-    ],
-    usage: '<command>',
-    example: [
-        {
-            run: "help bazaar",
-            result: `Returns help on how to use the \`${config.prefix}bazaar\` command.`
-        }
-    ],
     call: obj => {
         const { argv } = obj;
 
-        return "You can't be helped.";
+        return { embed: {
+            color: 11809405,
+            title: "Commands for Robot Lea",
+            description:
+`\`!bazaar [amount] <item>\` – Get bazaar prices for an item.
+\`!skills <user> [profile] [skill]\` – Get skill levels of a player.
+\`!owoify [text]\` – owoify a text or the last message.
+\`!pack\` – Display info about the pack used on SkyLea.
+\`!rules [rule]\` – Show a specific server rule.`
+        }};
 
         //return helper.commandHelp(argv[1]);
     }
