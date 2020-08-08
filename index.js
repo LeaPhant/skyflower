@@ -304,7 +304,7 @@ async function main(){
 
 		if(config.credentials.discord_client_id)
 			helper.log(
-				`Invite bot to server: ${chalk.blueBright('https://discordapp.com/api/oauth2/authorize?client_id='
+				`Invite bot to server: ${chalk.blueBright('https://discord.com/api/oauth2/authorize?client_id='
 				+ config.credentials.discord_client_id + '&permissions=8&scope=bot')}`);
 	});
 
