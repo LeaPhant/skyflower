@@ -27,6 +27,8 @@ const drawLeaderboard = async function(args, params){
         },
     };
 
+    console.log(args);
+
     const lb = helper.getLeaderboard(args.join(" "), leaderboards);
 
     const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${lb.key}`, { params });
@@ -37,7 +39,7 @@ const drawLeaderboard = async function(args, params){
 
     for(const [index, position] of data.positions.entries()){
         embed.fields.push({
-            name: `#${position.rank} – ${position.username.replace(/\_/g, '\\_')}`,
+            name: `#${position.rank.toLocaleString()} – ${position.username.replace(/\_/g, '\\_')}`,
             value: typeof position.amount === 'number' ? position.amount.toLocaleString() : position.amount,
             inline: true
         });
