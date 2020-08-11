@@ -102,6 +102,41 @@ module.exports = {
         return resultMatch;
     },
 
+    getLeaderboard: (query, leaderboards) => {
+        let resultMatch;
+        let lbResults = [];
+
+        for(const lb of leaderboards)
+            lbResults.push({...lb});
+
+        for(const lb of lbResults){
+            if(lb.name.toLowerCase() == query)
+                resultMatch = lb;
+
+            lb.tagMatches = 0;
+
+            lb.distance = distance(lb.name, query, { caseSensitive: false });
+
+            for(const queryPart of query.split(" "))
+                for(const namePart of lb.name.split(" "))
+                    if(namePart == queryPart)
+                    lb.tagMatches++;
+        }
+
+        lbResults = lbResults.sort((a, b) => {
+            if(a.tagMatches > b.tagMatches) return -1;
+            if(a.tagMatches < b.tagMatches) return 1;
+
+            if(a.distance > b.distance) return -1;
+            if(a.distance < b.distance) return 1;
+        });
+
+        if(!resultMatch)
+            resultMatch = lbResults[0];
+
+        return resultMatch;
+    },
+
     commandHelp: commandName => {
         if(Array.isArray(commandName))
             commandName = commandName[0];
