@@ -13,6 +13,7 @@ module.exports = {
             description:
 `\`!bazaar [amount] <item>\` – Get bazaar prices for an item.
 \`!skills <user> [profile] [skill]\` – Get skill levels of a player.
+\`!leaderboard <leaderboard> [u:username] [skill]\` – Show leaderboards.
 \`!owoify [text]\` – owoify a text or the last message.
 \`!pack\` – Display info about the pack used on SkyLea.
 \`!rules [rule]\` – Show a specific server rule.`
