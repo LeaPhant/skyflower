@@ -117,10 +117,10 @@ module.exports = {
 
             lb.distance = distance(lb.name, query, { caseSensitive: false });
 
-            for(const queryPart of query.split(" "))
-                for(const namePart of lb.name.split(" "))
+            for(const queryPart of query.toLowerCase().split(" "))
+                for(const namePart of lb.name.toLowerCase().split(" "))
                     if(namePart == queryPart)
-                    lb.tagMatches++;
+                        lb.tagMatches++;
         }
 
         lbResults = lbResults.sort((a, b) => {
