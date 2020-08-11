@@ -37,7 +37,7 @@ const drawLeaderboard = async function(args, params){
 
     for(const [index, position] of data.positions.entries()){
         embed.fields.push({
-            name: `#${position.rank} – ${position.username}`,
+            name: `#${position.rank} – ${position.username.replace(/\_/g, '\\_')}`,
             value: typeof position.amount === 'number' ? position.amount.toLocaleString() : position.amount,
             inline: true
         });
