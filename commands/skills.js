@@ -126,7 +126,7 @@ module.exports = {
 
         const footer = {
             icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-            text: `sky.lea.moe – !skills <user> [profile] [skill]`
+            text: `sky.lea.moe – ${config.prefix}skills <user> [profile] [skill]`
         }
 
         const message = await msg.channel.send({

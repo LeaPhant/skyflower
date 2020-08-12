@@ -23,7 +23,7 @@ const drawLeaderboard = async function(args, params){
         fields: [],
         footer: {
             icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-            text: `sky.lea.moe – !lb <leaderboard> [u:user]`
+            text: `sky.lea.moe – ${config.prefix}lb <leaderboard> [u:user]`
         },
     };
 
