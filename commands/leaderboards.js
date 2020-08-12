@@ -59,8 +59,11 @@ const drawLeaderboard = async function(embed, args, params){
         return embed;
     }catch(e){
         console.error(e);
+        
+        let error = "Failed retrieving data from API.";
 
-        let error = "Leaderboard not found or no entries for given user or rank.";
+        if(e.response != null && e.response.data != null && 'error' in e.response.data)
+            error = e.response.data.error;
 
         return {
             color: 0xf04a4a,
@@ -91,7 +94,7 @@ module.exports = {
         },
         {
             run: "lb hydra kills r:1000",
-            result: `Returns ranks 1000 to 1010 for Hydra kills.`
+            result: `Returns ranks 990 to 1000 for Hydra kills.`
         }
     ],
     call: async obj => {
@@ -120,7 +123,7 @@ module.exports = {
                 if(isNaN(rank))
                     throw "Passed rank is not a valid number";
 
-                params['page'] = Math.floor(rank / 10) + 1;
+                params['page'] = Math.floor(rank / 10);
                 params['rank'] = rank;
             }else{
                 args.push(arg);
