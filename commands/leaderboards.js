@@ -18,44 +18,59 @@ updateLeaderboards();
 setInterval(updateLeaderboards, 60 * 1000);
 
 const drawLeaderboard = async function(embed, args, params){
-    const lb = helper.getLeaderboard(args.join(" "), leaderboards);
+    try{
+        const lb = helper.getLeaderboard(args.join(" "), leaderboards);
 
-    const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${lb.key}`, { params });
+        const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${lb.key}`, { params });
 
-    if(data.self){
-        const { self } = data;
+        if(data.self){
+            const { self } = data;
 
-        embed.author = {
-            icon_url: `https://crafatar.com/avatars/${self.uuid}?size=128&overlay`,
-            name: self.username,
-            url: `https://sky.lea.moe/stats/${self.uuid}`
-        };
+            embed.author = {
+                icon_url: `https://crafatar.com/avatars/${self.uuid}?size=128&overlay`,
+                name: self.username,
+                url: `https://sky.lea.moe/stats/${self.uuid}`
+            };
 
-        embed.description = `Rank: **#${self.rank}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
-    }
+            embed.description = `Rank: **#${self.rank}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
+        }
 
-    params.page = data.page;
+        params.page = data.page;
 
-    embed.title = `${lb.name} Leaderboards`;
+        embed.title = `${lb.name} Leaderboards`;
 
-    embed.fields = [];
+        embed.fields = [];
 
-    for(const [index, position] of data.positions.entries()){
-        embed.fields.push({
-            name: `#${position.rank.toLocaleString()} – ${position.username.replace(/\_/g, '\\_')}`,
-            value: `[🔗](https://sky.lea.moe/stats/${position.uuid}) ${typeof position.amount === 'number' ? position.amount.toLocaleString() : position.amount}`,
-            inline: true
-        });
-
-        if(index % 2 == 1)
+        for(const [index, position] of data.positions.entries()){
             embed.fields.push({
-                name: "⠀",
-                value: "⠀",
+                name: `#${position.rank.toLocaleString()} – ${position.username.replace(/\_/g, '\\_')}`,
+                value: `[🔗](https://sky.lea.moe/stats/${position.uuid}) ${typeof position.amount === 'number' ? position.amount.toLocaleString() : position.amount}`,
                 inline: true
             });
-    }
 
-    return embed;
+            if(index % 2 == 1)
+                embed.fields.push({
+                    name: "⠀",
+                    value: "⠀",
+                    inline: true
+                });
+        }
+
+        return embed;
+    }catch(e){
+        console.error(e);
+
+        let error = "Leaderboard not found or no entries for given user or rank.";
+
+        return {
+            color: 0xf04a4a,
+            author: {
+                name: 'Error'
+            },
+            footer: embed.footer,
+            description: error
+        }
+    }
 }
 
 module.exports = {
