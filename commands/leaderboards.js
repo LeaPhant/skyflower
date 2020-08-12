@@ -40,7 +40,7 @@ const drawLeaderboard = async function(args, params){
     for(const [index, position] of data.positions.entries()){
         embed.fields.push({
             name: `#${position.rank.toLocaleString()} – ${position.username.replace(/\_/g, '\\_')}`,
-            value: typeof position.amount === 'number' ? position.amount.toLocaleString() : position.amount,
+            value: `[🔗](https://sky.lea.moe/stats/${position.uuid}) ${typeof position.amount === 'number' ? position.amount.toLocaleString() : position.amount}`,
             inline: true
         });
 
