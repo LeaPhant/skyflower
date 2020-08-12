@@ -32,7 +32,7 @@ const drawLeaderboard = async function(embed, args, params){
                 url: `https://sky.lea.moe/stats/${self.uuid}`
             };
 
-            embed.description = `Rank: **#${self.rank}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
+            embed.description = `Rank: **#${self.rank.toLocaleString()}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
         }
 
         params.page = data.page;
@@ -59,7 +59,7 @@ const drawLeaderboard = async function(embed, args, params){
         return embed;
     }catch(e){
         console.error(e);
-        
+
         let error = "Failed retrieving data from API.";
 
         if(e.response != null && e.response.data != null && 'error' in e.response.data)
