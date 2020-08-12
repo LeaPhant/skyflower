@@ -14,7 +14,7 @@ module.exports = {
                 description:
 `\`${config.prefix}bazaar [amount] <item>\` – Get bazaar prices for an item.
 \`${config.prefix}skills <user> [profile] [skill]\` – Get skill levels of a player.
-\`${config.prefix}leaderboard <leaderboard> [u:username]\` – Show leaderboards.
+\`${config.prefix}leaderboard <leaderboard> [u:username] [r:rank]\` – Show leaderboards.
 \`${config.prefix}owoify [text]\` – owoify a text or the last message.
 \`${config.prefix}pack\` – Display info about the pack used on SkyLea.
 \`${config.prefix}rules [rule]\` – Show a specific server rule.`,
