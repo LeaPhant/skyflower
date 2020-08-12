@@ -17,25 +17,28 @@ const updateLeaderboards = async function(){
 updateLeaderboards();
 setInterval(updateLeaderboards, 60 * 1000);
 
-const drawLeaderboard = async function(args, params){
-    const embed = {
-        color: 11809405,
-        fields: [],
-        footer: {
-            icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-            text: `sky.lea.moe – ${config.prefix}lb <leaderboard> [u:user]`
-        },
-    };
-
-    console.log(args);
-
+const drawLeaderboard = async function(embed, args, params){
     const lb = helper.getLeaderboard(args.join(" "), leaderboards);
 
     const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${lb.key}`, { params });
 
+    if(data.self){
+        const { self } = data;
+
+        embed.author = {
+            icon_url: `https://crafatar.com/avatars/${self.uuid}?size=128&overlay`,
+            name: self.username,
+            url: `https://sky.lea.moe/stats/${self.uuid}`
+        };
+
+        embed.description = `Rank: **#${self.rank}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
+    }
+
     params.page = data.page;
 
     embed.title = `${lb.name} Leaderboards`;
+
+    embed.fields = [];
 
     for(const [index, position] of data.positions.entries()){
         embed.fields.push({
@@ -61,7 +64,7 @@ module.exports = {
     description: [
         "Check leaderboards.",
     ],
-    usage: '<leaderboard name> [u:username]',
+    usage: '<leaderboard name> [u:username] [r:rank]',
     example: [
         {
             run: "lb sand collection",
@@ -69,7 +72,11 @@ module.exports = {
         },
         {
             run: "lb deaths u:py5",
-            result: `Returns rank for mat's deaths`
+            result: `Returns rank for mat's deaths.`
+        },
+        {
+            run: "lb hydra kills r:1000",
+            result: `Returns ranks 1000 to 1010 for Hydra kills.`
         }
     ],
     call: async obj => {
@@ -78,16 +85,34 @@ module.exports = {
         const args = [];
         const params = { count: 10, page: 1 };
 
+        const embed = {
+            color: 11809405,
+            fields: [],
+            footer: {
+                icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
+                text: `sky.lea.moe – ${config.prefix}lb <leaderboard> [u:user] [r:rank]`
+            },
+        };
+
         for(let arg of argv.slice(1)){
             arg = arg.toLowerCase();
 
-            if(arg.startsWith('u:'))
+            if(arg.startsWith('u:')){
                 params['find'] = arg.substring(2);
-            else
+            }else if(arg.startsWith('r:')){
+                const rank = Number(arg.substring(2));
+
+                if(isNaN(rank))
+                    throw "Passed rank is not a valid number";
+
+                params['page'] = Math.floor(rank / 10) + 1;
+                params['rank'] = rank;
+            }else{
                 args.push(arg);
+            }
         }
 
-        const message = await msg.channel.send({ embed: await drawLeaderboard(args, params) });
+        const message = await msg.channel.send({ embed: await drawLeaderboard(embed, args, params) });
 
         ['⬅️', '➡️'].map(a => message.react(a));
 
@@ -112,7 +137,7 @@ module.exports = {
                 delete params.find;
             
             try{
-                message.edit({ embed: await drawLeaderboard(args, params) });
+                message.edit({ embed: await drawLeaderboard(embed, args, params) });
             }catch(e){
                 console.error(e);
             }
