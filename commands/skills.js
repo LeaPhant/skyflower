@@ -57,7 +57,7 @@ const skillEmbed = (profile, skillName, embed) => {
     else
         output.description += `Current XP: **${Math.floor(skill.xpCurrent).toLocaleString()}** / ${skill.xpForNext.toLocaleString()} (**${currentProgress}%**)`;
 
-    output.description += `\nTotal XP: **${Math.floor(skill.xp).toLocaleString()}** / ${xpMaxRequired.toLocaleString()} (**${progress}%**)\n`;
+    output.description += `\nTotal XP: **${Math.floor(skill.xp).toLocaleString()}** / ${xpMaxRequired.toLocaleString()} (**${progress}%**)`;
 
     switch(skillName){
         case "combat":
@@ -80,10 +80,14 @@ const skillEmbed = (profile, skillName, embed) => {
     const bonusKeys = _.pickBy(skillBonus, value => value > 0);
 
     if(_.keys(bonusKeys).length > 0)
-        output.description += '\n\nBonus:';
+        output.description += '\n\nBonus: ';
 
-    for(const key in bonusKeys)
-        output.description += `\n**+${statModifier(skillBonus[key], key)}** ${helper.titleCase(key.replace(/\_/g, ' '))}`
+    for(const [index, key] of _.keys(bonusKeys).entries()){
+        output.description += `**+${statModifier(skillBonus[key], key)}** ${helper.titleCase(key.replace(/\_/g, ' '))}`;
+
+        if(index < _.keys(bonusKeys).length - 1)
+            output.description += ', ';
+    }
 
     output.fields = [];
 
@@ -200,6 +204,8 @@ module.exports = {
 
         const reactions = [];
 
+        const fields = [];
+
         for(const [index, skillName] of skillsSorted.entries()){
             const skill = profile.data.levels[skillName];
 
@@ -209,26 +215,48 @@ module.exports = {
             const name = helper.capitalizeFirstLetter(skillName);
             const skillEmote = helper.emote('sb' + name, null, client);
 
-            const field = {
-                inline: true,
-                name: `${skillEmote.toString()} ${name} **${skill.level}** (#${helper.formatNumber(skill.rank)})`
-            };
+            const field = {};
+
+            if(msg.channel.name.includes('commands'))
+                field['name'] = `${skillEmote.toString()} ${name} **${skill.level}** (#${helper.formatNumber(skill.rank)})`;
+            else
+                field['name'] = `**${skillEmote.toString()} ${name} ${skill.level} (#${helper.formatNumber(skill.rank)})**`;
 
             if(skill.level == skill.maxLevel)
                 field['value'] = `**${skill.xpForNext === 0 ? '–' : helper.formatNumber(skill.xpCurrent, true)}** XP`;
             else
                 field['value'] = `**${skill.xpForNext === 0 ? '–' : helper.formatNumber(skill.xpCurrent, true)}** / ${skill.xpForNext === 0 ? '–' : helper.formatNumber(skill.xpForNext, false)} XP`;
 
-            field['value'] += ` (**${helper.formatNumber(skill.xp, true)}**)`
+            field['value'] += ` (**${helper.formatNumber(skill.xp, true)}**)`;
 
-            embed.fields.push(field);
+            if(!msg.channel.name.includes('commands'))
+                field['name'] = `**${field['name']}**`;
 
-            if(index % 2 != 0)
-                embed.fields.push({
-                    inline: true, name: "⠀", value: "⠀",
-                });
+            fields.push(field.name);
+
+            if(msg.channel.name.includes('commands'))
+                fields.push(field.value);
+            else if(index > skillsSorted.length - 3)
+                fields.push("⠀");
 
             reactions.push(skillEmote);
+        }
+
+        for(let i = 0; i < fields.length; i += 2){
+            const field = {
+                inline: true,
+                name: fields[i],
+                value: fields[i + 1]
+            };
+
+            if(embed.fields.length % 3 != 0)
+                embed.fields.push({
+                    inline: true,
+                    name: "⠀",
+                    value: "⠀"
+                });
+
+            embed.fields.push(field);
         }
 
         let currentSkill = null;
