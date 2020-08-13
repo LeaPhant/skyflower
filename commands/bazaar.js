@@ -53,7 +53,7 @@ module.exports = {
         }
     ],
     call: async obj => {
-        const { argv, db } = obj;
+        const { argv, msg, db } = obj;
 
         let item;
         let itemSearch = "";
@@ -254,7 +254,7 @@ module.exports = {
                 });
             }
 
-            embed.fields.push({
+            const summaryTotal = [{
                 name: "Summary",
                 value: "⠀",
                 inline: true
@@ -266,7 +266,12 @@ module.exports = {
                 name: coinsMode ? "Earn Total" : "Sell Total",
                 value: formatNumber(totalSell, false, 100),
                 inline: true
-            });
+            }];
+
+            if(!msg.channel.name.includes("commands") && summary.length > 2)
+                embed.fields = summaryTotal;
+            else
+                embed.fields.push(...summaryTotal);
         }
 
         return { embed };
