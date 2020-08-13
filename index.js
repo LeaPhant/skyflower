@@ -235,11 +235,6 @@ async function main(){
 							else
 								message_promise = msg.channel.send(response);
 
-							message_promise.catch(err => {
-								msg.channel.send(`Couldn't run command: \`${err}\``);
-							});
-
-
 	                        Promise.all([message_promise, edit_promise, replace_promise]).then(responses => {
 	                            let message = responses[0];
 	                            let edit_promise = responses[1];
