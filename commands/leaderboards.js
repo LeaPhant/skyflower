@@ -101,7 +101,7 @@ module.exports = {
         const { argv, msg } = obj;
 
         const args = [];
-        const params = { count: 10, page: 1 };
+        const params = { count: msg.channel.name.includes("commands") ? 10 : 4, page: 1 };
 
         const embed = {
             color: 11809405,
@@ -123,7 +123,7 @@ module.exports = {
                 if(isNaN(rank))
                     throw "Passed rank is not a valid number";
 
-                params['page'] = Math.floor(rank / 10);
+                params['page'] = Math.floor(rank / params.count);
                 params['rank'] = rank;
             }else{
                 args.push(arg);
