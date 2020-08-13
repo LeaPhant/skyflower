@@ -61,26 +61,45 @@ const skillEmbed = (profile, skillName, embed) => {
 
     switch(skillName){
         case "combat":
-            output.description += `\nMinion Ghast Kills: **${(profile.raw.stats.kills_generator_ghast || 0).toLocaleString()}**`;
+            output.description += `\n\nMinion Ghast Kills: **${(profile.raw.stats.kills_generator_ghast || 0).toLocaleString()}**`;
             break;
         case "fishing":
-            output.description += `\nItems fished: **${(profile.raw.stats.items_fished || 0).toLocaleString()}**`;
+            output.description += `\n\nItems fished: **${(profile.raw.stats.items_fished || 0).toLocaleString()}**`;
             break;
         case "alchemy":
             if('collection' in profile.raw)
-                output.description += `\nSugar Cane Collection: **${(profile.raw.collection.SUGAR_CANE || 0).toLocaleString()}**`;
+                output.description += `\n\nSugar Cane Collection: **${(profile.raw.collection.SUGAR_CANE || 0).toLocaleString()}**`;
+            break;
+        case "mining":
+            if('pet_milestone_ores_mined' in profile.raw.stats)
+                output.description += `\n\nOres Mined Milestone: **${(profile.raw.stats.pet_milestone_ores_mined || 0).toLocaleString()}**`;
+            break;
+        case "foraging":
+            let logsMined = 0;
+
+            if(!('collection' in profile.raw))
+                break;
+
+            for(const logCollection of _.keys(profile.raw.collection).filter(a => a.includes('LOG')))
+                logsMined += profile.raw.collection[logCollection];
+
+            output.description += `\n\nLogs collected: **${(logsMined || 0).toLocaleString()}**`;
+
             break;
         case "enchanting":
             if('collection' in profile.raw)
-                output.description += `\nLapis Lazuli Collection: **${(profile.raw.collection['INK_SACK:4'] || 0).toLocaleString()}**`;
+                output.description += `\n\nLapis Lazuli Collection: **${(profile.raw.collection['INK_SACK:4'] || 0).toLocaleString()}**`;
             break;
     }
 
     const skillBonus = profile.data.skill_bonus[skillName];
     const bonusKeys = _.pickBy(skillBonus, value => value > 0);
 
+    if(!['combat', 'fishing', 'alchemy', 'mining', 'foraging', 'enchanting'].includes(skillName))
+        output.description += '\n';
+
     if(_.keys(bonusKeys).length > 0)
-        output.description += '\n\nBonus: ';
+        output.description += '\nBonus: ';
 
     for(const [index, key] of _.keys(bonusKeys).entries()){
         output.description += `**+${statModifier(skillBonus[key], key)}** ${helper.titleCase(key.replace(/\_/g, ' '))}`;
