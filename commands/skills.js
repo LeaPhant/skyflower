@@ -148,8 +148,6 @@ const skillEmbed = (profile, skillName, embed) => {
     output.fields = [];
 
     if(skill.level < skill.maxLevel && skill.maxLevel == 50){
-        output.description += '\n\nXP left to reach...';
-
         let levelKeys = _.keys(
             _.pickBy(xpMax, (value, key) => new Number(key) > skill.level)
         ).sort((a, b) => a - b);
@@ -161,7 +159,7 @@ const skillEmbed = (profile, skillName, embed) => {
             output.fields.push({
                 inline: true,
                 name: `Level ${key}`,
-                value: `**${Math.round(xpMax[key] - skill.xp).toLocaleString()}** XP`
+                value: `in **${Math.round(xpMax[key] - skill.xp).toLocaleString()}** XP`
             });
     }
 
