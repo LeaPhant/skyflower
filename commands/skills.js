@@ -63,8 +63,11 @@ const skillEmbed = (profile, skillName, embed) => {
 
     switch(skillName){
         case "taming":
-            if('petScore' in profile.data)
+            if('petScore' in profile.data){
                 output.description += `\n\nPet Score: **${(profile.data.petScore || 0).toLocaleString()}**`;
+                skillContext = true;
+            }
+            
             break;
         case "farming":
             if(!('collection' in profile.raw))
