@@ -59,20 +59,53 @@ const skillEmbed = (profile, skillName, embed) => {
 
     output.description += `\nTotal XP: **${Math.floor(skill.xp).toLocaleString()}** / ${xpMaxRequired.toLocaleString()} (**${progress}%**)`;
 
+    let skillContext = false;
+
     switch(skillName){
+        case "taming":
+            if('petScore' in profile.data)
+                output.description += `\n\nPet Score: **${(profile.data.petScore || 0).toLocaleString()}**`;
+            break;
+        case "farming":
+            if(!('collection' in profile.raw))
+                break;
+
+            const collections = [
+                "WHEAT", "CARROT_ITEM", "POTATO_ITEM", "PUMPKIN", "MELON", "SEEDS", "MUSHROOM_COLLECTION", "INK_SACK:3", "SUGAR_CANE"
+            ];
+
+            let cropsMined = 0;
+
+            for(const cropCollection of _.keys(profile.raw.collection).filter(a => collections.includes(a)))
+                cropsMined += profile.raw.collection[cropCollection];
+
+            output.description += `\n\nCrops farmed: **${(cropsMined || 0).toLocaleString()}**`;
+            skillContext = true;
+
+            break;
         case "combat":
             output.description += `\n\nMinion Ghast Kills: **${(profile.raw.stats.kills_generator_ghast || 0).toLocaleString()}**`;
+            skillContext = true;
+
             break;
         case "fishing":
             output.description += `\n\nItems fished: **${(profile.raw.stats.items_fished || 0).toLocaleString()}**`;
+            skillContext = true;
+
             break;
         case "alchemy":
-            if('collection' in profile.raw)
+            if('collection' in profile.raw){
                 output.description += `\n\nSugar Cane Collection: **${(profile.raw.collection.SUGAR_CANE || 0).toLocaleString()}**`;
+                skillContext = true;
+            }
+
             break;
         case "mining":
-            if('pet_milestone_ores_mined' in profile.raw.stats)
+            if('pet_milestone_ores_mined' in profile.raw.stats){
                 output.description += `\n\nOres Mined Milestone: **${(profile.raw.stats.pet_milestone_ores_mined || 0).toLocaleString()}**`;
+                skillContext = true;
+            }
+
             break;
         case "foraging":
             let logsMined = 0;
@@ -84,18 +117,22 @@ const skillEmbed = (profile, skillName, embed) => {
                 logsMined += profile.raw.collection[logCollection];
 
             output.description += `\n\nLogs collected: **${(logsMined || 0).toLocaleString()}**`;
+            skillContext = true;
 
             break;
         case "enchanting":
-            if('collection' in profile.raw)
+            if('collection' in profile.raw){
                 output.description += `\n\nLapis Lazuli Collection: **${(profile.raw.collection['INK_SACK:4'] || 0).toLocaleString()}**`;
+                skillContext = true;
+            }
+
             break;
     }
 
     const skillBonus = profile.data.skill_bonus[skillName];
     const bonusKeys = _.pickBy(skillBonus, value => value > 0);
 
-    if(!['combat', 'fishing', 'alchemy', 'mining', 'foraging', 'enchanting'].includes(skillName))
+    if(!skillContext)
         output.description += '\n';
 
     if(_.keys(bonusKeys).length > 0)
