@@ -100,11 +100,38 @@ module.exports = {
 
                 coinsMode = true;
             }else if(!isNaN(parseInt(argv_[0]))){
-                amount = Math.ceil(math.evaluate(argv_[0].replace(/x/g, '*')));
+                const expression = argv_[0].replace(/x/g, '*');
+
+                try{
+                    amount = Math.ceil(math.evaluate(expression));
+                }catch(e){
+                    throw {
+                        embed: {
+                            color: 0xf04a4a,
+                            author: {
+                                name: 'Error'
+                            },
+                            footer: embed.footer,
+                            description: `Couldn't evaluate mathematical expression: \`${expression.replace(/\`/g, '')}\``
+                        }
+                    };
+                }
             }
 
             if(amount !== undefined && argv_.length < 1)
                 return helper.commandHelp(module.exports.command);
+
+            if(amount !== undefined && argv_.length < 2)
+                throw {
+                    embed: {
+                        color: 0xf04a4a,
+                        author: {
+                            name: 'Error'
+                        },
+                        footer: embed.footer,
+                        description: "Please specify an item name."
+                    }
+                };
 
             if(amount !== undefined && ['stack', 'stacks'].includes(argv_[1].toLowerCase())){
                 stacks = true;
