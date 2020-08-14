@@ -246,7 +246,15 @@ async function main(){
 								if(replace_promise){
 									msg.channel.send(replace_promise)
 									.catch(err => {
-										msg.channel.send(`Couldn't run command: \`${err}\``);
+										msg.channel.send({
+											embed: {
+												color: 0xf04a4a,
+												author: {
+													name: 'Error'
+												},
+												description: err
+											}
+										});
 									}).finally(() => {
 										message.delete();
 
@@ -263,6 +271,15 @@ async function main(){
 	                            if(remove_path)
 	                                fs.remove(remove_path, err => { if(err) helper.error });
 	                        }).catch(err => {
+								msg.channel.send({
+									embed: {
+										color: 0xf04a4a,
+										author: {
+											name: 'Error'
+										},
+										description: err
+									}
+								});
 								msg.channel.send(`Couldn't run command: \`${err}\``);
 							});
 	                    }
@@ -270,7 +287,15 @@ async function main(){
 	                    if(typeof err === 'object')
 	                        msg.channel.send(err);
 	                    else
-	                        msg.channel.send(`Couldn't run command: \`${err}\``);
+							msg.channel.send({
+								embed: {
+									color: 0xf04a4a,
+									author: {
+										name: 'Error'
+									},
+									description: err
+								}
+							});
 
 	                    helper.error(err);
 	                });
