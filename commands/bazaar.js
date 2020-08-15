@@ -1,4 +1,3 @@
-const helper = require('../helper');
 const { formatNumber } = helper;
 const config = require('../config.json');
 const axios = require('axios');
@@ -52,7 +51,7 @@ module.exports = {
         }
     ],
     call: async obj => {
-        const { argv, msg, prefix } = obj;
+        const { argv, msg, prefix, helper } = obj;
 
         let item;
         let itemSearch = "";
@@ -74,8 +73,6 @@ module.exports = {
         let totalSell = 0;
 
         let coinsMode = false;
-
-        const bazaarResponse = await axios(`${config.sky_api_base}/api/v2/bazaar`);
 
         for(const [index, part] of summary.entries()){
             let stacks = false;
