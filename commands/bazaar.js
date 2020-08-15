@@ -1,3 +1,4 @@
+const helper = require('../helper');
 const { formatNumber } = helper;
 const config = require('../config.json');
 const axios = require('axios');
@@ -51,7 +52,7 @@ module.exports = {
         }
     ],
     call: async obj => {
-        const { argv, msg, prefix, helper } = obj;
+        const { argv, prefix, helper, extendedLayout } = obj;
 
         let item;
         let itemSearch = "";
@@ -291,7 +292,7 @@ module.exports = {
                 inline: true
             }];
 
-            if(!msg.channel.name.includes("commands") && summary.length > 2)
+            if(!extendedLayout && summary.length > 2)
                 embed.fields = summaryTotal;
             else
                 embed.fields.push(...summaryTotal);

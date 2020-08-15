@@ -108,7 +108,8 @@ async function main(){
 
 	async function onMessage(msg){
 		const prefix = await helper.prefix(msg.guild);
-	    const argv = msg.content.split(' ');
+		const extendedLayout = await helper.extendedLayout(msg);
+		const argv = msg.content.split(' ');
 
 	    argv[0] = argv[0].substr(prefix.length);
 
@@ -143,6 +144,7 @@ async function main(){
 	                    argv,
 						client,
 						prefix,
+						extendedLayout,
 						db
 	                });
 
@@ -252,6 +254,7 @@ async function main(){
 	                argv,
 					client,
 					prefix,
+					extendedLayout,
 					db
 	            });
 	        }

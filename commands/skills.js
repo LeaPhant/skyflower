@@ -3,6 +3,8 @@ const { formatNumber } = helper;
 const config = require('../config.json');
 const axios = require('axios');
 const _ = require('lodash');
+const { extend } = require('lodash');
+let extendedLayout;
 
 const xpMax = {
     25: 3022425,
@@ -185,6 +187,8 @@ module.exports = {
     call: async obj => {
         const { argv, client, msg, prefix } = obj;
 
+        extendedLayout = obj.extendedLayout;
+
         const footer = {
             icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
             text: `sky.lea.moe${helper.sep}${prefix}skills <user> [profile] [skill]`
@@ -274,7 +278,7 @@ module.exports = {
 
             const field = {};
 
-            if(msg.channel.name.includes('commands'))
+            if(extendedLayout)
                 field['name'] = `${skillEmote.toString()} ${name} **${skill.level}** (#${helper.formatNumber(skill.rank)})`;
             else
                 field['name'] = `**${skillEmote.toString()} ${name} ${skill.level} (#${helper.formatNumber(skill.rank)})**`;
@@ -286,12 +290,12 @@ module.exports = {
 
             field['value'] += ` (**${helper.formatNumber(skill.xp, true)}**)`;
 
-            if(!msg.channel.name.includes('commands'))
+            if(extendedLayout)
                 field['name'] = `**${field['name']}**`;
 
             fields.push(field.name);
 
-            if(msg.channel.name.includes('commands'))
+            if(extendedLayout)
                 fields.push(field.value);
             else if(index > skillsSorted.length - 3)
                 fields.push("⠀");

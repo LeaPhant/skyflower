@@ -19,6 +19,19 @@ module.exports = {
 
     cmd_escape: cmd_escape,
 
+    extendedLayout: async msg => {
+        if(!msg.hasOwnProperty('guild'))
+            return true;
+
+        console.log(`layout_${msg.guild.id}_${msg.channel.id}`);
+
+        const layout = await db.get(`layout_${msg.guild.id}_${msg.channel.id}`) || 'basic';
+
+        console.log('layout', layout);
+
+        return layout == 'extended';
+    },
+
     prefix: async guild => {
         return (await db.get(`pfx_${guild.id}`)) || config.prefix;
     },

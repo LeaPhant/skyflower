@@ -98,10 +98,10 @@ module.exports = {
         }
     ],
     call: async obj => {
-        const { argv, msg, prefix } = obj;
+        const { argv, msg, prefix, extendedLayout } = obj;
 
         const args = [];
-        const params = { count: msg.channel.name.includes("commands") ? 10 : 4, page: 1 };
+        const params = { count: extendedLayout ? 10 : 4, page: 1 };
 
         const embed = {
             color: 11809405,
