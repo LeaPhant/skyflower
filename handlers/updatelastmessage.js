@@ -1,14 +1,15 @@
-const config = require('../config.json');
-const helper = require('../helper.js');
+const helper = require('../helper');
 
 module.exports = {
-    message: obj => {
-        let { msg, last_message, client } = obj;
+    message: async obj => {
+        let { client, msg, prefix, db } = obj;
 
-        if(!msg.content.startsWith(config.prefix) && msg.author.id != client.user.id){
-            last_message[msg.channel.id] = msg.content;
-            helper.setItem('last_message', JSON.stringify(last_message));
-        }
+        if(msg.content.startsWith(prefix) 
+        || msg.author.id == client.user.id 
+        || msg.content == false)
+            return;
+        
+        db.set(`lm_${msg.guild.id}_${msg.channel.id}`, msg.content).catch(helper.error);
     }
 };
  

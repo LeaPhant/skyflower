@@ -21,7 +21,6 @@ const updateProducts = async function(){
 
         product.tag.push(...product.name.toLowerCase().split(" "));
     }
-
 }
 
 updateProducts();
@@ -53,7 +52,7 @@ module.exports = {
         }
     ],
     call: async obj => {
-        const { argv, msg, db } = obj;
+        const { argv, msg, prefix } = obj;
 
         let item;
         let itemSearch = "";
@@ -67,7 +66,7 @@ module.exports = {
             fields: [],
             footer: {
                 icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-                text: `sky.lea.moe – ${config.prefix}bazaar [amount] <item>`
+                text: `sky.lea.moe${helper.sep}${prefix}bazaar [amount] <item>`
             },
         };
 

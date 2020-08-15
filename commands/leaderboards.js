@@ -98,7 +98,7 @@ module.exports = {
         }
     ],
     call: async obj => {
-        const { argv, msg } = obj;
+        const { argv, msg, prefix } = obj;
 
         const args = [];
         const params = { count: msg.channel.name.includes("commands") ? 10 : 4, page: 1 };
@@ -108,7 +108,7 @@ module.exports = {
             fields: [],
             footer: {
                 icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-                text: `sky.lea.moe – ${config.prefix}lb <leaderboard> [u:user] [r:rank]`
+                text: `sky.lea.moe${helper.sep}${prefix}lb <leaderboard> [u:user] [r:rank]`
             },
         };
 

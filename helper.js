@@ -1,27 +1,26 @@
 const moment = require('moment');
-const fs = require('fs-extra');
-const path = require('path');
-const axios = require('axios');
 const distance = require('jaro-winkler');
-
-const LocalStorage = require('node-localstorage').LocalStorage;
-const localStorage = new LocalStorage('./scratch');
 
 const config = require('./config.json');
 
 const sep = ' ✦ ';
 const cmd_escape = "```";
 
-let commands;
+let commands, db;
 
 module.exports = {
-    init: _commands => {
+    init: (_commands, _db) => {
         commands = _commands;
+        db = _db;
     },
 
     sep: sep,
 
     cmd_escape: cmd_escape,
+
+    prefix: async guild => {
+        return (await db.get(`pfx_${guild.id}`)) || config.prefix;
+    },
 
     log: (...params) => {
         console.log(`[${moment().toISOString()}]`, ...params);
@@ -31,13 +30,55 @@ module.exports = {
         console.error(`[${moment().toISOString()}]`, ...params);
     },
 
-    setItem: (item, data) => {
-        localStorage.setItem(item, data);
-    },
+    checkCommand: (prefix, msg, command) => {
+	    if(!msg.content.startsWith(prefix))
+	        return false;
 
-    getItem: item => {
-        return localStorage.getItem(item);
-    },
+		if(msg.author.bot)
+			return false;
+
+	    const argv = msg.content.split(' ');
+		const msgCheck = msg.content.toLowerCase().substr(prefix.length).trim();
+
+	    let commandMatch = false;
+	    let commands = command.command;
+	    let startswith = false;
+
+	    if(command.startsWith)
+	        startswith = true;
+
+	    if(!Array.isArray(commands))
+	        commands = [commands];
+
+	    for(let i = 0; i < commands.length; i++){
+	        let commandPart = commands[i].toLowerCase().trim();
+	        if(startswith){
+	            if(msgCheck.startsWith(commandPart))
+	                commandMatch = true;
+	        }else{
+	            if(msgCheck.startsWith(commandPart + ' ')
+	            || msgCheck == commandPart)
+	                commandMatch = true;
+	        }
+	    }
+
+	    if(commandMatch){
+	        let hasPermission = true;
+
+	        if(command.permsRequired)
+	            hasPermission = command.permsRequired.length == 0 || command.permsRequired.some(perm => msg.member.hasPermission(perm));
+
+	        if(!hasPermission)
+	            return 'Insufficient permissions for running this command.';
+
+	        if(command.argsRequired !== undefined && argv.length <= command.argsRequired)
+	            return helper.commandHelp(command.command);
+
+	        return true;
+	    }
+
+	    return false;
+	},
 
     formatNumber: (number, floor, rounding = 10) => {
         if(number < 1000)
