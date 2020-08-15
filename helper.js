@@ -1,4 +1,5 @@
 const moment = require('moment');
+const _ = require('lodash');
 const distance = require('jaro-winkler');
 
 const config = require('./config.json');
@@ -72,7 +73,7 @@ module.exports = {
 	            return 'Insufficient permissions for running this command.';
 
 	        if(command.argsRequired !== undefined && argv.length <= command.argsRequired)
-	            return helper.commandHelp(command.command);
+	            return module.exports.commandHelp(command.command);
 
 	        return true;
 	    }
@@ -185,8 +186,7 @@ module.exports = {
         for(let i = 0; i < commands.length; i++){
             let command = commands[i];
 
-            if(!Array.isArray(command.command))
-                command.command = [command.command];
+            command.command = _.castArray(command.command);
 
             if(command.command.includes(commandName)){
                 let embed = {
@@ -211,8 +211,7 @@ module.exports = {
                     value: commandsValue + "\n"
                 });
 
-                if(!Array.isArray(command.description))
-                    command.description = [command.description];
+                command.description = _.castArray(command.description);
 
                 if(command.description){
                     embed.fields.push({
@@ -229,12 +228,9 @@ module.exports = {
                 }
 
                 if(command.example){
-                    let examples = command.example;
+                    let examples = _.castArray(command.example);
                     let examplesValue = "";
                     let examplesName = "Example";
-
-                    if(!Array.isArray(examples))
-                        examples = [examples];
 
                     if(examples.length > 1)
                         examplesName += "s";
