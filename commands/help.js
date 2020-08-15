@@ -23,7 +23,7 @@ module.exports = {
                 name: "Admin commands",
                 value: 
                 `\`!skybotprefix <prefix>\` - Set prefix for this bot (always prefixed with \`!\`).
-                \`${prefix}togglelayout <channel>\` - Set a channel to toggle extended layout for.
+                \`${prefix}togglelayout <channel id>\` - Set a channel to toggle extended layout for.
 
                 *(Commands can be run in all channels but use a more compact layout by default, please handle the rest via user permissions).*`
             });

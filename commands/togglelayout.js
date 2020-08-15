@@ -5,13 +5,14 @@ module.exports = {
     description: [
         "Toggle extended layout for a channel.",
     ],
-    usage: '<channel mention>',
+    usage: '<channel id>',
     call: async obj => {
         const { argv, msg, db } = obj;
 
-        const channelId = argv[1].substring(2, argv[1].length - 1);
+        const channelId = argv[1];
 
-        console.log(channelId);
+        if(!msg.guild.channels.cache.has(channelId))
+            throw "Invalid channel ID";
 
         const key = `layout_${msg.guild.id}_${channelId}`;
 
@@ -20,6 +21,6 @@ module.exports = {
         
         await db.set(key, newLayout);
 
-        return `Extended layout ${layout == 'basic' ? 'enabled' : 'disabled'} for channel ${argv[1]}.`;
+        return `Extended layout ${layout == 'basic' ? 'enabled' : 'disabled'} for channel <#${channelId}>.`;
     }
 };
