@@ -94,7 +94,7 @@ module.exports = {
         },
         {
             run: "lb hydra kills r:1000",
-            result: `Returns ranks 990 to 1000 for Hydra kills.`
+            result: `Return rank 1000 for Hydra kills.`
         }
     ],
     call: async obj => {
