@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const fs = require('fs-extra');
+const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 
@@ -8,9 +8,7 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-const helper = require('./helper.js');
-
-const client = new Discord.Client({autoReconnect:true});
+const client = new Discord.Client();
 
 client.on('error', console.error);
 
