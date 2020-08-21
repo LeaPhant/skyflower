@@ -98,7 +98,7 @@ module.exports = {
         }
     ],
     call: async obj => {
-        const { argv, msg, prefix, extendedLayout } = obj;
+        const { argv, msg, prefix, extendedLayout, endEmitter, responseMsg, guildId } = obj;
 
         const args = [];
         const params = { count: extendedLayout ? 10 : 4, page: 1 };
@@ -130,9 +130,18 @@ module.exports = {
             }
         }
 
-        const message = await msg.channel.send({ embed: await drawLeaderboard(embed, args, params) });
+        const msgObj = {
+            embed: await drawLeaderboard(embed, args, params)
+        };
 
-        ['⬅️', '➡️'].map(a => message.react(a));
+        let message = responseMsg;
+
+        if(responseMsg)
+            await responseMsg.edit(msgObj);
+        else
+            message = await msg.channel.send(msgObj);
+
+        ['⬅️', '➡️'].map(a => message.react(a).catch(() => {}));
 
         const collector = message.createReactionCollector(
             (reaction, user) => user.bot === false,
@@ -164,5 +173,11 @@ module.exports = {
         collector.on('end', () => {
             message.reactions.removeAll();
         });
+
+        endEmitter.once(`end-${guildId}_${message.channel.id}_${message.id}`, () => {
+            collector.stop();
+        });
+
+        return message;
     }
 }

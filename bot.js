@@ -2,12 +2,15 @@ const config = require('./config.json');
 const helper = require('./helper.js');
 
 const Discord = require('discord.js');
+const EventEmitter = require('events');
 const fs = require('fs').promises;
 const path = require('path');
 const objectPath = require("object-path");
 const chalk = require('chalk');
 const _ = require('lodash');
 const Keyv = require('keyv');
+
+const endEmitter = new EventEmitter();
 
 const db = new Keyv(config.dbUri, { namespace: config.dbNamespace });
 const client = new Discord.Client();
@@ -106,17 +109,37 @@ async function main(){
 
 	helper.init(commands, db);
 
-	async function onMessage(msg){
+	async function onMessage(msg, isEdit = false){
+		if(msg.author.bot)
+			return;
+
 		const prefix = await helper.prefix(msg.guild);
 		const extendedLayout = await helper.extendedLayout(msg);
 		const argv = msg.content.split(' ');
 
+		const guildId = msg.guild != null ? msg.guild.id : 'me';
+
 	    argv[0] = argv[0].substr(prefix.length);
 
 	    if(config.debug)
-			helper.log(msg.author.username, ':', msg.content);
-			
-		if('member' in msg 
+			helper.log(isEdit ? '(edit)' : '', msg.author.username, ':', msg.content);
+
+		let responseMsg;
+
+		if(isEdit){
+			const responseMsgId = await db.get(`response_${guildId}_${msg.channel.id}_${msg.id}`);
+
+			if(responseMsgId == null)
+				return;
+
+			const split = responseMsgId.split("_");
+			responseMsg = msg.channel.messages.cache.get(split[2]);
+
+			if(responseMsg == null)
+				return;
+		}
+
+		if(msg.member != null
 		&& msg.member.hasPermission('ADMINISTRATOR')
 		&& msg.content.startsWith('!skybotprefix')){
 			const newPrefix = msg.content.substring('!skybotprefix'.length).trim();
@@ -132,23 +155,35 @@ async function main(){
 		}
 
 		for(const command of commands){
-			const commandMatch = helper.checkCommand(prefix, msg, command);
+			const commandMatch = await helper.checkCommand(prefix, msg, command);
 
 	        if(commandMatch === true){
-				let last_message = await db.get(`lm_${msg.guild.id}_${msg.channel.id}`);
-
 	            if(command.call && typeof command.call === 'function'){
+					if(isEdit)
+						endEmitter.emit(`end-${guildId}_${responseMsg.channel.id}_${responseMsg.id}`);
+
 	                const promise = command.call({
+						guildId,
 	                    msg,
-						last_message,
 	                    argv,
 						client,
 						prefix,
 						extendedLayout,
+						responseMsg,
+						endEmitter,
 						db
-	                });
+					});
 
-	                Promise.resolve(promise).then(response => {
+	                Promise.resolve(promise).then(async response => {
+						if(response instanceof Discord.Message){
+							await db.set(
+								`response_${guildId}_${msg.channel.id}_${msg.id}`, 
+								`${guildId}_${response.channel.id}_${response.id}`,
+								2 * 60 * 1000);
+
+							return;
+						}
+
 	                    if(response){
 	                        let message_promise, edit_promise, replace_promise, remove_path, content;
 
@@ -172,10 +207,27 @@ async function main(){
 	                            delete response.content;
 							}
 
-							if(content)
-		                        message_promise = msg.channel.send(content, response);
-							else
-								message_promise = msg.channel.send(response);
+							if(typeof response === 'string')
+								response = { embed: { color: 11809405, description: response }};
+
+							if(isEdit){
+								if(content)
+									message_promise = responseMsg.edit(content, response);
+								else
+									message_promise = responseMsg.edit(response);
+							}else{
+								if(content)
+									message_promise = msg.channel.send(content, response);
+								else
+									message_promise = msg.channel.send(response);
+							}
+
+							message_promise.then(async message => {
+								await db.set(
+									`response_${guildId}_${msg.channel.id}_${msg.id}`, 
+									`${guildId}_${message.channel.id}_${message.id}`,
+									2 * 60 * 1000);
+							});
 
 	                        Promise.all([message_promise, edit_promise, replace_promise]).then(responses => {
 	                            let message = responses[0];
@@ -262,6 +314,27 @@ async function main(){
 	}
 
 	client.on('message', onMessage);
+	client.on('messageUpdate', (oldMsg, newMsg) => { onMessage(newMsg, true) });
+	client.on('messageDelete', async msg => {
+		const guildId = msg.guild != null ? msg.guild.id : 'me';
+
+	    if(config.debug)
+			helper.log('(delete)', msg.author.username, ':', msg.content);
+
+		const responseMsgId = await db.get(`response_${guildId}_${msg.channel.id}_${msg.id}`);
+
+		if(responseMsgId == null)
+			return;
+
+		const split = responseMsgId.split("_");
+		const responseMsg = msg.channel.messages.cache.get(split[2]);
+
+		if(responseMsg == null)
+			return;
+
+		endEmitter.emit(`end-${guildId}_${responseMsg.channel.id}_${responseMsg.id}`);
+		responseMsg.delete().catch(console.error);
+	});
 
 	try{
 		await client.login(config.credentials.bot_token);
