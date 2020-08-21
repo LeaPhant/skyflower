@@ -52,7 +52,7 @@ module.exports = {
         }
     ],
     call: async obj => {
-        const { argv, prefix, helper, extendedLayout } = obj;
+        const { argv, prefix, extendedLayout } = obj;
 
         let item;
         let itemSearch = "";
@@ -116,7 +116,8 @@ module.exports = {
             }
 
             if(amount !== undefined && argv_.length < 1)
-                return helper.commandHelp(module.exports.command);
+                return await helper.commandHelp(module.exports.command, msg);
+                
 
             if(amount !== undefined && argv_.length < 2)
                 throw {
