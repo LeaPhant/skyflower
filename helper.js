@@ -20,19 +20,18 @@ module.exports = {
     cmd_escape: cmd_escape,
 
     extendedLayout: async msg => {
-        if(!msg.hasOwnProperty('guild'))
+        if(msg.guild == null)
             return true;
 
-        console.log(`layout_${msg.guild.id}_${msg.channel.id}`);
-
         const layout = await db.get(`layout_${msg.guild.id}_${msg.channel.id}`) || 'basic';
-
-        console.log('layout', layout);
 
         return layout == 'extended';
     },
 
     prefix: async guild => {
+        if(guild == null)
+            return config.prefix;
+
         return (await db.get(`pfx_${guild.id}`)) || config.prefix;
     },
 
@@ -44,7 +43,7 @@ module.exports = {
         console.error(`[${moment().toISOString()}]`, ...params);
     },
 
-    checkCommand: (prefix, msg, command) => {
+    checkCommand: async (prefix, msg, command) => {
 	    if(!msg.content.startsWith(prefix))
 	        return false;
 
@@ -86,7 +85,7 @@ module.exports = {
 	            return 'Insufficient permissions for running this command.';
 
 	        if(command.argsRequired !== undefined && argv.length <= command.argsRequired)
-	            return module.exports.commandHelp(command.command);
+                return await module.exports.commandHelp(command.command, msg);
 
 	        return true;
 	    }
@@ -192,7 +191,18 @@ module.exports = {
         return resultMatch;
     },
 
-    commandHelp: commandName => {
+    commandHelp: async (commandName, msg) => {
+        if('guild' in msg){
+            const extendedLayout = await module.exports.extendedLayout(msg);
+            const commandsChannel = await db.get(`commands_${msg.guild.id}`);
+
+            if(!extendedLayout)
+                if(commandsChannel)
+                    return `Run command in <#${commandsChannel}> for usage info.`;
+                else
+                    return `Run command in commands channel for usage info.`;
+        }  
+
         if(Array.isArray(commandName))
             commandName = commandName[0];
 
