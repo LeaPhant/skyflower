@@ -36,19 +36,19 @@ module.exports = {
     example: [
         {
             run: "bazaar enchanted iron ingot",
-            result: `Returns Bazaar price for Enchanted Iron Ingot.`
+            result: `Bazaar price for Enchanted Iron Ingot.`
         },
         {
             run: "bazaar 10 stacks catas",
-            result: `Returns Bazaar price for 10 stacks of Catalysts.`
+            result: `Bazaar price for 10 stacks of Catalysts.`
         },
         {
             run: "bazaar 3 stacks estring + 3 stacks ebone",
-            result: "Returns total summary for 3 stacks of Enchanted String and 3 stacks of Enchanted Bone"
+            result: "Total summary for 3 stacks of Enchanted String and 3 stacks of Enchanted Bone"
         },
         {
             run: "bazaar 50m summoning eye",
-            result: "Returns amount of summoning eyes you have to buy/sell to spend/earn 50 million coins"
+            result: "Amount of summoning eyes you have to buy/sell to spend/earn 50 million coins"
         }
     ],
     call: async obj => {

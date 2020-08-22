@@ -6,6 +6,7 @@ const config = require('./config.json');
 
 const sep = ' ✦ ';
 const cmd_escape = "```";
+const backtick = "`";
 
 let commands, db;
 
@@ -217,10 +218,7 @@ module.exports = {
                 };
 
                 let commandsValue = "";
-                let commandsName = "Command";
-
-                if(command.command.length > 1)
-                    commandsName += "s";
+                const commandsName = "Aliases";
 
                 command.command.forEach((_command, index) => {
                     if(index > 0)
@@ -246,7 +244,7 @@ module.exports = {
                 if(command.usage){
                     embed.fields.push({
                         name: "Usage",
-                        value: `${cmd_escape}${config.prefix}${command.command[0]} ${command.usage}${cmd_escape}\n`
+                        value: `${backtick}${config.prefix}${command.command[0]} ${command.usage}${backtick}\n`
                     });
                 }
 
@@ -260,13 +258,13 @@ module.exports = {
 
                     examples.forEach((example, index) => {
                         if(index > 0)
-                            examplesValue += "\n\n";
+                            examplesValue += "\n";
 
-                        if(typeof example === 'object'){
-                            examplesValue += `${cmd_escape}${config.prefix}${example.run}${cmd_escape}`;
+                        if(example.result != null){
+                            examplesValue += `${backtick}${config.prefix}${example.run}${backtick}: `;
                             examplesValue += example.result;
                         }else{
-                            examplesValue += `${cmd_escape}${config.prefix}${example}${cmd_escape}`;
+                            examplesValue += `${backtick}${config.prefix}${example}${backtick}`;
                         }
                     });
 
