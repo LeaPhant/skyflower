@@ -10,12 +10,11 @@ module.exports = {
             embed: {
                 color: 11809405,
                 title: "skybot",
-                description: `Discord bot with several commands to look up SkyBlock stats.\n\nFor a list of commands run \`${prefix}help\`.`,
+                description: `Open-source Discord bot with cool SkyBlock features.\n\nFor a list of commands run \`${prefix}help\`.`,
                 fields: [
                     {
                         name: "Links",
-                        value: `[GitHub Repo](https://github.com/LeaPhant/skybot)
-                        [Invite Link](https://discord.com/oauth2/authorize?client_id=${config.credentials.discord_client_id}&scope=bot&permissions=0)`
+                        value: `[GitHub Repo](https://github.com/LeaPhant/skybot) • [Invite Link](https://discord.com/oauth2/authorize?client_id=${config.credentials.discord_client_id}&scope=bot&permissions=0)`
                     }
                 ],
                 footer: {
