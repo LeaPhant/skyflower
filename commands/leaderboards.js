@@ -78,23 +78,27 @@ const drawLeaderboard = async function(embed, args, params){
 
 module.exports = {
     command: ['leaderboards', 'leaderboard', 'lb'],
-    argsRequired: 1,
     description: [
         "Check leaderboards.",
     ],
-    usage: '<leaderboard name> [u:username] [r:rank]',
+    argsRequired: 1,
+    usage: '[leaderboard name] [u:username] [r:rank]',
     example: [
         {
             run: "lb sand collection",
-            result: `Returns Top 10 for Sand Collection.`
+            result: `Top 10 for Sand Collection.`
+        },
+        {
+            run: "lb u:leaphant",
+            result: `Top leaderboard positions for LeaPhant.`
         },
         {
             run: "lb deaths u:py5",
-            result: `Returns rank for mat's deaths.`
+            result: `Rank for mat's deaths.`
         },
         {
             run: "lb hydra kills r:1000",
-            result: `Return rank 1000 for Hydra kills.`
+            result: `Rank 1000 for Hydra kills.`
         }
     ],
     call: async obj => {
@@ -108,16 +112,14 @@ module.exports = {
             fields: [],
             footer: {
                 icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-                text: `sky.lea.moe${helper.sep}${prefix}lb <leaderboard> [u:user] [r:rank]`
+                text: `sky.lea.moe${helper.sep}${prefix}lb [leaderboard] [u:user] [r:rank]`
             },
         };
 
         for(let arg of argv.slice(1)){
-            arg = arg.toLowerCase();
-
-            if(arg.startsWith('u:')){
+            if(arg.toLowerCase().startsWith('u:')){
                 params['find'] = arg.substring(2);
-            }else if(arg.startsWith('r:')){
+            }else if(arg.toLowerCase().startsWith('r:')){
                 const rank = Number(arg.substring(2));
 
                 if(isNaN(rank))
@@ -141,7 +143,7 @@ module.exports = {
         else
             message = await msg.channel.send(msgObj);
 
-        ['⬅️', '➡️'].map(a => message.react(a).catch(() => {}));
+        ['⏪', '⬅️', '➡️', '⏩'].map(a => message.react(a).catch(() => {}));
 
         const collector = message.createReactionCollector(
             (reaction, user) => user.bot === false,
@@ -154,11 +156,22 @@ module.exports = {
             if(user.id != msg.author.id)
                 return;
 
-            if(reaction._emoji.name == '⬅️')
-                params.page = Math.max(1, params.page - 1);
+            const currentRank = params.page * params.count;
+            const addRank = currentRank < 1000 ? 100 : 1000;
 
-            if(reaction._emoji.name == '➡️')
-                params.page++;
+            switch(reaction._emoji.name){
+                case '⏪':
+                    params.page = Math.max(1, params.page - Math.floor(addRank / params.count));
+                    break;
+                case '⬅️':
+                    params.page = Math.max(1, params.page - 1);
+                    break;
+                case '➡️':
+                    params.page++;
+                    break;
+                case '⏩':
+                    params.page += Math.floor(addRank / params.count);
+            }
 
             if('find' in params)
                 delete params.find;
