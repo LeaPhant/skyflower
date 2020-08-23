@@ -10,7 +10,7 @@ const configDefault = {
     "debug": false,
     "prefix": "s!",
     "dbUri": "redis://localhost:6379",
-    "dbNamespace": "skybot"
+    "dbNamespace": "skyflower"
 };
 
 if(!fs.existsSync('./config.json'))
