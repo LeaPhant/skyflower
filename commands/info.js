@@ -17,7 +17,7 @@ module.exports = {
             fields: [
                 {
                     name: "Links",
-                    value: `[GitHub Repo](https://github.com/LeaPhant/skyflower) • [Invite Link](https://discord.com/oauth2/authorize?client_id=${config.credentials.discord_client_id}&scope=bot&permissions=0)`
+                    value: `[GitHub Repo](https://github.com/LeaPhant/skyflower) • [Invite Link](https://discord.com/oauth2/authorize?client_id=${config.credentials.discord_client_id}&scope=bot&permissions=1073750016)`
                 }
             ],
             footer: {
