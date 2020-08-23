@@ -141,7 +141,7 @@ async function main(){
 
 		if(msg.member != null
 		&& msg.member.hasPermission('ADMINISTRATOR')
-		&& msg.content.startsWith('!skybotprefix')){
+		&& msg.content.startsWith('s!skyflowerprefix')){
 			const newPrefix = msg.content.substring('!skybotprefix'.length).trim();
 
 			try{

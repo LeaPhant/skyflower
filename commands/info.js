@@ -2,7 +2,7 @@ const config = require('../config.json');
 const helper = require('../helper.js');
 
 module.exports = {
-    command: ['info', 'skybot', 'about'],
+    command: ['info', 'skyflower', 'about'],
     argsRequired: 0,
     call: async obj => {
         const { prefix, client } = obj;

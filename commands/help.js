@@ -22,7 +22,7 @@ module.exports = {
             fields.push({
                 name: "Admin commands",
                 value: 
-                `\`!skybotprefix <prefix>\` - Set prefix for this bot (always prefixed with \`!\`).
+                `\`s!skyflowerprefix <prefix>\` - Set prefix for this bot (always prefixed with \`s!\`).
                 \`${prefix}togglelayout <channel id>\` - Set a channel to toggle extended layout for.
                 \`${prefix}commandschannel <channel id>\` - Set main channel to be used for commands.
 

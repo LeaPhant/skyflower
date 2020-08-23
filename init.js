@@ -8,7 +8,7 @@ const configDefault = {
     },
     "sky_api_base": "https://sky.lea.moe",
     "debug": false,
-    "prefix": "!",
+    "prefix": "s!",
     "dbUri": "redis://localhost:6379",
     "dbNamespace": "skybot"
 };
