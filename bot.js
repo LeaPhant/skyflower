@@ -158,7 +158,7 @@ async function main(){
 			const commandMatch = await helper.checkCommand(prefix, msg, command);
 
 	        if(commandMatch === true){
-	            if(command.call && typeof command.call === 'function'){
+	            if(typeof command.call === 'function'){
 					if(isEdit)
 						endEmitter.emit(`end-${guildId}_${responseMsg.channel.id}_${responseMsg.id}`);
 
@@ -295,7 +295,7 @@ async function main(){
 	                });
 	            }
 	        }else if(commandMatch !== false){
-	            msg.channel.send(commandMatch);
+	            msg.channel.send({ embed: { color: 11809405, description: commandMatch }});
 	        }
 		}
 
