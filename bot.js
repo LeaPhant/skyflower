@@ -243,7 +243,14 @@ async function main(){
 					});
 				}
 	        }else if(commandMatch !== false){
-				const message = await msg.channel.send({ embed: { color: helper.mainColor, description: commandMatch }});
+				let msgObj;
+
+				if(typeof commandMatch == 'string')
+					msgObj = { embed: { color: helper.mainColor, description: commandMatch } };
+				else
+					msgObj = commandMatch;
+
+				const message = await msg.channel.send(msgObj);
 				
 				await db.set(
 					`response_${guildId}_${msg.channel.id}_${msg.id}`, 

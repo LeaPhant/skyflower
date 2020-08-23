@@ -89,7 +89,7 @@ module.exports = {
 	            return 'Insufficient permissions for running this command.';
 
 	        if(command.argsRequired !== undefined && argv.length <= command.argsRequired)
-                return await module.exports.commandHelp(command.command, msg);
+                return await module.exports.commandHelp(command.command);
 
 	        return true;
 	    }
@@ -161,18 +161,7 @@ module.exports = {
         return lbResults[0];
     },
 
-    commandHelp: async (commandName, msg) => {
-        if('guild' in msg){
-            const extendedLayout = await module.exports.extendedLayout(msg);
-            const commandsChannel = await db.get(`commands_${msg.guild.id}`);
-
-            if(!extendedLayout)
-                if(commandsChannel)
-                    return `Run command in <#${commandsChannel}> for usage info.`;
-                else
-                    return `Run command in commands channel for usage info.`;
-        }  
-
+    commandHelp: async (commandName) => {
         if(Array.isArray(commandName))
             commandName = commandName[0];
 
