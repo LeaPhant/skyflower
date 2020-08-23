@@ -11,10 +11,13 @@ module.exports = {
             color: helper.mainColor,
             title: "Sky Flower",
             description: `Open-source Discord bot with cool SkyBlock features`,
+            thumbnail: {
+                url: 'https://raw.githubusercontent.com/LeaPhant/skyflower/master/resources/icon.png'
+            },
             fields: [
                 {
                     name: "Links",
-                    value: `[GitHub Repo](https://github.com/LeaPhant/sky-flower) • [Invite Link](https://discord.com/oauth2/authorize?client_id=${config.credentials.discord_client_id}&scope=bot&permissions=0)`
+                    value: `[GitHub Repo](https://github.com/LeaPhant/skyflower) • [Invite Link](https://discord.com/oauth2/authorize?client_id=${config.credentials.discord_client_id}&scope=bot&permissions=0)`
                 }
             ],
             footer: {
@@ -30,7 +33,7 @@ module.exports = {
         const guildCount = guildCountResponse.reduce((acc, count) => acc + count, 0).toLocaleString();
 
         embed.description += `\nserving **${memberCount} Members** in **${guildCount} Guilds**.`;
-        embed.description += `\n\nFor a list of commands run \`${prefix}help\``;
+        embed.description += `\n\nFor a list of commands run \`${prefix}help\`.`;
 
         return { embed };
     }
