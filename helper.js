@@ -131,11 +131,9 @@ module.exports = {
 
         for(const product of itemResults){
             if(product.name.toLowerCase() == query)
-                resultMatch = product;
+                return product;
 
             product.tagMatches = 0;
-
-            product.distance = distance(product.name, query, { caseSensitive: false });
 
             for(const part of query.split(" "))
                 for(const tag of product.tag)
@@ -143,18 +141,16 @@ module.exports = {
                         product.tagMatches++;
         }
 
-        itemResults = itemResults.sort((a, b) => {
-            if(a.tagMatches > b.tagMatches) return -1;
-            if(a.tagMatches < b.tagMatches) return 1;
+        itemResults = itemResults.sort((a, b) => b.tagMatches - a.tagMatches);
+        itemResults = itemResults.filter(a => a.tagMatches == itemResults[0].tagMatches);
 
-            if(a.distance > b.distance) return -1;
-            if(a.distance < b.distance) return 1;
-        });
+        if(itemResults.length == 1)
+            return itemResults[0];
 
-        if(!resultMatch)
-            resultMatch = itemResults[0];
+        itemResults.forEach(a => a.distance = distance(a.name, query, { caseSensitive: false }));
+        itemResults = itemResults.sort((a, b) => b.distance - a.distance);
 
-        return resultMatch;
+        return itemResults[0];
     },
 
     getLeaderboard: (query, leaderboards) => {
@@ -166,11 +162,9 @@ module.exports = {
 
         for(const lb of lbResults){
             if(lb.name.toLowerCase() == query)
-                resultMatch = lb;
+                return lb;
 
             lb.tagMatches = 0;
-
-            lb.distance = distance(lb.name, query, { caseSensitive: false });
 
             for(const queryPart of query.toLowerCase().split(" "))
                 for(const namePart of lb.name.toLowerCase().split(" "))
@@ -178,18 +172,18 @@ module.exports = {
                         lb.tagMatches++;
         }
 
-        lbResults = lbResults.sort((a, b) => {
-            if(a.tagMatches > b.tagMatches) return -1;
-            if(a.tagMatches < b.tagMatches) return 1;
+        lbResults = lbResults.sort((a, b) => b.tagMatches - a.tagMatches);
+        lbResults = lbResults.filter(a => a.tagMatches == lbResults[0].tagMatches);
 
-            if(a.distance > b.distance) return -1;
-            if(a.distance < b.distance) return 1;
-        });
+        if(lbResults.length == 1)
+            return lbResults[0];
 
-        if(!resultMatch)
-            resultMatch = lbResults[0];
+        lbResults.forEach(a => a.distance = distance(a.name, query, { caseSensitive: false }));
+        lbResults = lbResults.sort((a, b) => b.distance - a.distance);
 
-        return resultMatch;
+        resultMatch = lbResults[0];
+
+        return lbResults[0];
     },
 
     commandHelp: async (commandName, msg) => {
