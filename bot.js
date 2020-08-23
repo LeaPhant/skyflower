@@ -189,8 +189,10 @@ async function main(){
 						db
 					});
 				}catch(e){
-					if(typeof err === 'object')
-						response = err;
+					helper.error(e);
+					
+					if(typeof e === 'object' && e.embed != null)
+						response = e;
 					else
 						response = {
 							embed: {
@@ -198,7 +200,7 @@ async function main(){
 								author: {
 									name: 'Error'
 								},
-								description: err
+								description: e.toString()
 							}
 						};
 				}
