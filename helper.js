@@ -94,34 +94,6 @@ module.exports = {
 	    return false;
 	},
 
-    formatNumber: (number, floor, rounding = 10) => {
-        if(number < 1000)
-            if(floor)
-                return (Math.floor(number * rounding) / rounding).toFixed(Math.max(0, rounding.toString().length - 2))
-            else
-                return (Math.ceil(number * rounding) / rounding).toFixed(Math.max(0, rounding.toString().length - 2))
-        else if(number < 10000)
-            if(floor)
-                return (Math.floor(number / 1000 * rounding) / rounding).toFixed(rounding.toString().length - 1) + 'K';
-            else
-                return (Math.ceil(number / 1000 * rounding) / rounding).toFixed(rounding.toString().length - 1) + 'K';
-        else if(number < 1000000)
-            if(floor)
-                return (Math.floor(number / 1000 * rounding) / rounding).toFixed(rounding.toString().length - 1) + 'K';
-            else
-                return (Math.ceil(number / 1000 * rounding) / rounding).toFixed(rounding.toString().length - 1) + 'K';
-        else if(number < 1000000000)
-            if(floor)
-                return (Math.floor(number / 1000 / 1000 * rounding) / rounding).toFixed(rounding.toString().length - 1) + 'M';
-            else
-                return (Math.ceil(number / 1000 / 1000 * rounding) / rounding).toFixed(rounding.toString().length - 1) + 'M';
-        else
-        if(floor)
-            return (Math.floor(number / 1000 / 1000 / 1000 * rounding * 10) / (rounding * 10)).toFixed(rounding.toString().length) + 'B';
-        else
-            return (Math.ceil(number / 1000 / 1000 / 1000 * rounding * 10) / (rounding * 10)).toFixed(rounding.toString().length) + 'B';
-    },
-
     getBazaarProduct: (query, products) => {
         let resultMatch;
         let itemResults = [];
@@ -285,41 +257,5 @@ module.exports = {
             emote = client.emojis.cache.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
 
         return emote;
-    },
-
-    replaceAll: (target, search, replacement) => {
-        return target.split(search).join(replacement);
-    },
-
-    splitWithTail: (string, delimiter, count) => {
-        let parts = string.split(delimiter);
-        let tail = parts.slice(count).join(delimiter);
-        let result = parts.slice(0,count);
-        result.push(tail);
-
-        return result;
-    },
-
-    getRandomArbitrary: (min, max) => {
-        return Math.random() * (max - min) + min;
-    },
-
-    getRandomInt: (min, max) => {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min)) + min;
-    },
-
-    capitalizeFirstLetter: word => {
-        return word.charAt(0).toUpperCase() + word.slice(1);
-    },
-
-    titleCase: string => {
-       let split = string.toLowerCase().split(' ');
-
-       for(let i = 0; i < split.length; i++)
-            split[i] = split[i].charAt(0).toUpperCase() + split[i].substring(1);
-
-        return split.join(' ');
     }
 }

@@ -1,5 +1,5 @@
 const helper = require('../helper');
-const { formatNumber } = helper;
+const numeral = require('numeral');
 const config = require('../config.json');
 const axios = require('axios');
 const { CancelToken } = axios;
@@ -45,7 +45,7 @@ const skillEmbed = (profile, skillName, embed) => {
     const output = JSON.parse(JSON.stringify(embed));
 
     const skill = profile.data.levels[skillName];
-    const name = helper.capitalizeFirstLetter(skillName);
+    const name = _.upperFirst(skillName);
 
     output.author.name = `${profile.data.display_name}'s ${name} Skill (${profile.cute_name})`;
 
@@ -146,7 +146,7 @@ const skillEmbed = (profile, skillName, embed) => {
         output.description += '\nBonus: ';
 
     for(const [index, key] of _.keys(bonusKeys).entries()){
-        output.description += `**+${statModifier(skillBonus[key], key)}** ${helper.titleCase(key.replace(/\_/g, ' '))}`;
+        output.description += `**+${statModifier(skillBonus[key], key)}** ${_.startCase(key.replace(/\_/g, ' '))}`;
 
         if(index < _.keys(bonusKeys).length - 1)
             output.description += ', ';
@@ -259,8 +259,8 @@ module.exports = {
                 },
                 footer,
                 description:
-                    `Total Skill XP: **${helper.formatNumber(profile.data.total_skill_xp)}**\n`
-                + `Average Skill Level: **${(Math.floor(profile.data.average_level * 100) / 100).toFixed(2)}** (**${(Math.floor(profile.data.average_level_no_progress * 100) / 100).toFixed(2)}**) (**#${helper.formatNumber(profile.data.average_level_rank)}**)`,
+                    `Total Skill XP: **${numeral(profile.data.total_skill_xp).format('0.0a')}**\n`
+                + `Average Skill Level: **${(Math.floor(profile.data.average_level * 100) / 100).toFixed(2)}** (**${(Math.floor(profile.data.average_level_no_progress * 100) / 100).toFixed(2)}**) (**#${numeral(profile.data.average_level_rank).format('0[.]0a')}**)`,
                 fields: []
             };
 
@@ -274,22 +274,22 @@ module.exports = {
                 if(skill == null)
                     continue;
 
-                const name = helper.capitalizeFirstLetter(skillName);
+                const name = _.upperFirst(skillName);
                 const skillEmote = helper.emote('sb' + name, null, client);
 
                 const field = {};
 
                 if(extendedLayout)
-                    field['name'] = `${skillEmote.toString()} ${name} **${skill.level}** (#${helper.formatNumber(skill.rank)})`;
+                    field['name'] = `${skillEmote.toString()} ${name} **${skill.level}** (#${numeral(skill.rank).format('0[.]0a')})`;
                 else
-                    field['name'] = `**${skillEmote.toString()} ${name} ${skill.level} (#${helper.formatNumber(skill.rank)})**`;
+                    field['name'] = `**${skillEmote.toString()} ${name} ${skill.level} (#${numeral(skill.rank).format('0[.]0a')})**`;
 
                 if(skill.level == skill.maxLevel)
-                    field['value'] = `**${skill.xpForNext === 0 ? '–' : helper.formatNumber(skill.xpCurrent, true)}** XP`;
+                    field['value'] = `**${skill.xpForNext === 0 ? '–' : numeral(skill.xpCurrent).format('0[.]0a')}** XP`;
                 else
-                    field['value'] = `**${skill.xpForNext === 0 ? '–' : helper.formatNumber(skill.xpCurrent, true)}** / ${skill.xpForNext === 0 ? '–' : helper.formatNumber(skill.xpForNext, false)} XP`;
+                    field['value'] = `**${skill.xpForNext === 0 ? '–' : numeral(skill.xpCurrent).format('0[.]0a')}** / ${skill.xpForNext === 0 ? '–' : numeral(skill.xpForNext).format('0[.]0a')} XP`;
 
-                field['value'] += ` (**${helper.formatNumber(skill.xp, true)}**)`;
+                field['value'] += ` (**${numeral(skill.xp).format('0[.]0a')}**)`;
 
                 if(extendedLayout)
                     field['name'] = `**${field['name']}**`;
@@ -365,6 +365,8 @@ module.exports = {
                 message.reactions.removeAll();
             });
         }).catch(async e => {
+            helper.error(e);
+
             if(axios.isCancel(e))
                 return;
 

@@ -1,6 +1,7 @@
 const helper = require('../helper');
-const { formatNumber } = helper;
+const numeral = require('numeral');
 const config = require('../config.json');
+const _ = require('lodash');
 const axios = require('axios');
 const math = require('mathjs');
 
@@ -172,8 +173,8 @@ module.exports = {
                     buyText += `Buy ${itemsBuy.toLocaleString()}`;
                     sellText += `Sell ${itemsSell.toLocaleString()}`;
 
-                    let buyStacks = `${ Math.round(itemsBuy / 64).toLocaleString() } × 64`;
-                    let sellStacks = `${ Math.round(itemsSell / 64).toLocaleString() } × 64`;
+                    let buyStacks = `${ _.round(itemsBuy / 64, 1).toLocaleString() } × 64`;
+                    let sellStacks = `${ _.round(itemsSell / 64, 1).toLocaleString() } × 64`;
 
                     if(itemsBuy >= 128 && itemsSell >= 128){
                         buyText += ` (${buyStacks})`;
@@ -190,11 +191,11 @@ module.exports = {
 
                     if(index < 6){
                         embed.fields.push({
-                            name: `Spend ${formatNumber(amount, false, 10)}`,
+                            name: `Spend ${numeral(amount).format('0.0a')}`,
                             value: buyText,
                             inline: true
                         }, {
-                            name: `Earn ${formatNumber(amount, false, 10)}`,
+                            name: `Earn ${numeral(amount).format('0.0a')}`,
                             value: sellText,
                             inline: true
                         });
@@ -209,11 +210,11 @@ module.exports = {
                         if(index < 6){
                             embed.fields.push({
                                 name: `Buy ${amount.toLocaleString()} × 64`,
-                                value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.buyPrice, false, 100),
+                                value: amount == 0 ? 'Free' : numeral(amount * 64 * bazaarProduct.buyPrice).format('0.00a'),
                                 inline: true
                             }, {
                                 name: `Sell ${amount.toLocaleString()} × 64`,
-                                value: amount == 0 ? 'Free' : formatNumber(amount * 64 * bazaarProduct.sellPrice, false, 100),
+                                value: amount == 0 ? 'Free' : numeral(amount * 64 * bazaarProduct.sellPrice).format('0.00a'),
                                 inline: true
                             });
                         }
@@ -224,11 +225,11 @@ module.exports = {
                         if(index < 6){
                             embed.fields.push({
                                 name: `Buy ${amount.toLocaleString()}`,
-                                value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.buyPrice, false, 100),
+                                value: amount == 0 ? 'Free' : numeral(amount * bazaarProduct.buyPrice).format('0.00a'),
                                 inline: true
                             }, {
                                 name: `Sell ${amount.toLocaleString()}`,
-                                value: amount == 0 ? 'Free' : formatNumber(amount * bazaarProduct.sellPrice, false, 100),
+                                value: amount == 0 ? 'Free' : numeral(amount * bazaarProduct.sellPrice).format('0.00a'),
                                 inline: true
                             });
                         }
@@ -241,11 +242,11 @@ module.exports = {
                 if(index < 6){
                     embed.fields.push({
                         name: "Buy Price",
-                        value: formatNumber(bazaarProduct.buyPrice, false, 100),
+                        value: numeral(bazaarProduct.buyPrice).format('0.00a'),
                         inline: true
                     }, {
                         name: "Sell Price",
-                        value: formatNumber(bazaarProduct.sellPrice, false, 100),
+                        value: numeral(bazaarProduct.sellPrice).format('0.00a'),
                         inline: true
                     });
                 }
@@ -285,11 +286,11 @@ module.exports = {
                 inline: true
             }, {
                 name: coinsMode ? "Spend Total" : "Buy Total",
-                value: formatNumber(totalBuy, false, 100),
+                value: numeral(totalBuy).format('0.00a'),
                 inline: true
             }, {
                 name: coinsMode ? "Earn Total" : "Sell Total",
-                value: formatNumber(totalSell, false, 100),
+                value: numeral(totalSell).format('0.00a'),
                 inline: true
             }];
 
