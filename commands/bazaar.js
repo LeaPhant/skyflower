@@ -63,7 +63,7 @@ module.exports = {
         let summary = commandText.split(" + ");
 
         let embed = {
-            color: 11809405,
+            color: helper.mainColor,
             fields: [],
             footer: {
                 icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
@@ -105,7 +105,7 @@ module.exports = {
                 }catch(e){
                     throw {
                         embed: {
-                            color: 0xf04a4a,
+                            color: helper.errorColor,
                             author: {
                                 name: 'Error'
                             },
@@ -123,7 +123,7 @@ module.exports = {
             if(amount !== undefined && argv_.length < 2)
                 throw {
                     embed: {
-                        color: 0xf04a4a,
+                        color: helper.errorColor,
                         author: {
                             name: 'Error'
                         },

@@ -190,13 +190,13 @@ async function main(){
 					});
 				}catch(e){
 					helper.error(e);
-					
+
 					if(typeof e === 'object' && e.embed != null)
 						response = e;
 					else
 						response = {
 							embed: {
-								color: 0xf04a4a,
+								color: helper.errorColor,
 								author: {
 									name: 'Error'
 								},
@@ -215,7 +215,7 @@ async function main(){
 				}
 
 				if(typeof response === 'string')
-					response = { embed: { color: 11809405, description: response }};
+					response = { embed: { color: helper.mainColor, description: response }};
 
 				if(isEdit)
 					messagePromise = responseMsg.edit(response);
@@ -234,7 +234,7 @@ async function main(){
 				}catch(e){
 					message = await msg.channel.send({
 						embed: {
-							color: 0xf04a4a,
+							color: helper.errorColor,
 							author: {
 								name: 'Error'
 							},
@@ -243,7 +243,7 @@ async function main(){
 					});
 				}
 	        }else if(commandMatch !== false){
-				const message = await msg.channel.send({ embed: { color: 11809405, description: commandMatch }});
+				const message = await msg.channel.send({ embed: { color: helper.mainColor, description: commandMatch }});
 				
 				await db.set(
 					`response_${guildId}_${msg.channel.id}_${msg.id}`, 

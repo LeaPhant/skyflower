@@ -1,4 +1,5 @@
 const config = require('../config.json');
+const helper = require('../helper.js');
 
 module.exports = {
     command: ['info', 'skybot', 'about'],
@@ -7,13 +8,13 @@ module.exports = {
         const { prefix, client } = obj;
 
         const embed = {
-            color: 11809405,
-            title: "skybot",
+            color: helper.mainColor,
+            title: "Sky Flower",
             description: `Open-source Discord bot with cool SkyBlock features`,
             fields: [
                 {
                     name: "Links",
-                    value: `[GitHub Repo](https://github.com/LeaPhant/skybot) • [Invite Link](https://discord.com/oauth2/authorize?client_id=${config.credentials.discord_client_id}&scope=bot&permissions=0)`
+                    value: `[GitHub Repo](https://github.com/LeaPhant/sky-flower) • [Invite Link](https://discord.com/oauth2/authorize?client_id=${config.credentials.discord_client_id}&scope=bot&permissions=0)`
                 }
             ],
             footer: {

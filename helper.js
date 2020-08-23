@@ -20,6 +20,9 @@ module.exports = {
 
     cmd_escape: cmd_escape,
 
+    mainColor: 0xdf73af,
+    errorColor: 0xf04a4a,
+
     extendedLayout: async msg => {
         if(msg.guild == null)
             return true;

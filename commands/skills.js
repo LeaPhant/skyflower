@@ -198,7 +198,7 @@ module.exports = {
 
         const msgObj = {
             embed : {
-                color: 11809405,
+                color: helper.mainColor,
                 author: {
                     name: `${argv[1]}'s Skills`
                 },
@@ -248,7 +248,7 @@ module.exports = {
             }
 
             const embed = {
-                color: 11809405,
+                color: helper.mainColor,
                 url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
                 author: {
                     name: `${profile.data.display_name}'s Skills (${profile.cute_name})`,
@@ -377,7 +377,7 @@ module.exports = {
 
             await message.edit({
                 embed: {
-                    color: 0xf04a4a,
+                    color: helper.errorColor,
                     author: {
                         name: 'Error'
                     },

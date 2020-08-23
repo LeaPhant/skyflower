@@ -24,7 +24,7 @@ const errorHandler = (e, embed) => {
         error = e.response.data.error;
 
     return {
-        color: 0xf04a4a,
+        color: helper.errorColor,
         author: {
             name: 'Error'
         },
@@ -193,7 +193,7 @@ module.exports = {
         const params = { count: extendedLayout ? 10 : 4, page: 1 };
 
         const embed = {
-            color: 11809405,
+            color: helper.mainColor,
             fields: [],
             footer: {
                 icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",

@@ -32,7 +32,7 @@ module.exports = {
 
         return { 
             embed: {
-                color: 11809405,
+                color: helper.mainColor,
                 title: "Commands for skybot",
                 description,
                 fields,
