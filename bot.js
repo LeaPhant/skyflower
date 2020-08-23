@@ -31,7 +31,7 @@ async function main(){
 	            command.filename = path.resolve(commandsPath, item);
 
 	            let available = true;
-	            let unavailability_reason = [];
+	            const unavailabilityReason = [];
 
 	            if(command.folderRequired !== undefined && command.folderRequired.length > 0){
 					const folderRequired = _.castArray(command.folderRequired);
@@ -39,7 +39,7 @@ async function main(){
 					for(const folder of folderRequired){
 	                    if(!fs.existsSync(path.resolve(__dirname, folder)))
 	                        available = false;
-	                        unavailability_reason.push(`required folder ${folder} does not exist`);
+	                        unavailabilityReason.push(`required folder ${folder} does not exist`);
 	                }
 	            }
 
@@ -49,10 +49,10 @@ async function main(){
 					for(const configPath of configRequired){
 	                    if(!objectPath.has(config, configPath)){
 	                        available = false;
-	                        unavailability_reason.push(`required config option ${configPath} not set`);
+	                        unavailabilityReason.push(`required config option ${configPath} not set`);
 	                    }else if(objectPath.get(config, configPath).length == 0){
 	                        available = false;
-	                        unavailability_reason.push(`required config option ${configPath} is empty`);
+	                        unavailabilityReason.push(`required config option ${configPath} is empty`);
 	                    }
 	                }
 	            }
@@ -65,7 +65,7 @@ async function main(){
 						
 	                    if(!emote){
 	                        available = false;
-	                        unavailability_reason.push(`required emote ${emoteName} is missing`);
+	                        unavailabilityReason.push(`required emote ${emoteName} is missing`);
 	                    }
 	                }
 	            }
@@ -79,9 +79,9 @@ async function main(){
 
 					console.log('');
 					console.log(chalk.yellow(`${config.prefix}${command.command[0]} was not enabled:`));
-					unavailability_reason.forEach(reason => {
+
+					for(const reason of unavailabilityReason)
 						console.log(chalk.yellow(reason));
-					});
 				}
 	        }
 		}
@@ -154,18 +154,33 @@ async function main(){
 			}
 		}
 
+		for(const handler of handlers){
+	        if(handler.message && typeof handler.message === 'function'){
+	            handler.message({
+	                msg,
+	                argv,
+					client,
+					prefix,
+					extendedLayout,
+					db
+	            }).catch(helper.error);
+	        }
+	    }
+
 		for(const command of commands){
 			const commandMatch = await helper.checkCommand(prefix, msg, command);
 
-	        if(commandMatch === true){
-	            if(typeof command.call === 'function'){
-					if(isEdit)
-						endEmitter.emit(`end-${guildId}_${responseMsg.channel.id}_${responseMsg.id}`);
+	        if(commandMatch === true && typeof command.call === 'function'){
+				if(isEdit)
+					endEmitter.emit(`end-${guildId}_${responseMsg.channel.id}_${responseMsg.id}`);
 
-	                const promise = command.call({
+				let response, messagePromise;
+
+				try{
+					response = await command.call({
 						guildId,
-	                    msg,
-	                    argv,
+						msg,
+						argv,
 						client,
 						prefix,
 						extendedLayout,
@@ -173,127 +188,58 @@ async function main(){
 						endEmitter,
 						db
 					});
+				}catch(e){
+					if(typeof err === 'object')
+						response = err;
+					else
+						response = {
+							embed: {
+								color: 0xf04a4a,
+								author: {
+									name: 'Error'
+								},
+								description: err
+							}
+						};
+				}
 
-	                Promise.resolve(promise).then(async response => {
-						if(response instanceof Discord.Message){
-							await db.set(
-								`response_${guildId}_${msg.channel.id}_${msg.id}`, 
-								`${guildId}_${response.channel.id}_${response.id}`,
-								2 * 60 * 1000);
+				if(response instanceof Discord.Message){
+					await db.set(
+						`response_${guildId}_${msg.channel.id}_${msg.id}`, 
+						`${guildId}_${response.channel.id}_${response.id}`,
+						2 * 60 * 1000);
 
-							return;
+					return;
+				}
+
+				if(typeof response === 'string')
+					response = { embed: { color: 11809405, description: response }};
+
+				if(isEdit)
+					messagePromise = responseMsg.edit(response);
+				else
+					messagePromise = msg.channel.send(response);
+
+				messagePromise.then(async message => {
+					await db.set(
+						`response_${guildId}_${msg.channel.id}_${msg.id}`, 
+						`${guildId}_${message.channel.id}_${message.id}`,
+						2 * 60 * 1000);
+				});
+
+				try{
+					await messagePromise;
+				}catch(e){
+					message = await msg.channel.send({
+						embed: {
+							color: 0xf04a4a,
+							author: {
+								name: 'Error'
+							},
+							description: err
 						}
-
-	                    if(response){
-	                        let message_promise, edit_promise, replace_promise, remove_path, content;
-
-	                        if(typeof response === 'object' && 'edit_promise' in response){
-	                            ({edit_promise} = response);
-	                            delete response.edit_promise;
-	                        }
-
-							if(typeof response === 'object' && 'replace_promise' in response){
-	                            ({replace_promise} = response);
-	                            delete response.replace_promise;
-	                        }
-
-	                        if(typeof response === 'object' && 'remove_path' in response){
-								({remove_path} = response);
-	                            delete response.remove_path;
-	                        }
-
-							if(typeof response === 'object' && 'content' in response){
-								({content} = response);
-	                            delete response.content;
-							}
-
-							if(typeof response === 'string')
-								response = { embed: { color: 11809405, description: response }};
-
-							if(isEdit){
-								if(content)
-									message_promise = responseMsg.edit(content, response);
-								else
-									message_promise = responseMsg.edit(response);
-							}else{
-								if(content)
-									message_promise = msg.channel.send(content, response);
-								else
-									message_promise = msg.channel.send(response);
-							}
-
-							message_promise.then(async message => {
-								await db.set(
-									`response_${guildId}_${msg.channel.id}_${msg.id}`, 
-									`${guildId}_${message.channel.id}_${message.id}`,
-									2 * 60 * 1000);
-							});
-
-	                        Promise.all([message_promise, edit_promise, replace_promise]).then(responses => {
-	                            let message = responses[0];
-	                            let edit_promise = responses[1];
-								let replace_promise = responses[2];
-
-	                            if(edit_promise)
-	                                message.edit(edit_promise).catch(helper.error);
-
-								if(replace_promise){
-									msg.channel.send(replace_promise)
-									.catch(err => {
-										msg.channel.send({
-											embed: {
-												color: 0xf04a4a,
-												author: {
-													name: 'Error'
-												},
-												description: err
-											}
-										});
-									}).finally(() => {
-										message.delete();
-
-										if(typeof replace_promise === 'object' && 'remove_path' in replace_promise){
-											({remove_path} = replace_promise);
-				                            delete replace_promise.remove_path;
-				                        }
-
-										if(remove_path)
-											fs.remove(remove_path, err => { if(err) helper.error });
-									});
-								}
-
-	                            if(remove_path)
-	                                fs.remove(remove_path, err => { if(err) helper.error });
-	                        }).catch(err => {
-								msg.channel.send({
-									embed: {
-										color: 0xf04a4a,
-										author: {
-											name: 'Error'
-										},
-										description: err
-									}
-								});
-								msg.channel.send(`Couldn't run command: \`${err}\``);
-							});
-	                    }
-	                }).catch(err => {
-	                    if(typeof err === 'object')
-	                        msg.channel.send(err);
-	                    else
-							msg.channel.send({
-								embed: {
-									color: 0xf04a4a,
-									author: {
-										name: 'Error'
-									},
-									description: err
-								}
-							});
-
-	                    helper.error(err);
-	                });
-	            }
+					});
+				}
 	        }else if(commandMatch !== false){
 				const message = await msg.channel.send({ embed: { color: 11809405, description: commandMatch }});
 				
@@ -303,19 +249,6 @@ async function main(){
 					2 * 60 * 1000);
 	        }
 		}
-
-	    handlers.forEach(handler => {
-	        if(handler.message && typeof handler.message === 'function'){
-	            handler.message({
-	                msg,
-	                argv,
-					client,
-					prefix,
-					extendedLayout,
-					db
-	            });
-	        }
-	    });
 	}
 
 	client.on('message', onMessage);
