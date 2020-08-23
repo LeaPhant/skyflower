@@ -112,7 +112,7 @@ const leaderboardCollector = async function(reaction, user, embed, message, para
 const drawTopPositions = function(embed, topPositions){
     const { self } = topPositions;
 
-    embed = {
+    embed = { ...embed,
         title: "Top leaderboard ranks",
         description: `Top 1000 ranks: **${topPositions.positions.filter(a => a.rank <= 1000).length}**`,
         author: {
@@ -231,7 +231,7 @@ module.exports = {
             try{
                 const response = await axios.get(`${config.sky_api_base}/api/v2/leaderboards/${params.find}`);
 
-                topPositions = {...response.data, page: 1, count: params.count };
+                topPositions = { ...response.data, page: 1, count: params.count };
 
                 msgObj.embed = drawTopPositions(embed, topPositions);
                 reactions.push('⬅️', '➡️');
