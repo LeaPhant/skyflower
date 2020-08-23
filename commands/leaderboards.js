@@ -18,8 +18,6 @@ updateLeaderboards();
 setInterval(updateLeaderboards, 60 * 1000);
 
 const errorHandler = (e, embed) => {
-    console.error(e);
-
     let error = "Failed retrieving data from API.";
 
     if(e.response != null && e.response.data != null && 'error' in e.response.data)
@@ -251,7 +249,7 @@ module.exports = {
             message = await msg.channel.send(msgObj);
 
         if(reactions.length == 0)
-            return;
+            return message;
 
         reactions.map(a => message.react(a).catch(() => {}));
 
