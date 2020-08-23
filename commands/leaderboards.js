@@ -10,7 +10,7 @@ const updateLeaderboards = async function(){
 
         leaderboards = lbResponse.data;
     }catch(e){
-        console.error(e);
+        helper.error(e);
     }
 }
 
@@ -103,7 +103,7 @@ const leaderboardCollector = async function(reaction, user, embed, message, para
     try{
         message.edit({ embed: await drawLeaderboard(embed, args, params) });
     }catch(e){
-        console.error(e);
+        helper.error(e);
     }
 };
 
@@ -157,7 +157,7 @@ const topPositionsCollector = function(reaction, user, embed, message, topPositi
     try{
         message.edit({ embed: drawTopPositions(embed, topPositions) });
     }catch(e){
-        console.error(e);
+        helper.error(e);
     }
 };
 
@@ -259,7 +259,7 @@ module.exports = {
         );
 
         collector.on('collect', async (reaction, user) => {
-            reaction.users.remove(user.id).catch(console.error);
+            reaction.users.remove(user.id).catch(() => {});
 
             if(user.id != msg.author.id)
                 return;

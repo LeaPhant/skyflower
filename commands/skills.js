@@ -336,7 +336,7 @@ module.exports = {
             reactions.map(a => message.react(a).catch(() => {}));
 
             collector.on('collect', async (reaction, user) => {
-                reaction.users.remove(user.id).catch(console.error);
+                reaction.users.remove(user.id).catch(() => {});
 
                 if(user.id != msg.author.id)
                     return;
