@@ -11,7 +11,7 @@ module.exports = {
         \`${prefix}info\` - Show info and links for this bot.
         \`${prefix}bazaar [amount] <item>\` – Get bazaar prices for an item.
         \`${prefix}skills <user> [profile] [skill]\` – Get skill levels of a player.
-        \`${prefix}leaderboard <leaderboard> [u:username] [r:rank]\` – Show leaderboards.
+        \`${prefix}leaderboard [leaderboard] [u:username] [r:rank]\` – Show leaderboards.
 
         *Run a command without arguments for extended help.*`;
 
