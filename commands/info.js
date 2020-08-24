@@ -12,7 +12,7 @@ module.exports = {
             title: "Sky Flower",
             description: `Open-source Discord bot with cool SkyBlock features`,
             thumbnail: {
-                url: 'https://raw.githubusercontent.com/LeaPhant/skyflower/master/resources/icon.png'
+                url: 'https://raw.githubusercontent.com/LeaPhant/skyflower/master/resources/icon_sky.png'
             },
             fields: [
                 {
