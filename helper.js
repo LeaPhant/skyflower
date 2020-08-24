@@ -241,13 +241,10 @@ module.exports = {
     },
 
     emote: (emoteName, guild, client) => {
+        if(emoteName in emotes)
+            return client.emojis.cache.get(emotes[emoteName].id);
+
         let emote;
-
-        if(emoteName in emotes){
-            emote = emotes[emoteName];
-
-            return `<${emote.animated ? 'a' : ''}:${emoteName}:${emote.id}>`;
-        }
 
         if(guild)
             emote = guild.emojis.cache.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
