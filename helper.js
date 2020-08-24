@@ -3,6 +3,7 @@ const _ = require('lodash');
 const distance = require('jaro-winkler');
 
 const config = require('./config.json');
+const emotes = require('./emotes.json');
 
 const sep = ' ✦ ';
 const cmd_escape = "```";
@@ -241,6 +242,12 @@ module.exports = {
 
     emote: (emoteName, guild, client) => {
         let emote;
+
+        if(emoteName in emotes){
+            emote = emotes[emoteName];
+
+            return `<${emote.animated ? 'a' : ''}:${emoteName}:${emote.id}>`;
+        }
 
         if(guild)
             emote = guild.emojis.cache.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());

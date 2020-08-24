@@ -104,5 +104,6 @@ dist
 .tern-port
 
 config.json
+emotes.json
 
 scratch/

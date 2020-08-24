@@ -13,6 +13,7 @@ const client = new Discord.Client();
 client.on('error', console.error);
 
 const config = require('./config.json');
+const emotes = require('./emotes.json');
 
 let guilds = [];
 
@@ -45,19 +46,24 @@ client.on('ready', () => {
                 throw err;
 
             for(const file of files){
-                if(path.extname(file) == '.png'){
+                if(['.png', '.gif'].includes(path.extname(file))){
                     const emojiName = path.basename(file, path.extname(file));
 
-                    if(guild.emojis.cache.filter(a => a.name == emojiName).array().length > 0)
-                        continue;
+                    let emojiObj = guild.emojis.cache.filter(a => a.name == emojiName).first();
+
+                    if(emojiObj == null)
+                        emojiObj = await guild.emojis.create(`./emotes/${file}`, emojiName);
+
+                    emotes[emojiObj.name] = { id: emojiObj.id, animated: emojiObj.animated };
 
                     console.log('upload emoji', emojiName);
-
-                    await guild.emojis.create(`./emotes/${file}`, emojiName);
                 }
             }
 
             console.log(`${files.length} emotes successfully uploaded!`);
+            
+            fs.writeFileSync('./emotes.json', JSON.stringify(emotes, null, 4));
+
             rl.close();
             process.exit(0);
         });
