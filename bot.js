@@ -17,7 +17,7 @@ const client = new Discord.Client();
 
 client.on('error', helper.error);
 client.on('ready', () => {
-	client.user.setActivity('s!help', { type: 'PLAYING', shardID: client.shard.ids })
+	client.user.setActivity(`${config.prefix}help`, { type: 'PLAYING', shardID: client.shard.ids })
 });
 
 async function main(){
