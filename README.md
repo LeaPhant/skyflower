@@ -1,7 +1,7 @@
 # Sky Flower <img align="right" width="100" height="100" src="resources/icon_transparent.png">
 Open-source Discord bot with cool SkyBlock features. 🌺
 
-<img src="https://i.imgur.com/tHcYF89.png"></img>
+<img src="https://i.imgur.com/729g1KQ.png"></img>
 
 You can either add the public instance (<a href="https://discord.com/oauth2/authorize?client_id=747232589961625665&scope=bot&permissions=1073750016">Invite Link</a>) to your server or run the bot yourself.
 
