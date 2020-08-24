@@ -1,6 +1,7 @@
 const config = require('../config.json');
 const axios = require('axios');
 const helper = require('../helper');
+const _ = require('lodash');
 
 let leaderboards;
 
@@ -33,11 +34,12 @@ const errorHandler = (e, embed) => {
     };
 };
 
-const drawLeaderboard = async function(embed, args, params){
+const drawLeaderboard = async function(_embed, args, params){
     try{
         const lb = helper.getLeaderboard(args.join(" "), leaderboards);
-
         const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${lb.key}`, { params });
+        
+        const embed = _.cloneDeep(_embed);
 
         if(data.self){
             const { self } = data;
@@ -52,6 +54,8 @@ const drawLeaderboard = async function(embed, args, params){
         }
 
         params.page = data.page;
+
+        embed.footer.text += `${helper.sep}Page ${params.page}`;
 
         embed.title = `${lb.name} Leaderboards`;
 
@@ -107,8 +111,10 @@ const leaderboardCollector = async function(reaction, user, embed, message, para
     }
 };
 
-const drawTopPositions = function(embed, topPositions){
+const drawTopPositions = function(_embed, topPositions){
     const { self } = topPositions;
+
+    let embed = _.cloneDeep(_embed);
 
     embed = { ...embed,
         title: "Top leaderboard ranks",
@@ -120,6 +126,8 @@ const drawTopPositions = function(embed, topPositions){
         },
         fields: []
     };
+
+    embed.footer.text += `${helper.sep}Page ${topPositions.page} / ${Math.floor(topPositions.positions.length / topPositions.count) + 1}`;
 
     const startPosition = (topPositions.page - 1) * topPositions.count;
 
@@ -150,7 +158,7 @@ const topPositionsCollector = function(reaction, user, embed, message, topPositi
             topPositions.page = Math.max(1, topPositions.page - 1);
             break;
         case '➡️':
-            topPositions.page = Math.min(topPositions.page + 1, topPositions.positions.length / topPositions.count);
+            topPositions.page = Math.min(topPositions.page + 1, Math.floor(topPositions.positions.length / topPositions.count) + 1);
             break;
     }
     
