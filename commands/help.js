@@ -17,14 +17,13 @@ module.exports = {
 
         const fields = [];
 
-        if('member' in msg 
+        if(msg.member != null
         && msg.member.hasPermission('ADMINISTRATOR')){
             fields.push({
                 name: "Admin commands",
                 value: 
                 `\`s!skyflowerprefix <prefix>\` - Set prefix for this bot (always prefixed with \`s!\`).
                 \`${prefix}togglelayout <channel id>\` - Set a channel to toggle extended layout for.
-                \`${prefix}commandschannel <channel id>\` - Set main channel to be used for commands.
 
                 *(Commands can be run in all channels but use a more compact layout by default, please handle the rest via user permissions).*`
             });
