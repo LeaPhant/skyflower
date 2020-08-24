@@ -215,7 +215,7 @@ module.exports = {
             message = await msg.channel.send(msgObj);
 
         const collector = message.createReactionCollector(
-            (reaction, user) => user.bot === false,
+            (reaction, user) => user.bot === false && user.id == msg.author.id,
             { idle: 120 * 1000 }
         );
 
@@ -337,9 +337,6 @@ module.exports = {
 
             collector.on('collect', async (reaction, user) => {
                 reaction.users.remove(user.id).catch(() => {});
-
-                if(user.id != msg.author.id)
-                    return;
 
                 if(reaction._emoji.name == '⬅️'){
                     if(currentSkill === null)

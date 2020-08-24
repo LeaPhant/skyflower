@@ -254,15 +254,12 @@ module.exports = {
         reactions.map(a => message.react(a).catch(() => {}));
 
         const collector = message.createReactionCollector(
-            (reaction, user) => user.bot === false,
+            (reaction, user) => user.bot === false && user.id == msg.author.id,
             { idle: 120 * 1000 }
         );
 
         collector.on('collect', async (reaction, user) => {
             reaction.users.remove(user.id).catch(() => {});
-
-            if(user.id != msg.author.id)
-                return;
         });
 
         if(args.length == 0)
