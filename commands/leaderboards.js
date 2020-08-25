@@ -78,7 +78,7 @@ const drawLeaderboard = async function(_embed, args, params){
 
         return embed;
     }catch(e){
-        return errorHandler(e, embed);
+        return errorHandler(e, _embed);
     }
 };
 
