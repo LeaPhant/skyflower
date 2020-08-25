@@ -145,7 +145,7 @@ async function main(){
 		if(msg.member != null
 		&& msg.member.hasPermission('ADMINISTRATOR')
 		&& msg.content.startsWith('s!skyflowerprefix')){
-			const newPrefix = msg.content.substring('!skybotprefix'.length).trim();
+			const newPrefix = msg.content.substring('!skyflowerprefix'.length).trim();
 
 			try{
 				await db.set(`pfx_${msg.guild.id}`, newPrefix);
