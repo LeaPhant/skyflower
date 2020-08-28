@@ -34,16 +34,20 @@ const errorHandler = (e, embed) => {
     };
 };
 
-const drawLeaderboard = async function(_embed, args, params){
+const drawLeaderboard = async function(_embed, args, params, _self = {}){
+    console.log(args, params);
     try{
         const lb = helper.getLeaderboard(args.join(" "), leaderboards);
         const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${lb.key}`, { params });
         
         const embed = _.cloneDeep(_embed);
 
-        if(data.self){
-            const { self } = data;
+        let self = _self;
 
+        if(data.self)
+            self = data.self;
+
+        if(self.rank){
             embed.author = {
                 icon_url: `https://crafatar.com/avatars/${self.uuid}?size=128&overlay`,
                 name: self.username,
@@ -76,13 +80,13 @@ const drawLeaderboard = async function(_embed, args, params){
                 });
         }
 
-        return embed;
+        return { embed, self };
     }catch(e){
         return errorHandler(e, _embed);
     }
 };
 
-const leaderboardCollector = async function(reaction, user, embed, message, params, args){
+const leaderboardCollector = async function(reaction, user, embed, message, params, args, self){
     const currentRank = params.page * params.count;
     const addRank = currentRank < 1000 ? 100 : 1000;
     const removeRank = currentRank < 2000 ? 100 : 1000;
@@ -105,7 +109,10 @@ const leaderboardCollector = async function(reaction, user, embed, message, para
         delete params.find;
     
     try{
-        message.edit({ embed: await drawLeaderboard(embed, args, params) });
+        const lbObj = await drawLeaderboard(embed, args, params, self);
+        self = lbObj.self;
+
+        message.edit({ embed: lbObj.embed });
     }catch(e){
         helper.error(e);
     }
@@ -231,7 +238,7 @@ module.exports = {
         const msgObj = {};
         const reactions = [];
 
-        let topPositions;
+        let topPositions, self;
         
         if(args.length == 0){
             try{
@@ -245,7 +252,11 @@ module.exports = {
                 msgObj.embed = errorHandler(e, embed);
             }            
         }else{
-            msgObj.embed = await drawLeaderboard(embed, args, params);
+            const lbObj = await drawLeaderboard(embed, args, params);
+
+            msgObj.embed = lbObj.embed;
+            self = lbObj.self;
+
             reactions.push('⏪', '⬅️', '➡️', '⏩');
         }
 
@@ -276,7 +287,7 @@ module.exports = {
             });
         else
             collector.on('collect', (...reactionArgs) => { 
-                leaderboardCollector(...reactionArgs, embed, message, params, args) 
+                leaderboardCollector(...reactionArgs, embed, message, params, args, self) 
             });
 
         collector.on('end', () => {
