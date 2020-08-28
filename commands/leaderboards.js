@@ -82,7 +82,7 @@ const drawLeaderboard = async function(_embed, args, params, _self = {}){
 
         return { embed, self };
     }catch(e){
-        return errorHandler(e, _embed);
+        return { embed: errorHandler(e, _embed), _self };
     }
 };
 
