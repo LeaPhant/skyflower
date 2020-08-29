@@ -35,7 +35,6 @@ const errorHandler = (e, embed) => {
 };
 
 const drawLeaderboard = async function(_embed, args, params, _self = {}){
-    console.log(args, params);
     try{
         const lb = helper.getLeaderboard(args.join(" "), leaderboards);
         const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${lb.key}`, { params });
@@ -54,7 +53,12 @@ const drawLeaderboard = async function(_embed, args, params, _self = {}){
                 url: `https://sky.lea.moe/stats/${self.uuid}`
             };
 
-            embed.description = `Rank: **#${self.rank.toLocaleString()}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
+            embed.description = '';
+
+            if(self.guild)
+                embed.description += `Guild: **${self.guild}**\nGuild `;
+
+            embed.description += `Rank: **#${self.rank.toLocaleString()}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
         }
 
         params.page = data.page;
@@ -182,7 +186,7 @@ module.exports = {
         "Check leaderboards.",
     ],
     argsRequired: 1,
-    usage: '[leaderboard name] [u:username] [r:rank]',
+    usage: '[leaderboard name] [u:username] [r:rank] [g:username]',
     example: [
         {
             run: "lb sand collection",
@@ -199,6 +203,10 @@ module.exports = {
         {
             run: "lb hydra kills r:1000",
             result: `Rank 1000 for Hydra kills.`
+        },
+        {
+            run: "lb fishing xp g:leaphant",
+            result: `Rank for Fishing XP within guild LeaPhant is in.`
         }
     ],
     call: async obj => {
@@ -212,13 +220,15 @@ module.exports = {
             fields: [],
             footer: {
                 icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-                text: `sky.lea.moe${helper.sep}${prefix}lb [leaderboard] [u:user] [r:rank]`
+                text: `sky.lea.moe${helper.sep}${prefix}lb [leaderboard] [u:user] [r:rank] [g:user]`
             },
         };
 
         for(const arg of argv.slice(1)){
             if(arg.toLowerCase().startsWith('u:')){
                 params['find'] = arg.substring(2);
+            }else if(arg.toLowerCase().startsWith('g:')){
+                params['guild'] = arg.substring(2);
             }else if(arg.toLowerCase().startsWith('r:')){
                 const rank = Number(arg.substring(2));
 
