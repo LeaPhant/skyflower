@@ -61,6 +61,9 @@ const drawLeaderboard = async function(_embed, args, params, _self = {}){
             embed.description += `Rank: **#${self.rank.toLocaleString()}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
         }
 
+        if(lb.thumbnail)
+            embed.thumbnail = { url: lb.thumbnail };
+
         params.page = data.page;
 
         embed.footer.text += `${helper.sep}Page ${params.page}`;
