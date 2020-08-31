@@ -37,7 +37,7 @@ const errorHandler = (e, embed) => {
 const drawLeaderboard = async function(_embed, args, params, _self = {}){
     try{
         const lb = helper.getLeaderboard(args.join(" "), leaderboards);
-        const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${lb.key}`, { params });
+        const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${encodeURIComponent(lb.key)}`, { params });
         
         const embed = _.cloneDeep(_embed);
 
