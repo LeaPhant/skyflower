@@ -1,5 +1,5 @@
 if(require('semver').lt(process.version, '12.0.0'))
-        throw "skybot only runs on Node.js 12 or higher";
+    throw "skybot only runs on Node.js 12 or higher";
         
 const config = require('./config.json');
 
@@ -10,4 +10,11 @@ const { ShardingManager } = require('discord.js');
 const manager = new ShardingManager('./bot.js', { token: config.credentials.bot_token });
 
 manager.spawn();
-manager.on('shardCreate', shard => console.log(`Launched shard ${shard.id}`));
+manager.on('shardCreate', shard => {
+    shard.on('message', message => { 
+        if(typeof message == 'string') 
+            manager.broadcast(message) 
+    });
+
+    console.log(`Launched shard ${shard.id}`);
+});
