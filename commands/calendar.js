@@ -89,6 +89,7 @@ const EVENTS = [
 ];
 
 const helper = require('../helper');
+const _ = require('lodash');
 
 const moment = require('moment');
 require('moment-duration-format');
@@ -100,7 +101,7 @@ module.exports = {
     ],
     usage: '',
     call: async obj => {
-        const { client } = obj;
+        const { client, prefix, argv } = obj;
 
         let embed = {
             color: helper.mainColor,
@@ -114,9 +115,8 @@ module.exports = {
         const currentOffset = (Date.now() - YEAR_0) % YEAR_MS;
 
         embed.footer = {
-            icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-            text: `sky.lea.moe${helper.sep}SkyBlock Year ${currentYear + 1}`
-        }
+            text: `SkyBlock Year ${currentYear + 1}${helper.sep}${prefix}cal [event]`
+        };
 
         const currentMonth = Math.floor(currentOffset / MONTH_MS);
         const currentMonthOffset = (currentOffset - currentMonth * MONTH_MS) % MONTH_MS;
@@ -141,30 +141,35 @@ module.exports = {
 
         let nextEvents = [];
 
-        for(const event of EVENTS){
-            for(const time of event.times){
-                const msTill = 
-                  time[1] < currentOffset ? YEAR_MS - currentOffset + time[0] // event is next year
-                : time[0] - currentOffset; // event is in current year
+        for(let i = 0; i < 4; i++){
+            for(const event of EVENTS){
+                for(const time of event.times){
+                    const offset = currentOffset - i * YEAR_MS;
 
-                const duration = time[1] - time[0];
+                    const msTill = 
+                    time[1] < offset ? YEAR_MS - offset + time[0] // event is next year
+                    : time[0] - offset; // event is in current year
 
-                let { emoji } = event;
+                    const duration = time[1] - time[0];
 
-                if(event.name == 'Traveling Zoo')
-                    emoji = helper.emote(getZooPet(Date.now() + msTill), null, client);
+                    let { emoji } = event;
 
-                nextEvents.push({
-                    name: event.name,
-                    emoji,
-                    start: msTill,
-                    duration,
-                    end: msTill + duration
-                });
+                    if(event.name == 'Traveling Zoo')
+                        emoji = helper.emote(getZooPet(Date.now() + msTill), null, client);
+                    
+                    nextEvents.push({
+                        name: event.name,
+                        emoji,
+                        start: msTill,
+                        duration,
+                        end: msTill + duration
+                    });
+                }
             }
         }
 
         nextEvents = nextEvents.sort((a, b) => a.start - b.start);
+        nextEvents = _.uniqBy(nextEvents, 'start');
 
         let currentEvents = [];
 
@@ -208,6 +213,21 @@ module.exports = {
             });
         }
 
+        let nextEventsName = 'Next Events';
+
+        if(argv.length > 1){
+            let nextEventsFiltered = [];
+            let eventSearch = argv.slice(1);
+
+            for(const search of eventSearch)
+                nextEventsFiltered = nextEvents.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
+
+            if(nextEventsFiltered.length > 0){
+                nextEventsName = `Next ${nextEvents[0].name}s`;
+                nextEvents = nextEventsFiltered;
+            }
+        }
+
         let nextEventsText = '';
 
         for(const [index, event] of nextEvents.slice(0, 4).entries()){
@@ -218,7 +238,7 @@ module.exports = {
         }
 
         embed.fields.push({
-            name: 'Next Events',
+            name: nextEventsName,
             value: nextEventsText
         });
 
