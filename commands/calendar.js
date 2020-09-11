@@ -13,10 +13,11 @@ const YEAR_LENGTH = MONTHS.length;
 const MONTH_MS = MONTH_LENGTH * DAY_MS;
 const YEAR_MS = YEAR_LENGTH * MONTH_MS;
 
-const YEAR_0 = 1560275700_000;
+const YEAR_0 = 1560275700_000 - DAY_MS - HOUR_MS * 7;
 
-const DURATION_FORMAT = 'd [days, ]h [hours, ]m [minutes]';
-const DURATION_FORMAT_SHORT = 'd[d ]h[h ]m[m]';
+const DURATION_FORMAT = function(){
+    return this.duration.asSeconds() >= 60 ? "d [days, ]h [hours, ]m [minutes]" : "s [seconds]";
+};
 
 const ZOO_START = YEAR_0 + YEAR_MS * 66;
 const ZOO_CYCLE_MS = YEAR_MS / 2;
@@ -193,7 +194,7 @@ module.exports = {
 
         embed.fields.push({
             name: 'Next Month',
-            value: `in **${moment.duration(MONTH_MS - currentMonthOffset).format(DURATION_FORMAT)}**`,
+            value: `in **${moment.duration(MONTH_MS - currentMonthOffset).format(DURATION_FORMAT, { trim: 'both' })}**`,
             inline: true
         });
 
@@ -204,7 +205,9 @@ module.exports = {
                 if(index > 0)
                     currentEventsText += '\n';
     
-                currentEventsText += `${event.emoji} ${event.name} – ends in ${moment.duration(event.duration + event.start).format(DURATION_FORMAT)}`;
+                currentEventsText += `${event.emoji} ${event.name} – ends in ${
+                    moment.duration(event.duration + event.start).format(DURATION_FORMAT, { trim: 'both' })
+                }`;
             }
 
             embed.fields.push({
@@ -234,7 +237,9 @@ module.exports = {
             if(index > 0)
                 nextEventsText += '\n';
 
-            nextEventsText += `${event.emoji} ${event.name} – starts in ${moment.duration(event.start).format(DURATION_FORMAT)}`;
+            nextEventsText += `${event.emoji} ${event.name} – starts in ${
+                moment.duration(event.start).format(DURATION_FORMAT, { trim: 'both' })
+            }`;
         }
 
         embed.fields.push({
