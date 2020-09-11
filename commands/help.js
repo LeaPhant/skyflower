@@ -12,6 +12,7 @@ module.exports = {
         \`${prefix}bazaar [amount] <item>\` – Get bazaar prices for an item.
         \`${prefix}skills <user> [profile] [skill]\` – Get skill levels of a player.
         \`${prefix}leaderboard [leaderboard] [u:username] [r:rank] [g:username]\` – Show leaderboards.
+        \`${prefix}calendar [event]\` – Show SkyBlock calendar.
 
         *Run a command without arguments for extended help.*`;
 
