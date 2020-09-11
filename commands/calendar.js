@@ -13,7 +13,7 @@ const YEAR_LENGTH = MONTHS.length;
 const MONTH_MS = MONTH_LENGTH * DAY_MS;
 const YEAR_MS = YEAR_LENGTH * MONTH_MS;
 
-const YEAR_0 = 1560275700_000 - DAY_MS - HOUR_MS * 7;
+const YEAR_0 = 1560275700_000;
 
 const DURATION_FORMAT = function(){
     return this.duration.asSeconds() >= 60 ? "d [days, ]h [hours, ]m [minutes]" : "s [seconds]";
@@ -151,7 +151,7 @@ module.exports = {
                     time[1] < offset ? YEAR_MS - offset + time[0] // event is next year
                     : time[0] - offset; // event is in current year
 
-                    const duration = time[1] - time[0];
+                    const duration = time[1] - time[0] + DAY_MS;
 
                     let { emoji } = event;
 
