@@ -116,7 +116,7 @@ module.exports = {
     ],
     usage: '',
     call: async obj => {
-        const { client, prefix, argv } = obj;
+        const { client, prefix, argv, extendedLayout } = obj;
 
         let embed = {
             color: helper.mainColor,
@@ -261,7 +261,7 @@ module.exports = {
 
         let nextEventsText = '';
 
-        for(const [index, event] of nextEvents.slice(0, 4).entries()){
+        for(const [index, event] of nextEvents.slice(0, extendedLayout ? 8 : 4).entries()){
             if(index > 0)
                 nextEventsText += '\n';
 
