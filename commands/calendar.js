@@ -250,8 +250,12 @@ module.exports = {
                 nextEventsFiltered = nextEvents.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
 
             if(nextEventsFiltered.length > 0){
-                nextEvents = nextEventsFiltered;
-                nextEventsName = `Next ${nextEvents[0].name}s`;
+                nextEvents = nextEventsFiltered.filter(a => a.name == nextEventsFiltered[0].name);
+
+                embed.fields.push({
+                    name: nextEvents[0].name,
+                    value: `Duration: **${moment.duration(nextEvents[0].duration).format(DURATION_FORMAT, { trim: 'both' })}**`
+                });
             }
         }
 
@@ -270,6 +274,12 @@ module.exports = {
             name: nextEventsName,
             value: nextEventsText
         });
+
+        if(nextEventsName != 'Next Events')
+            embed.fields.push({
+                name: nextEventsName,
+                value: nextEventsText
+            });
 
         return { embed };
     }
