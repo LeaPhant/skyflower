@@ -86,15 +86,7 @@ const EVENTS = [
         times: [
             [getOffset('Late Winter', 29), getOffset('Late Winter', 31)]
         ]
-    },
-    {
-        name: 'Fishing Festival',
-        emoji: '❄🦈',
-        years: [90],
-        times: [
-            [getOffset('Early Spring', 29), getOffset('Late Winter', 31)]
-        ]
-    },
+    }
 ];
 
 const FISHING_FESTIVAL = {
@@ -170,7 +162,7 @@ module.exports = {
                     const time = [_time[0] + YEAR_MS * i, _time[1] + YEAR_MS * i];
 
                     const offset = currentOffset;
-                    
+
                     let year = Math.floor((currentYear * YEAR_MS + offset) / YEAR_MS) + 1;
 
                     if(time[1] < offset)
@@ -258,8 +250,8 @@ module.exports = {
                 nextEventsFiltered = nextEvents.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
 
             if(nextEventsFiltered.length > 0){
-                nextEventsName = `Next ${nextEvents[0].name}s`;
                 nextEvents = nextEventsFiltered;
+                nextEventsName = `Next ${nextEvents[0].name}s`;
             }
         }
 
