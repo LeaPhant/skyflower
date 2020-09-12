@@ -87,7 +87,29 @@ const EVENTS = [
             [getOffset('Late Winter', 29), getOffset('Late Winter', 31)]
         ]
     },
+    {
+        name: 'Fishing Festival',
+        emoji: '❄🦈',
+        years: [90],
+        times: [
+            [getOffset('Early Spring', 29), getOffset('Late Winter', 31)]
+        ]
+    },
 ];
+
+const FISHING_FESTIVAL = {
+    name: 'Fishing Festival',
+    emoji: '🦈',
+    years: [90],
+    times: []
+};
+
+for(const month of MONTHS)
+    FISHING_FESTIVAL.times.push(
+        [getOffset(month, 1), getOffset(month, 3)]
+    );
+
+EVENTS.push(FISHING_FESTIVAL);
 
 const helper = require('../helper');
 const _ = require('lodash');
@@ -144,8 +166,18 @@ module.exports = {
 
         for(let i = 0; i < 4; i++){
             for(const event of EVENTS){
-                for(const time of event.times){
-                    const offset = currentOffset - i * YEAR_MS;
+                for(const _time of event.times){
+                    const time = [_time[0] + YEAR_MS * i, _time[1] + YEAR_MS * i];
+
+                    const offset = currentOffset;
+                    
+                    let year = Math.floor((currentYear * YEAR_MS + offset) / YEAR_MS) + 1;
+
+                    if(time[1] < offset)
+                        year++;
+
+                    if(Array.isArray(event.years) && !event.years.includes(year))
+                        continue;
 
                     const msTill = 
                     time[1] < offset ? YEAR_MS - offset + time[0] // event is next year
