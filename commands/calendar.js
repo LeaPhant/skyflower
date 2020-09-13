@@ -13,7 +13,7 @@ const YEAR_LENGTH = MONTHS.length;
 const MONTH_MS = MONTH_LENGTH * DAY_MS;
 const YEAR_MS = YEAR_LENGTH * MONTH_MS;
 
-const YEAR_0 = 1560275700_000;
+const YEAR_0 = 1560275700_000 - MONTH_MS;
 
 const DURATION_FORMAT = function(){
     return this.duration.asSeconds() >= 60 ? "d [days, ]h [hours, ]m [minutes]" : "s [seconds]";
@@ -86,6 +86,13 @@ const EVENTS = [
         times: [
             [getOffset('Late Winter', 29), getOffset('Late Winter', 31)]
         ]
+    },
+    {
+        name: 'Election Over',
+        emoji: '🗳️',
+        times: [
+            [getOffset('Late Spring', 26), getOffset('Late Spring', 26)]
+        ]
     }
 ];
 
@@ -98,7 +105,7 @@ const FISHING_FESTIVAL = {
 
 for(const month of MONTHS)
     FISHING_FESTIVAL.times.push(
-        [getOffset(month, 1), getOffset(month, 3)]
+        [getOffset('Late Spring', 26) + getOffset(month, 1), getOffset('Late Spring', 26) + getOffset(month, 3)]
     );
 
 EVENTS.push(FISHING_FESTIVAL);
@@ -163,7 +170,7 @@ module.exports = {
 
                     const offset = currentOffset;
 
-                    let year = Math.floor((currentYear * YEAR_MS + offset) / YEAR_MS) + 1;
+                    let year = Math.floor((currentYear * YEAR_MS + offset) / YEAR_MS) + 1 + i;
 
                     if(time[1] < offset)
                         year++;
