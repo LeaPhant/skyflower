@@ -205,8 +205,6 @@ module.exports = {
 
         nextEvents = nextEvents.sort((a, b) => a.start - b.start);
 
-        console.log(nextEvents);
-
         nextEvents = _.uniqBy(nextEvents, a => a.name + a.start);
 
         let currentEvents = [];
