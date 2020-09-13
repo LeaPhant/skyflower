@@ -91,7 +91,7 @@ const EVENTS = [
         name: 'Election Over',
         emoji: '🗳️',
         times: [
-            [getOffset('Late Spring', 26), getOffset('Late Spring', 26)]
+            [getOffset('Late Spring', 27), getOffset('Late Spring', 27)]
         ]
     }
 ];
@@ -105,7 +105,7 @@ const FISHING_FESTIVAL = {
 
 for(const month of MONTHS)
     FISHING_FESTIVAL.times.push(
-        [getOffset('Late Spring', 26) + getOffset(month, 1), getOffset('Late Spring', 26) + getOffset(month, 3)]
+        [getOffset(month, 1), getOffset(month, 3)]
     );
 
 EVENTS.push(FISHING_FESTIVAL);
@@ -163,7 +163,7 @@ module.exports = {
 
         let nextEvents = [];
 
-        for(let i = 0; i < 4; i++){
+        for(let i = 0; i < 1; i++){
             for(const event of EVENTS){
                 for(const _time of event.times){
                     const time = [_time[0] + YEAR_MS * i, _time[1] + YEAR_MS * i];
@@ -175,7 +175,10 @@ module.exports = {
                     if(time[1] < offset)
                         year++;
 
-                    if(Array.isArray(event.years) && !event.years.includes(year))
+                    if(Array.isArray(event.years) && 
+                    (time[0] < getOffset('Late Spring', 27) && !event.years.includes(year - 1) ||
+                    time[0] >= getOffset('Late Spring', 27) && !event.years.includes(year))
+                    )
                         continue;
 
                     const msTill = 
@@ -201,7 +204,10 @@ module.exports = {
         }
 
         nextEvents = nextEvents.sort((a, b) => a.start - b.start);
-        nextEvents = _.uniqBy(nextEvents, 'start');
+
+        console.log(nextEvents);
+
+        nextEvents = _.uniqBy(nextEvents, a => a.name + a.start);
 
         let currentEvents = [];
 
