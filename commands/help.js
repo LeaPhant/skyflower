@@ -33,7 +33,7 @@ module.exports = {
         return { 
             embed: {
                 color: helper.mainColor,
-                title: "Commands for skybot",
+                title: "Commands for Sky Flower",
                 description,
                 fields,
                 footer: {
