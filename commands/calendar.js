@@ -13,7 +13,7 @@ const YEAR_LENGTH = MONTHS.length;
 const MONTH_MS = MONTH_LENGTH * DAY_MS;
 const YEAR_MS = YEAR_LENGTH * MONTH_MS;
 
-const YEAR_0 = 1560275700_000 - MONTH_MS;
+const YEAR_0 = 1560275700_000;
 
 const DURATION_FORMAT = function(){
     return this.duration.asSeconds() >= 60 ? "d [days, ]h [hours, ]m [minutes]" : "s [seconds]";
