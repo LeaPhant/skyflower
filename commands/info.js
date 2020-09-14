@@ -32,7 +32,7 @@ module.exports = {
         const memberCount = memberCountResponse.reduce((acc, count) => acc + count, 0).toLocaleString();
         const guildCount = guildCountResponse.reduce((acc, count) => acc + count, 0).toLocaleString();
 
-        embed.description += `\nserving **${memberCount} Members** in **${guildCount} Guilds**.`;
+        embed.description += `\nserving **${memberCount} Members** in **${guildCount} Guilds (Servers)**.`;
         embed.description += `\n\nFor a list of commands run \`${prefix}help\`.`;
 
         return { embed };
