@@ -117,7 +117,7 @@ module.exports = {
             }
 
             if(amount !== undefined && argv_.length < 1)
-                return await helper.commandHelp(module.exports.command, msg);
+                return await helper.commandHelp(module.exports.command, prefix);
                 
 
             if(amount !== undefined && argv_.length < 2)

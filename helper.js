@@ -90,7 +90,7 @@ module.exports = {
 	            return 'Insufficient permissions for running this command.';
 
 	        if(command.argsRequired !== undefined && argv.length <= command.argsRequired)
-                return await module.exports.commandHelp(command.command);
+                return await module.exports.commandHelp(command.command, prefix);
 
 	        return true;
 	    }
@@ -162,7 +162,7 @@ module.exports = {
         return lbResults[0];
     },
 
-    commandHelp: async (commandName) => {
+    commandHelp: async (commandName, prefix) => {
         if(Array.isArray(commandName))
             commandName = commandName[0];
 
@@ -183,7 +183,7 @@ module.exports = {
                     if(index > 0)
                         commandsValue += ", ";
 
-                    commandsValue += `\`${config.prefix}${_command}\``;
+                    commandsValue += `\`${prefix}${_command}\``;
                 });
 
                 embed.fields.push({
@@ -203,7 +203,7 @@ module.exports = {
                 if(command.usage){
                     embed.fields.push({
                         name: "Usage",
-                        value: `${backtick}${config.prefix}${command.command[0]} ${command.usage}${backtick}\n`
+                        value: `${backtick}${prefix}${command.command[0]} ${command.usage}${backtick}\n`
                     });
                 }
 
@@ -220,10 +220,10 @@ module.exports = {
                             examplesValue += "\n";
 
                         if(example.result != null){
-                            examplesValue += `${backtick}${config.prefix}${example.run}${backtick}: `;
+                            examplesValue += `${backtick}${prefix}${example.run}${backtick}: `;
                             examplesValue += example.result;
                         }else{
-                            examplesValue += `${backtick}${config.prefix}${example}${backtick}`;
+                            examplesValue += `${backtick}${prefix}${example}${backtick}`;
                         }
                     });
 
