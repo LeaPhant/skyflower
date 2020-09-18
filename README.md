@@ -7,6 +7,8 @@ You can either add the public instance (<a href="https://discord.com/oauth2/auth
 
 <h3>Commands</h3>
 
+**Default Prefix**: `s!`
+
 `s!help` - Show list of commands.
 
 `s!info` - Show info and links for this bot.
