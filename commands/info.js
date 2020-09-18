@@ -16,8 +16,12 @@ module.exports = {
             },
             fields: [
                 {
+                    name: 'Settings',
+                    value: `Default Prefix: \`${config.prefix}\`\nServer Prefix: \`${prefix}\``,
+                },
+                {
                     name: "Links",
-                    value: `[GitHub Repo](https://github.com/LeaPhant/skyflower) • [Invite Link](https://discord.com/oauth2/authorize?client_id=${config.credentials.discord_client_id}&scope=bot&permissions=1073750016)`
+                    value: `[Commands List](https://github.com/LeaPhant/skyflower#commands) • [GitHub Repo](https://github.com/LeaPhant/skyflower) • [Invite Link](https://discord.com/oauth2/authorize?client_id=${config.credentials.discord_client_id}&scope=bot&permissions=1073750016)`
                 }
             ],
             footer: {
@@ -32,7 +36,7 @@ module.exports = {
         const memberCount = memberCountResponse.reduce((acc, count) => acc + count, 0).toLocaleString();
         const guildCount = guildCountResponse.reduce((acc, count) => acc + count, 0).toLocaleString();
 
-        embed.description += `\nserving **${memberCount} Members** in **${guildCount} Guilds**.`;
+        embed.description += `\nserving **${memberCount} Members** in **${guildCount} Servers**.`;
         embed.description += `\n\nFor a list of commands run \`${prefix}help\`.`;
 
         return { embed };
