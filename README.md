@@ -5,6 +5,30 @@ Open-source Discord bot with cool SkyBlock features. 🌺
 
 You can either add the public instance (<a href="https://discord.com/oauth2/authorize?client_id=747232589961625665&scope=bot&permissions=1073750016">Invite Link</a>) to your server or run the bot yourself.
 
+<h3>Commands</h3>
+
+`s!help` - Show list of commands.
+
+`s!info` - Show info and links for this bot.
+
+`s!bazaar [amount] <item>` – Get bazaar prices for an item.
+
+`s!skills <user> [profile] [skill]` – Get skill levels of a player.
+
+`s!leaderboard [leaderboard] [u:username] [r:rank]` – Show leaderboards.
+
+`s!calendar [event]` – Show SkyBlock calendar or times for specific events.
+
+<h3>Admin Commands</h3>
+
+`s!skyflowerprefix <prefix>` - Set prefix for this bot (always prefixed with `s!`).
+
+`s!togglelayout <channel id>` - Set a channel to toggle extended layout for.
+
+*Run a command without arguments for extended help.*
+
+`< >` = required argument – `[ ]` = optional argument
+
 <h3>Prerequisites</h3>
 
 - <a href="https://nodejs.org/">Node.js</a>
