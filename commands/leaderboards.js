@@ -2,6 +2,7 @@ const config = require('../config.json');
 const axios = require('axios');
 const helper = require('../helper');
 const _ = require('lodash');
+const { CancelToken } = axios;
 
 let leaderboards;
 
@@ -252,10 +253,18 @@ module.exports = {
         const reactions = [];
 
         let topPositions, self;
+
+        const source = CancelToken.source();
         
         if(args.length == 0){
             try{
-                const response = await axios.get(`${config.sky_api_base}/api/v2/leaderboards/${params.find}`);
+                const response = await axios.get(
+                    `${config.sky_api_base}/api/v2/leaderboards/${params.find}`,
+                    { 
+                        params: { key: config.credentials.sky_api_key },
+                        cancelToken: source.token
+                    }
+                );
 
                 topPositions = { ...response.data, page: 1, count: params.count };
 
@@ -309,6 +318,7 @@ module.exports = {
 
         endEmitter.once(`end-${guildId}_${message.channel.id}_${message.id}`, () => {
             collector.stop();
+            source.cancel();
         });
 
         return message;
