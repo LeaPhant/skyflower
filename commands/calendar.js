@@ -93,6 +93,14 @@ const EVENTS = [
         times: [
             [getOffset('Late Spring', 27), getOffset('Late Spring', 27)]
         ]
+    },
+    {
+        name: 'National Mining Month',
+        emoji: '⛏️',
+        years: [91],
+        times: [
+            [getOffset('Late Summer', 22), getOffset('Early Autumn', 21)]
+        ]
     }
 ];
 
