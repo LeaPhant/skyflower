@@ -91,7 +91,9 @@ const skillEmbed = (profile, skillName, embed) => {
 
             break;
         case "combat":
-            output.description += `\n\nMinion Ghast Kills: **${(profile.raw.stats.kills_generator_ghast || 0).toLocaleString()}**`;
+            if(profile.data.kills.length > 0)
+                output.description += `\n\n${profile.data.kills[0].entityName} Kills: **${(profile.data.kills[0].amount || 0).toLocaleString()}**`;
+            
             skillContext = true;
 
             break;
