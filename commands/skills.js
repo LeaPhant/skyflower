@@ -25,6 +25,10 @@ const skillsSorted = [
     "taming", "farming", "mining", "combat", "foraging", "fishing", "enchanting", "alchemy", "carpentry", "runecrafting"
 ];
 
+const slayersSorted = [
+    "zombie", "spider", "wolf"
+];
+
 const statModifier = (value, stat) => {
     let suffix = '';
 
@@ -93,7 +97,23 @@ const skillEmbed = (profile, skillName, embed) => {
         case "combat":
             if(profile.data.kills.length > 0)
                 output.description += `\n\n${profile.data.kills[0].entityName} Kills: **${(profile.data.kills[0].amount || 0).toLocaleString()}**`;
-            
+
+            if(profile.data.slayer_xp > 0){
+                output.description += `\nSlayer:`;
+
+                for(const slayer of slayersSorted){
+                    if(!profile.data.slayers.hasOwnProperty(slayer))
+                        continue;
+
+                    const slayerLevel = profile.data.slayers[slayer].level;
+
+                    if(slayerLevel.xp == 0)
+                        continue;
+
+                    output.description += ` **${_.capitalize(slayer)} ${slayerLevel.currentLevel}** (**${numeral(slayerLevel.xp).format('0.0a')}**)`;
+                }
+            }
+
             skillContext = true;
 
             break;
