@@ -107,7 +107,7 @@ const EVENTS = [
 const FISHING_FESTIVAL = {
     name: 'Fishing Festival',
     emoji: '🦈',
-    years: [90],
+    years: [90, 94],
     times: []
 };
 
