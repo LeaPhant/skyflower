@@ -113,7 +113,7 @@ const FISHING_FESTIVAL = {
 
 for(const month of MONTHS)
     FISHING_FESTIVAL.times.push(
-        [getOffset(month, 1), getOffset(month, 3)]
+        [getOffset(month, 1) + MONTH_MS * 3, getOffset(month, 3) + MONTH_MS * 3]
     );
 
 EVENTS.push(FISHING_FESTIVAL);
