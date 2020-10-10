@@ -190,7 +190,7 @@ module.exports = {
         "Check leaderboards.",
     ],
     argsRequired: 1,
-    usage: '[leaderboard name] [u:username] [r:rank] [g:username]',
+    usage: '[leaderboard name] [u:username] [r:rank] [g:username] [m:mode]',
     example: [
         {
             run: "lb sand collection",
@@ -211,6 +211,10 @@ module.exports = {
         {
             run: "lb fishing xp g:leaphant",
             result: `Rank for Fishing XP within guild LeaPhant is in.`
+        },
+        {
+            run: "lb alchemy xp m:iron",
+            result: `Top leaderboard positions for Alchemy XP on ironman profiles.`
         }
     ],
     call: async obj => {
@@ -233,6 +237,16 @@ module.exports = {
                 params['find'] = arg.substring(2);
             }else if(arg.toLowerCase().startsWith('g:')){
                 params['guild'] = arg.substring(2);
+            }else if(arg.toLowerCase().startsWith('m:')){
+                let mode = arg.toLowerCase().substring(2);
+
+                if(mode == 'iron')
+                    mode = 'ironman';
+
+                if(mode != 'ironman')
+                    throw "Please specify a valid mode (like `iron`).";
+
+                params['mode'] = mode;
             }else if(arg.toLowerCase().startsWith('r:')){
                 const rank = Number(arg.substring(2));
 
