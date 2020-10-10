@@ -71,6 +71,9 @@ const drawLeaderboard = async function(_embed, args, params, _self = {}){
 
         embed.title = `${lb.name} Leaderboards`;
 
+        if(params['mode'])
+            embed.title += ` – ${_.upperFirst(params['mode'])}`;
+
         embed.fields = [];
 
         for(const [index, position] of data.positions.entries()){
