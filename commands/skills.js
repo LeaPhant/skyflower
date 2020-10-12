@@ -286,6 +286,9 @@ module.exports = {
                 fields: []
             };
 
+            if(profile.game_mode == 'ironman')
+                embed.author.name += ' – Ironman';
+
             const reactions = [];
 
             const fields = [];
