@@ -14,7 +14,9 @@ const xpMax = {
     35: 15522425,
     40: 25522425,
     45: 38072425,
-    50: 55172425
+    50: 55172425,
+    55: 85472425,
+    60: 111672425
 };
 
 const xpMaxRunecrafting = {
@@ -176,13 +178,24 @@ const skillEmbed = (profile, skillName, embed) => {
 
     output.fields = [];
 
-    if(skill.level < skill.maxLevel && skill.maxLevel == 50){
-        let levelKeys = _.keys(
+    if(skill.level < skill.maxLevel && skill.maxLevel >= 50){
+        let levelKeys;
+        
+        if(skillName == 'farming'){
+            levelKeys = _.keys(
             _.pickBy(xpMax, (value, key) => new Number(key) > skill.level)
-        ).sort((a, b) => a - b);
-
-        if(levelKeys.length > 3)
-            levelKeys = [...levelKeys.slice(0, 2), levelKeys.pop()];
+            ).sort((a, b) => a - b);
+            
+            if(levelKeys.length > 3)
+                levelKeys = [levelKeys[0], levelKeys[levelKeys.length - 3], levelKeys.pop()];
+        }else{            
+            levelKeys = _.keys(
+            _.pickBy(xpMax, (value, key) => new Number(key) > skill.level && new Number(key) <= 50)
+            ).sort((a, b) => a - b);
+            
+            if(levelKeys.length > 3)
+                levelKeys = [...levelKeys.slice(0, 2), levelKeys.pop()];
+        }
 
         for(const key of levelKeys)
             output.fields.push({
