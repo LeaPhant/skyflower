@@ -181,7 +181,7 @@ const skillEmbed = (profile, skillName, embed) => {
     if(skill.level < skill.maxLevel && skill.maxLevel >= 50){
         let levelKeys;
         
-        if(skillName == 'farming'){
+        if(skill.maxLevel > 50){
             levelKeys = _.keys(
             _.pickBy(xpMax, (value, key) => new Number(key) > skill.level)
             ).sort((a, b) => a - b);
