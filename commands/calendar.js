@@ -287,6 +287,8 @@ module.exports = {
             nextEventsText += `${event.emoji} ${event.name} – starts in ${
                 moment.duration(event.start).format(DURATION_FORMAT, { trim: 'both' })
             }`;
+
+            nextEventsText += ` \[[T](https://time.lea.moe/${Date.now() + event.start}/${event.name.replace(/\ /g, '_')})\]`;
         }
 
         embed.fields.push({
