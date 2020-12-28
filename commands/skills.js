@@ -40,6 +40,7 @@ const statModifier = (value, stat) => {
         case 'crit_chance':
         case 'crit_damage':
         case 'speed':
+        case 'ability_damage':
         case 'sea_creature_chance':
             suffix = '%';
     }
