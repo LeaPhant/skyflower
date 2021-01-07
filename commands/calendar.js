@@ -88,6 +88,13 @@ const EVENTS = [
         ]
     },
     {
+        name: 'Election Booth Opens',
+        emoji: '🗳️',
+        times: [
+            [getOffset('Late Summer', 27), getOffset('Late Summer', 27)]
+        ]
+    },
+    {
         name: 'Election Over',
         emoji: '🗳️',
         times: [
