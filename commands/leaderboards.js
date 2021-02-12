@@ -281,7 +281,7 @@ module.exports = {
                 const response = await axios.get(
                     `${config.sky_api_base}/api/v2/leaderboards/${params.find}`,
                     { 
-                        params: { key: config.credentials.sky_api_key },
+                        params,
                         cancelToken: source.token
                     }
                 );
