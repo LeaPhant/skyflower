@@ -225,6 +225,9 @@ module.exports = {
 
         const args = [];
         const params = { count: extendedLayout ? 10 : 4, page: 1 };
+        
+        if(config.credentials.sky_api_key != null)
+            params.key = config.credentials.sky_api_key
 
         const embed = {
             color: helper.mainColor,
