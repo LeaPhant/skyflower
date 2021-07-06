@@ -114,7 +114,7 @@ const EVENTS = [
 const FISHING_FESTIVAL = {
     name: 'Fishing Festival',
     emoji: '🦈',
-    years: [90, 94],
+    years: [90, 94, 147],
     times: []
 };
 
@@ -244,7 +244,7 @@ module.exports = {
 
         embed.fields.push({
             name: 'Next Month',
-            value: `in **${moment.duration(MONTH_MS - currentMonthOffset).format(DURATION_FORMAT, { trim: 'both' })}**`,
+            value: `**<t:${Math.round(Date.now() / 1000) + Math.round((MONTH_MS - currentMonthOffset) / 1000)}:R>**`,
             inline: true
         });
 
@@ -291,11 +291,7 @@ module.exports = {
             if(index > 0)
                 nextEventsText += '\n';
 
-            nextEventsText += `${event.emoji} ${event.name} – starts in ${
-                moment.duration(event.start).format(DURATION_FORMAT, { trim: 'both' })
-            }`;
-
-            nextEventsText += ` \[[T](https://time.lea.moe/${Date.now() + event.start}/${event.name.replace(/\ /g, '_')})\]`;
+            nextEventsText += `${event.emoji} ${event.name} – starts <t:${Math.round(Date.now() / 1000) + Math.round(event.start / 1000)}:R>`;
         }
 
         embed.fields.push({
