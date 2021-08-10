@@ -57,7 +57,7 @@ module.exports = {
             },
             {
                 name: 'Total',
-                value: numeral(weight.total).format('0.0')
+                value: `**${numeral(weight.total).format('0.0')}** Weight`
             },
             {
                 name: 'Links',
