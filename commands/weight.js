@@ -40,14 +40,14 @@ module.exports = {
             {
                 name: 'Skills',
                 value: `Base: **${numeral(weight.skill.base).format('0.0')}**
-                Overflow: **${numeral(weight.skill.overflow).format('0.0')}**`,
+Overflow: **${numeral(weight.skill.overflow).format('0.0')}**`,
                 inline: true
             },
             {
                 name: 'Catacombs',
                 value: `Regular: **${numeral(weight.catacombs.completion.base).format('0.0')}**
-                Master: **${numeral(weight.catacombs.completion.master).format('0.0')}**
-                Experience: **${numeral(weight.catacombs.experience).format('0.0')}**`,
+Master: **${numeral(weight.catacombs.completion.master).format('0.0')}**
+Experience: **${numeral(weight.catacombs.experience).format('0.0')}**`,
                 inline: true
             },
             {
