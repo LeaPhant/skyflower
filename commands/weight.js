@@ -23,8 +23,6 @@ module.exports = {
 
         const weight = await lily.getWeight(username);
 
-        console.log(weight);
-
         const embed = {
             color: helper.mainColor,
                 url: `https://sky.lea.moe/stats/${weight.uuid}`,
