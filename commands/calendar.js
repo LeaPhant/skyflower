@@ -256,7 +256,7 @@ module.exports = {
 
         embed.fields.push({
             name: 'Next Month',
-            value: `in **${moment.duration(MONTH_MS - currentMonthOffset).format(DURATION_FORMAT, { trim: 'both' })}**`,
+            value: `<t:${Math.round(Date.now() / 1000) + Math.round((MONTH_MS - currentMonthOffset) / 1000)}:R>`,
             inline: true
         });
 
@@ -267,9 +267,7 @@ module.exports = {
                 if(index > 0)
                     currentEventsText += '\n';
     
-                currentEventsText += `${event.emoji} ${event.name} – ends in ${
-                    moment.duration(event.duration + event.start).format(DURATION_FORMAT, { trim: 'both' })
-                }`;
+                currentEventsText += `${event.emoji} ${event.name} – over <t:${Math.round(Date.now() / 1000) + Math.round((event.duration + event.start) / 1000)}:R>`;
             }
 
             embed.fields.push({
@@ -303,11 +301,7 @@ module.exports = {
             if(index > 0)
                 nextEventsText += '\n';
 
-            nextEventsText += `${event.emoji} ${event.name} – starts in ${
-                moment.duration(event.start).format(DURATION_FORMAT_SHORT, { trim: 'both' })
-            }`;
-
-            nextEventsText += ` ✦ <t:${Math.round(Date.now() / 1000) + Math.round(event.start / 1000)}>`;
+            nextEventsText += `${event.emoji} ${event.name} – starts <t:${Math.round(Date.now() / 1000) + Math.round(event.start / 1000)}:R>`;
         }
 
         embed.fields.push({
