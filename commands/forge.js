@@ -109,7 +109,7 @@ module.exports = {
         }
 
         const msgObj = {
-            embed : {
+            embed: {
                 color: helper.mainColor,
                 author: {
                     name: `${argv[1]}'s Forge`
@@ -137,8 +137,6 @@ module.exports = {
         ).then(async response => {
             const { data } = response;
 
-            console.log(data);
-
             let profile = data.profiles[_.findKey(data.profiles, a => a.current)];
             let customProfile;
 
@@ -149,8 +147,6 @@ module.exports = {
                     if(data.profiles[key].cute_name.toLowerCase() == customProfile)
                         profile = data.profiles[key];
             }
-
-            console.log(profile);
 
             if(!profile?.raw?.forge?.forge_processes?.forge_1){
                 await message.edit({
@@ -172,7 +168,18 @@ module.exports = {
             if(forge.length == 0)
                 description = 'Player has no items in forge.';
 
-            for(const [index, item] of forge.entries()){
+            const groups = [];
+
+            for(const item of forge){
+                const index = groups.findIndex(a => a.id == item.id && Math.abs(item.startTime - a.startTime) < 120 * 1000);
+
+                if(index > -1)
+                    groups[index].amount++;
+                else
+                    groups.push({ amount: 1, ...item });
+            }
+
+            for(const [index, item] of groups.entries()){
                 if(index > 0)
                     description += '\n';
 
@@ -181,6 +188,9 @@ module.exports = {
                 if(item.id == 'PET')
                     name = '[Lvl 1] Ammonite';
 
+                if(item.amount > 1)
+                    name = `**${item.amount}x** ${name}`
+
                 description += `${name} ${helper.sep} Finished <t:${Math.floor(item.startTime / 1000) + FORGE_TIMES[item.id] * 60}:R>`;
             }
 
@@ -188,17 +198,13 @@ module.exports = {
                 color: helper.mainColor,
                 url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
                 author: {
+                    icon_url: `https://minotar.net/helm/${profile.data.uuid}/64`,
                     name: `${profile.data.display_name}'s Forge (${profile.cute_name})`,
                     url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
-                },
-                thumbnail: {
-                    url: `https://minotar.net/helm/${profile.data.uuid}/128`
                 },
                 footer,
                 description
             };
-
-            console.log(embed);
 
             await message.edit({ embed });
         }).catch(console.error);
