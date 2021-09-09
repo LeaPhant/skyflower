@@ -160,7 +160,7 @@ module.exports = {
                             name: 'Error'
                         },
                         footer,
-                        description: 'Player has no items in forge.'
+                        description: 'Player does not have forge unlocked.'
                     }
                 });
             }
@@ -168,6 +168,9 @@ module.exports = {
             const forge = Object.values(profile.raw.forge.forge_processes.forge_1);
 
             let description = '';
+
+            if(forge.length == 0)
+                description = 'Player has no items in forge.';
 
             for(const [index, item] of forge.entries()){
                 if(index > 0)
