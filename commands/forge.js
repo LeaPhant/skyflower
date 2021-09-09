@@ -85,6 +85,29 @@ const FORGE_TIMES = {
     PET: 12 * 24 * 60
 };
 
+QUICK_FORGE_MULTIPLIER = {
+    1: 0.985,
+    2: 0.97,
+    3: 0.955,
+    4: 0.94,
+    5: 0.925,
+    6: 0.91,
+    7: 0.895,
+    8: 0.88,
+    9: 0.865,
+    10: 0.85,
+    11: 0.845,
+    12: 0.84,
+    13: 0.835,
+    14: 0.83,
+    15: 0.825,
+    16: 0.82,
+    17: 0.815,
+    18: 0.81,
+    19: 0.805,
+    20: 0.7
+};
+
 module.exports = {
     command: ['forge'],
     argsRequired: 1,
@@ -189,9 +212,22 @@ module.exports = {
                     name = '[Lvl 1] Ammonite';
 
                 if(item.amount > 1)
-                    name = `**${item.amount}x** ${name}`
+                    name = `**${item.amount}x** ${name}`;
 
-                description += `${name} ${helper.sep} Finished <t:${Math.floor(item.startTime / 1000) + FORGE_TIMES[item.id] * 60}:R>`;
+                description += `${name} ${helper.sep} `;
+
+                if(item.id in FORGE_TIMES){
+                    let forgeTime = FORGE_TIMES[item.id] * 60;
+                    
+                    const quickForge = profile.raw?.mining_core?.nodes?.forge_time;
+
+                    if(quickForge != null)
+                        forgeTime *= QUICK_FORGE_MULTIPLIER[quickForge];
+
+                    description += `Finished <t:${Math.floor(item.startTime / 1000) + forgeTime}:R>`;
+                }else{
+                    description += `Started <t:${Math.floor(item.startTime / 1000)}:R>`;
+                }
             }
 
             const embed = {
