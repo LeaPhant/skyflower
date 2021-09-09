@@ -109,14 +109,14 @@ module.exports = {
         }
 
         const msgObj = {
-            embeds : [{
+            embed : {
                 color: helper.mainColor,
                 author: {
                     name: `${argv[1]}'s Forge`
                 },
                 footer,
                 description: `Awaiting API response... ${helper.emote('beespin', null, client)}`
-            }]
+            }
         };
 
         let message = responseMsg;
@@ -154,14 +154,14 @@ module.exports = {
 
             if(!profile?.raw?.forge?.forge_processes?.forge_1){
                 await message.edit({
-                    embeds: [{
+                    embed: {
                         color: helper.errorColor,
                         author: {
                             name: 'Error'
                         },
                         footer,
                         description: 'Player has no items in forge.'
-                    }]
+                    }
                 });
             }
 
@@ -197,7 +197,7 @@ module.exports = {
 
             console.log(embed);
 
-            await message.edit({ embeds: [embed] });
+            await message.edit({ embed });
         }).catch(console.error);
 
         return message;
