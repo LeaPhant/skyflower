@@ -52,7 +52,8 @@ module.exports = {
             fields: [],
             author: {
                 name: 'Jerry Perkpocalypse Calendar'
-            }
+            },
+            footer: {}
         };
 
         const currentMayorIndex = JERRY_TIMES.findIndex(a => Date.now() >= a.start && Date.now() < a.end);
@@ -70,6 +71,8 @@ module.exports = {
 
         let nextMayors = JERRY_TIMES.filter(a => a.start > Date.now());
 
+        const cyclesLeft = nextMayors.length;
+
         if(argv.length > 1)
             nextMayors = nextMayors.filter(a => a.mayor.toLowerCase() == argv[1].toLowerCase());
 
@@ -85,9 +88,12 @@ module.exports = {
             nextMayorsValue += `${nextMayors[i].mayor} – starts <t:${Math.floor(nextMayors[i].start / 1000)}:R>`
         }
 
+        embed.footer.text = `${cyclesLeft} Cycles left${helper.sep}Mayor ends on`;
+        embed.timestamp = JERRY_END;
+
         embed.fields.push({
             name: 'Next Mayors',
-            value: nextMayorsValue
+            value: nextMayorsValue,
         });
 
         return { embed };
