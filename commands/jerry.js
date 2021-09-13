@@ -89,7 +89,6 @@ module.exports = {
         }
 
         embed.footer.text = `${cyclesLeft} Cycles left${helper.sep}${prefix}jerry [mayor]`;
-        embed.timestamp = JERRY_END;
 
         embed.fields.push({
             name: 'Next Mayors',
