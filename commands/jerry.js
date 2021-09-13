@@ -45,7 +45,7 @@ module.exports = {
     ],
     usage: '',
     call: async obj => {
-        const { client, prefix, argv, extendedLayout } = obj;
+        const { prefix, argv, prefix } = obj;
 
         let embed = {
             color: helper.mainColor,
@@ -88,7 +88,7 @@ module.exports = {
             nextMayorsValue += `${nextMayors[i].mayor} – starts <t:${Math.floor(nextMayors[i].start / 1000)}:R>`
         }
 
-        embed.footer.text = `${cyclesLeft} Cycles left${helper.sep}Mayor ends on`;
+        embed.footer.text = `${cyclesLeft} Cycles left${helper.sep}${prefix}jerry [mayor]`;
         embed.timestamp = JERRY_END;
 
         embed.fields.push({
