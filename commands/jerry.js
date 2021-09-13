@@ -45,7 +45,7 @@ module.exports = {
     ],
     usage: '',
     call: async obj => {
-        const { prefix, argv, prefix } = obj;
+        const { prefix, argv } = obj;
 
         let embed = {
             color: helper.mainColor,
