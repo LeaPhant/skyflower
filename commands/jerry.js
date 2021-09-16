@@ -8,9 +8,9 @@ const YEAR_MS = 12 * MONTH_MS;
 const JERRY_CYCLE = [
     "Paul",
     "Barry",
+    "Cole",
     "Marina",
     "Aatrox",
-    "Cole",
     "Diana",
     "Diaz"
 ];
@@ -87,6 +87,8 @@ module.exports = {
 
             nextMayorsValue += `${nextMayors[i].mayor} – starts <t:${Math.floor(nextMayors[i].start / 1000)}:R>`
         }
+
+        nextMayorsValue = '<a:beespin:834929494095691816> Waiting for a full cycle, order is different this time rip';
 
         embed.footer.text = `${cyclesLeft} Cycles left${helper.sep}${prefix}jerry [mayor]`;
 
