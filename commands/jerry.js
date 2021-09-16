@@ -6,13 +6,13 @@ const MONTH_MS = MONTH_LENGTH * DAY_MS;
 const YEAR_MS = 12 * MONTH_MS;
 
 const JERRY_CYCLE = [
-    "Diaz",
     "Paul",
     "Barry",
     "Marina",
     "Aatrox",
     "Cole",
-    "Diana"
+    "Diana",
+    "Diaz"
 ];
 
 const JERRY_START = 1631805300_000;
@@ -27,7 +27,7 @@ let i = 0;
 while(time < JERRY_END){
     JERRY_TIMES.push({
         start: JERRY_START + i * JERRY_DURATION,
-        end: JERRY_START + i * JERRY_DURATION * 2 - 1,
+        end: JERRY_START + (i + 1) * JERRY_DURATION - 1,
         mayor: JERRY_CYCLE[i % 7]
     });
 
