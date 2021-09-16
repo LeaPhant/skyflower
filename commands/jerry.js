@@ -90,7 +90,7 @@ module.exports = {
 
         nextMayorsValue = '<a:beespin:834929494095691816> Waiting for a full cycle, order is different this time rip';
 
-        embed.footer.text = `${cyclesLeft} Cycles left${helper.sep}${prefix}jerry [mayor]`;
+        embed.footer.text = `${cyclesLeft} Mayor terms left${helper.sep}${prefix}jerry [mayor]`;
 
         embed.fields.push({
             name: 'Next Mayors',
