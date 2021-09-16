@@ -61,7 +61,7 @@ module.exports = {
 
         if(currentMayorIndex > -1){
             const mayor = JERRY_TIMES[currentMayorIndex];
-            currentMayorValue = `${mayor.mayor}`;
+            currentMayorValue = `${mayor.mayor} – ends <t:${Math.floor(mayor.end / 1000)}:R>`;
         }
 
         embed.fields.push({
