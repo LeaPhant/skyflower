@@ -10,8 +10,8 @@ const JERRY_CYCLE = [
     "Cole",
     "Diaz",
     "Barry",
-    "???", // Aatrox
-    "???", // Diana
+    "Aatrox",
+    "Diana",
     "Marina"
 ];
 
