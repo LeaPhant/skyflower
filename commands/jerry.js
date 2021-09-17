@@ -9,7 +9,7 @@ const JERRY_CYCLE = [
     "Paul",
     "Cole",
     "Diaz",
-    "???", // Barry
+    "Barry",
     "???", // Aatrox
     "???", // Diana
     "Marina"
