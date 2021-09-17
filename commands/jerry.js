@@ -88,11 +88,6 @@ module.exports = {
             nextMayorsValue += `${nextMayors[i].mayor} – starts <t:${Math.floor(nextMayors[i].start / 1000)}:R>`
         }
 
-        if(nextMayors.length > 0)
-            nextMayorsValue += '\n<a:beespin:834929494095691816> waiting for a full cycle, order is different this time rip';
-        else
-            nextMayorsValue = '\n<a:beespin:834929494095691816> waiting for a full cycle, order is different this time rip';
-
         embed.footer.text = `${cyclesLeft} Mayor terms left${helper.sep}${prefix}jerry [mayor]`;
 
         embed.fields.push({
