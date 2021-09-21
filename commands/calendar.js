@@ -114,11 +114,12 @@ const EVENTS = [
         ]
     },
     {
-        name: 'National Mining Month',
+        name: 'Mining Fiesta',
         emoji: '⛏️',
-        years: [91],
+        years: [162],
         times: [
-            [getOffset('Late Summer', 22), getOffset('Early Autumn', 21)]
+            [getOffset('Early Summer', 1), getOffset('Early Summer', 16)],
+            [getOffset('Early Autumn', 1), getOffset('Early Autumn', 16)]
         ]
     }
 ];
