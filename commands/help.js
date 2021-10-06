@@ -6,14 +6,17 @@ module.exports = {
     call: obj => {
         const { msg, prefix } = obj;
 
-        const description = 
+        const description =
         `\`${prefix}help\` - Show this help.
         \`${prefix}info\` - Show info and links for this bot.
         \`${prefix}bazaar [amount] <item>\` – Get bazaar prices for an item.
         \`${prefix}skills <user> [profile] [skill]\` – Get skill levels of a player.
         \`${prefix}leaderboard [leaderboard] [u:username] [r:rank] [g:username] [m:mode]\` – Show leaderboards.
         \`${prefix}calendar [event]\` – Show SkyBlock calendar.
-
+        \`${prefix}forge <user> [profile]\` – Check forge for a player.
+        \`${prefix}jerry [mayor]\` – Show info about current and upcoming Jerry Perkpocalypse mayors.
+        \`${prefix}weight [username]\` – Calculate lily weight for a player.
+       
         *Run a command without arguments for extended help.*`;
 
         const fields = [];
@@ -22,7 +25,7 @@ module.exports = {
         && msg.member.hasPermission('ADMINISTRATOR')){
             fields.push({
                 name: "Admin commands",
-                value: 
+                value:
                 `\`s!skyflowerprefix <prefix>\` - Set prefix for this bot (always prefixed with \`s!\`).
                 \`${prefix}togglelayout <channel id>\` - Set a channel to toggle extended layout for.
 
@@ -30,7 +33,7 @@ module.exports = {
             });
         }
 
-        return { 
+        return {
             embed: {
                 color: helper.mainColor,
                 title: "Commands for Sky Flower",

@@ -21,6 +21,11 @@ You can either add the public instance (<a href="https://discord.com/oauth2/auth
 
 `s!calendar [event]` – Show SkyBlock calendar or times for specific events.
 
+`s!forge <user> [profile]` – Check forge for a player.
+
+`s!jerry [mayor]` – Show info about current and upcoming Jerry Perkpocalypse mayors.
+
+`s!weight [username]` – Calculate lily weight for a player.
 <h3>Admin Commands</h3>
 
 `s!skyflowerprefix <prefix>` - Set prefix for this bot (always prefixed with `s!`).
