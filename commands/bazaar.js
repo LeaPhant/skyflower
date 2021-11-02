@@ -28,7 +28,7 @@ updateProducts();
 setInterval(updateProducts, 60 * 1000);
 
 module.exports = {
-    command: ['bazaar', 'bazzar', 'baz', 'b'],
+    command: ['bazaar', 'bazzar', 'baz', 'bz', 'b'],
     argsRequired: 1,
     description: [
         "Check prices for one or more items on Bazaar.",
