@@ -1,7 +1,9 @@
 const helper = require('../helper');
 const config = require('../config.json');
-const lily = require("lilyweight")(config.credentials.hypixel_api_key);
+const LilyWeight = require("lilyweight");
 const numeral = require('numeral');
+
+const lily = new LilyWeight(config.credentials.hypixel_api_key);
 
 module.exports = {
     command: ['weight', 'lilyweight'],
