@@ -1,9 +1,8 @@
-const moment = require('moment');
-const _ = require('lodash');
-const distance = require('jaro-winkler');
+import * as _ from 'lodash';
+import distance from 'jaro-winkler';
 
-const config = require('./config.json');
-const emotes = require('./emotes.json');
+import config from './config.json';
+import emotes from './emotes.json';
 
 const sep = ' ✦ ';
 const cmd_escape = "```";
@@ -11,7 +10,7 @@ const backtick = "`";
 
 let commands, db;
 
-module.exports = {
+export default {
     init: (_commands, _db) => {
         commands = _commands;
         db = _db;
@@ -24,11 +23,11 @@ module.exports = {
     mainColor: 0xdf73af,
     errorColor: 0xf04a4a,
 
-    extendedLayout: async msg => {
-        if(msg.guild == null)
+    extendedLayout: async interaction => {
+        if(interaction.guildId == null)
             return true;
 
-        const layout = await db.get(`layout_${msg.guild.id}_${msg.channel.id}`) || 'basic';
+        const layout = await db.get(`layout_${interaction.guildId}_${interaction.channelId}`) || 'basic';
 
         return layout == 'extended';
     },
@@ -41,62 +40,12 @@ module.exports = {
     },
 
     log: (...params) => {
-        console.log(`[${moment().toISOString()}]`, ...params);
+        console.log(`[${new Date().toISOString()}]`, ...params);
     },
 
     error: (...params) => {
-        console.error(`[${moment().toISOString()}]`, ...params);
+        console.error(`[${new Date().toISOString()}]`, ...params);
     },
-
-    checkCommand: async (prefix, msg, command) => {
-	    if(!msg.content.startsWith(prefix))
-	        return false;
-
-		if(msg.author.bot)
-			return false;
-
-	    const argv = msg.content.split(' ');
-		const msgCheck = msg.content.toLowerCase().substr(prefix.length).trim();
-
-	    let commandMatch = false;
-	    let commands = command.command;
-	    let startswith = false;
-
-	    if(command.startsWith)
-	        startswith = true;
-
-	    if(!Array.isArray(commands))
-	        commands = [commands];
-
-	    for(let i = 0; i < commands.length; i++){
-	        let commandPart = commands[i].toLowerCase().trim();
-	        if(startswith){
-	            if(msgCheck.startsWith(commandPart))
-	                commandMatch = true;
-	        }else{
-	            if(msgCheck.startsWith(commandPart + ' ')
-	            || msgCheck == commandPart)
-	                commandMatch = true;
-	        }
-	    }
-
-	    if(commandMatch){
-	        let hasPermission = true;
-
-	        if(command.permsRequired)
-	            hasPermission = command.permsRequired.length == 0 || command.permsRequired.some(perm => msg.member.hasPermission(perm));
-
-	        if(!hasPermission)
-	            return 'Insufficient permissions for running this command.';
-
-	        if(command.argsRequired !== undefined && argv.length <= command.argsRequired)
-                return await module.exports.commandHelp(command.command, prefix);
-
-	        return true;
-	    }
-
-	    return false;
-	},
 
     getBazaarProduct: (query, products) => {
         let resultMatch;
@@ -254,4 +203,4 @@ module.exports = {
 
         return emote;
     }
-}
+};
