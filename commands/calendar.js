@@ -1,3 +1,8 @@
+import helper from '../helper.js';
+import { uniqBy } from 'lodash-es';
+import { Duration } from 'luxon';
+import { Interaction } from 'discord.js';
+
 const MONTHS = [
     "Early Spring", "Spring", "Late Spring",
     "Early Summer", "Summer", "Late Summer",
@@ -15,20 +20,17 @@ const YEAR_MS = YEAR_LENGTH * MONTH_MS;
 
 const YEAR_0 = 1560275700_000;
 
-const DURATION_FORMAT = function(){
-    return this.duration.asSeconds() >= 60 ? "d [days, ]h [hours, ]m [minutes]" : "s [seconds]";
-};
+const DURATION_FORMAT = ms => {
+    const d = Duration.fromObject({ hours: 0, minutes: 0, seconds: ms / 1000 }).normalize();
+    const o = d.toObject();
 
-const DURATION_FORMAT_SHORT = function(){
-    if (this.duration.asSeconds() < 60) {
-        return "s [seconds]";
-    } else if (this.duration.asSeconds() < 3600) {
-        return "m [minutes]";
-    } else if (this.duration.asSeconds() < 3600 * 48) {
-        return "h [hours]";
-    } else {
-        return "d [days]";
+    if(o.hours > 0){
+        return d.toFormat("h 'hours' m 'minutes'");
+    }else if (o.minutes > 0){
+        return d.toFormat("m 'minutes'");
     }
+
+    return d.toFormat("s 'seconds'");
 };
 
 const ZOO_START = YEAR_0 + YEAR_MS * 66;
@@ -138,20 +140,21 @@ for(const month of MONTHS)
 
 EVENTS.push(FISHING_FESTIVAL);
 
-const helper = require('../helper');
-const _ = require('lodash');
-
-const moment = require('moment');
-require('moment-duration-format');
-
-module.exports = {
+export default {
     command: ['calendar', 'cal'],
     description: [
         "Check SkyBlock Calendar.",
     ],
+    options: [
+        {
+            name: 'event',
+            description: 'Filter result to a specific event',
+            type: 3
+        }
+    ],
     usage: '',
     call: async obj => {
-        const { client, prefix, argv, extendedLayout } = obj;
+        const { interaction, client, extendedLayout } = obj;
 
         let embed = {
             color: helper.mainColor,
@@ -165,7 +168,7 @@ module.exports = {
         const currentOffset = (Date.now() - YEAR_0) % YEAR_MS;
 
         embed.footer = {
-            text: `SkyBlock Year ${currentYear + 1}${helper.sep}${prefix}cal [event]`
+            text: `SkyBlock Year ${currentYear + 1}`
         };
 
         const currentMonth = Math.floor(currentOffset / MONTH_MS);
@@ -233,7 +236,7 @@ module.exports = {
 
         nextEvents = nextEvents.sort((a, b) => a.start - b.start);
 
-        nextEvents = _.uniqBy(nextEvents, a => a.name + a.start);
+        nextEvents = uniqBy(nextEvents, a => a.name + a.start);
 
         let currentEvents = [];
 
@@ -279,9 +282,11 @@ module.exports = {
 
         let nextEventsName = 'Next Events';
 
-        if(argv.length > 1){
+        const eventOption = interaction.options.get('event');
+
+        if(eventOption){
             let nextEventsFiltered = [];
-            let eventSearch = argv.slice(1);
+            const eventSearch = eventOption.value.split(" ");
 
             for(const search of eventSearch)
                 nextEventsFiltered = nextEvents.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
@@ -291,7 +296,7 @@ module.exports = {
 
                 embed.fields.push({
                     name: nextEvents[0].name,
-                    value: `Duration: **${moment.duration(nextEvents[0].duration).format(DURATION_FORMAT, { trim: 'both' })}**`
+                    value: `Duration: **${DURATION_FORMAT(nextEvents[0].duration)}**`
                 });
             }
         }
@@ -316,6 +321,6 @@ module.exports = {
                 value: nextEventsText
             });
 
-        return { embed };
+        await interaction.reply({ embeds: [embed] });
     }
 };
