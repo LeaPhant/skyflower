@@ -1,11 +1,10 @@
-const helper = require('../helper');
-const numeral = require('numeral');
-const config = require('../config.json');
-const axios = require('axios');
+import helper from '../helper.js';
+import numeral from 'numeral';
+import config from '../config.json';
+import axios from 'axios';
 const { CancelToken } = axios;
 
-const _ = require('lodash');
-const { extend } = require('lodash');
+import { keys, capitalize, pickBy, upperFirst } from 'lodash-es';
 let extendedLayout;
 
 const xpMax = {
@@ -52,7 +51,7 @@ const skillEmbed = (profile, skillName, embed) => {
     const output = JSON.parse(JSON.stringify(embed));
 
     const skill = profile.data.levels[skillName];
-    const name = _.upperFirst(skillName);
+    const name = upperFirst(skillName);
 
     output.author.name = `${profile.data.display_name}'s ${name} Skill (${profile.cute_name})`;
 
@@ -90,7 +89,7 @@ const skillEmbed = (profile, skillName, embed) => {
 
             let cropsMined = 0;
 
-            for(const cropCollection of _.keys(profile.raw.collection).filter(a => collections.includes(a)))
+            for(const cropCollection of keys(profile.raw.collection).filter(a => collections.includes(a)))
                 cropsMined += profile.raw.collection[cropCollection];
 
             output.description += `\n\nCrops farmed: **${(cropsMined || 0).toLocaleString()}**`;
@@ -113,7 +112,7 @@ const skillEmbed = (profile, skillName, embed) => {
                     if(slayerLevel.xp == 0)
                         continue;
 
-                    output.description += ` **${_.capitalize(slayer)} ${slayerLevel.currentLevel}** (**${numeral(slayerLevel.xp).format('0.0a')}**)`;
+                    output.description += ` **${capitalize(slayer)} ${slayerLevel.currentLevel}** (**${numeral(slayerLevel.xp).format('0.0a')}**)`;
                 }
             }
 
@@ -145,7 +144,7 @@ const skillEmbed = (profile, skillName, embed) => {
             if(!('collection' in profile.raw))
                 break;
 
-            for(const logCollection of _.keys(profile.raw.collection).filter(a => a.includes('LOG')))
+            for(const logCollection of keys(profile.raw.collection).filter(a => a.includes('LOG')))
                 logsMined += profile.raw.collection[logCollection];
 
             output.description += `\n\nLogs collected: **${(logsMined || 0).toLocaleString()}**`;
@@ -162,18 +161,18 @@ const skillEmbed = (profile, skillName, embed) => {
     }
 
     const skillBonus = profile.data.skill_bonus[skillName];
-    const bonusKeys = _.pickBy(skillBonus, value => value > 0);
+    const bonusKeys = pickBy(skillBonus, value => value > 0);
 
     if(!skillContext)
         output.description += '\n';
 
-    if(_.keys(bonusKeys).length > 0)
+    if(keys(bonusKeys).length > 0)
         output.description += '\nBonus: ';
 
-    for(const [index, key] of _.keys(bonusKeys).entries()){
-        output.description += `**+${statModifier(skillBonus[key], key)}** ${_.startCase(key.replace(/\_/g, ' '))}`;
+    for(const [index, key] of keys(bonusKeys).entries()){
+        output.description += `**+${statModifier(skillBonus[key], key)}** ${startCase(key.replace(/\_/g, ' '))}`;
 
-        if(index < _.keys(bonusKeys).length - 1)
+        if(index < keys(bonusKeys).length - 1)
             output.description += ', ';
     }
 
@@ -183,15 +182,15 @@ const skillEmbed = (profile, skillName, embed) => {
         let levelKeys;
         
         if(skill.maxLevel > 50){
-            levelKeys = _.keys(
-            _.pickBy(xpMax, (value, key) => new Number(key) > skill.level)
+            levelKeys = keys(
+            pickBy(xpMax, (value, key) => new Number(key) > skill.level)
             ).sort((a, b) => a - b);
             
             if(levelKeys.length > 3)
                 levelKeys = [levelKeys[0], levelKeys[levelKeys.length - 3], levelKeys.pop()];
         }else{            
-            levelKeys = _.keys(
-            _.pickBy(xpMax, (value, key) => new Number(key) > skill.level && new Number(key) <= 50)
+            levelKeys = keys(
+            pickBy(xpMax, (value, key) => new Number(key) > skill.level && new Number(key) <= 50)
             ).sort((a, b) => a - b);
             
             if(levelKeys.length > 3)
@@ -209,7 +208,7 @@ const skillEmbed = (profile, skillName, embed) => {
     return output;
 };
 
-module.exports = {
+export default {
     command: ['skills', 's'],
     argsRequired: 1,
     description: [
@@ -266,7 +265,7 @@ module.exports = {
         ).then(async response => {
             const { data } = response;
 
-            let profile = data.profiles[_.findKey(data.profiles, a => a.current)];
+            let profile = data.profiles[findKey(data.profiles, a => a.current)];
             let customProfile;
             let customSkill;
 
@@ -313,7 +312,7 @@ module.exports = {
                 if(skill == null)
                     continue;
 
-                const name = _.upperFirst(skillName);
+                const name = upperFirst(skillName);
                 const skillEmote = helper.emote('sb' + name, null, client);
 
                 const field = {};

@@ -1,7 +1,10 @@
-const helper = require('../helper.js');
+import helper from '../helper.js';
 
-module.exports = {
+export default {
     command: ['help', 'commands'],
+    description: [
+        "Get an overview of all commands."
+    ],
     argsRequired: 0,
     call: obj => {
         const { msg, prefix } = obj;

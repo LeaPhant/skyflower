@@ -1,8 +1,11 @@
-const config = require('../config.json');
-const helper = require('../helper.js');
+import config from '../config.json';
+import helper from '../helper.js';
 
-module.exports = {
+export default {
     command: ['info', 'skyflower', 'about'],
+    description: [
+        "Show info about the bot."
+    ],
     argsRequired: 0,
     call: async obj => {
         const { prefix, client } = obj;

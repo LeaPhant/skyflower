@@ -1,8 +1,8 @@
-const helper = require('../helper');
-const config = require('../config.json');
-const axios = require('axios');
+import helper from '../helper.js';
+import config from '../config.json';
+import axios from 'axios';
 const { CancelToken } = axios;
-const _ = require('lodash');
+import { findKey } from 'lodash-es';
 
 let items;
 
@@ -85,7 +85,7 @@ const FORGE_TIMES = {
     PET: 12 * 24 * 60
 };
 
-QUICK_FORGE_MULTIPLIER = {
+const QUICK_FORGE_MULTIPLIER = {
     1: 0.985,
     2: 0.97,
     3: 0.955,
@@ -108,7 +108,7 @@ QUICK_FORGE_MULTIPLIER = {
     20: 0.7
 };
 
-module.exports = {
+export default {
     command: ['forge'],
     argsRequired: 1,
     description: [
@@ -160,7 +160,7 @@ module.exports = {
         ).then(async response => {
             const { data } = response;
 
-            let profile = data.profiles[_.findKey(data.profiles, a => a.current)];
+            let profile = data.profiles[findKey(data.profiles, a => a.current)];
             let customProfile;
 
             if(argv.length > 2){

@@ -1,9 +1,9 @@
-const helper = require('../helper');
-const numeral = require('numeral');
-const config = require('../config.json');
-const _ = require('lodash');
-const axios = require('axios');
-const math = require('mathjs');
+import helper from '../helper.js';
+import numeral from 'numeral';
+import config from '../config.json';
+import { round } from 'lodash-es';
+import axios from 'axios';
+import * as math from 'mathjs';
 
 let products = {};
 
@@ -27,7 +27,7 @@ const updateProducts = async function(){
 updateProducts();
 setInterval(updateProducts, 60 * 1000);
 
-module.exports = {
+export default {
     command: ['bazaar', 'bazzar', 'baz', 'bz', 'b'],
     argsRequired: 1,
     description: [

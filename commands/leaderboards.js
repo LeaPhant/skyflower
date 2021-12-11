@@ -1,7 +1,7 @@
-const config = require('../config.json');
-const axios = require('axios');
-const helper = require('../helper');
-const _ = require('lodash');
+import config from '../config.json';
+import axios from 'axios';
+import helper from '../helper.js';
+import { cloneDeep, upperFirst } from 'lodash-es';
 const { CancelToken } = axios;
 
 let leaderboards;
@@ -40,7 +40,7 @@ const drawLeaderboard = async function(_embed, args, params, _self = {}){
         const lb = helper.getLeaderboard(args.join(" "), leaderboards);
         const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${encodeURIComponent(lb.key)}`, { params });
         
-        const embed = _.cloneDeep(_embed);
+        const embed = cloneDeep(_embed);
 
         let self = _self;
 
@@ -72,7 +72,7 @@ const drawLeaderboard = async function(_embed, args, params, _self = {}){
         embed.title = `${lb.name} Leaderboards`;
 
         if(params['mode'])
-            embed.title += ` – ${_.upperFirst(params['mode'])}`;
+            embed.title += ` – ${upperFirst(params['mode'])}`;
 
         embed.fields = [];
 
@@ -132,7 +132,7 @@ const leaderboardCollector = async function(reaction, user, embed, message, para
 const drawTopPositions = function(_embed, topPositions){
     const { self } = topPositions;
 
-    let embed = _.cloneDeep(_embed);
+    let embed = cloneDeep(_embed);
 
     embed = { ...embed,
         title: "Top leaderboard ranks",
@@ -187,7 +187,7 @@ const topPositionsCollector = function(reaction, user, embed, message, topPositi
     }
 };
 
-module.exports = {
+export default {
     command: ['leaderboards', 'leaderboard', 'lb'],
     description: [
         "Check leaderboards.",

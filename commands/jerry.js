@@ -36,9 +36,9 @@ while(time < JERRY_END){
     time += JERRY_DURATION;
 }
 
-const helper = require('../helper');
+import helper from '../helper.js';
 
-module.exports = {
+export default {
     command: ['jerry'],
     description: [
         "Check Perkpocalypse Calendar.",

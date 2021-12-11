@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     command: ['togglelayout'],
     argsRequired: 1,
     permsRequired: ['ADMINISTRATOR'],

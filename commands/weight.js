@@ -1,11 +1,11 @@
-const helper = require('../helper');
-const config = require('../config.json');
-const LilyWeight = require("lilyweight");
-const numeral = require('numeral');
+import helper from '../helper.js';
+import config from '../config.json';
+import LilyWeight from 'lilyweight';
+import numeral from 'numeral';
 
 const lily = new LilyWeight(config.credentials.hypixel_api_key);
 
-module.exports = {
+export default {
     command: ['weight', 'lilyweight'],
     description: [
         "Calculate lily weight for a player.",
