@@ -3,6 +3,10 @@ import config from '../config.json';
 import LilyWeight from 'lilyweight';
 import numeral from 'numeral';
 
+const format = value => {
+    return numeral(value).format('0.0');
+};
+
 const lily = new LilyWeight(config.credentials.hypixel_api_key);
 
 export default {
@@ -10,7 +14,14 @@ export default {
     description: [
         "Calculate lily weight for a player.",
     ],
-    argsRequired: 1,
+    options: [
+        {
+            name: 'username',
+            description: 'Player to retrieve weight for',
+            type: 3,
+            required: true
+        }
+    ],
     usage: '[username]',
     example: [
         {
@@ -19,9 +30,11 @@ export default {
         }
     ],
     call: async obj => {
-        const { argv, endEmitter } = obj;
+        const { interaction } = obj;
 
-        const username = argv[1];
+        const username = interaction.options.get('username').value;
+
+        await interaction.deferReply();
 
         const weight = await lily.getWeight(username);
 
@@ -30,7 +43,7 @@ export default {
                 url: `https://sky.lea.moe/stats/${weight.uuid}`,
                 author: {
                     name: `${username}'s Lily Weight`,
-                    url: `https://sky.lea.moe/stats/${weight.uuid}}`,
+                    url: `https://sky.lea.moe/stats/${weight.uuid}`,
                     icon_url: `https://minotar.net/helm/${weight.uuid}/128`
                 },
                 fields: []
@@ -39,25 +52,25 @@ export default {
         embed.fields.push(
             {
                 name: 'Skills',
-                value: `Base: **${numeral(weight.skill.base).format('0.0')}**
-Overflow: **${numeral(weight.skill.overflow).format('0.0')}**`,
+                value: `Base: **${format(weight.skill.base)}**
+Overflow: **${format(weight.skill.overflow)}**`,
                 inline: true
             },
             {
                 name: 'Catacombs',
-                value: `Regular: **${numeral(weight.catacombs.completion.base).format('0.0')}**
-Master: **${numeral(weight.catacombs.completion.master).format('0.0')}**
-Experience: **${numeral(weight.catacombs.experience).format('0.0')}**`,
+                value: `Regular: **${format(weight.catacombs.completion.base)}**
+Master: **${format(weight.catacombs.completion.master)}**
+Experience: **${format(weight.catacombs.experience)}**`,
                 inline: true
             },
             {
                 name: 'Slayer',
-                value: `Total: **${numeral(weight.slayer).format('0.0')}**`,
+                value: `Total: **${format(weight.slayer)}**`,
                 inline: true
             },
             {
                 name: 'Total',
-                value: `**${numeral(weight.total).format('0.0')}** Weight`
+                value: `**${format(weight.total)}** Weight`
             },
             {
                 name: 'Links',
@@ -65,6 +78,6 @@ Experience: **${numeral(weight.catacombs.experience).format('0.0')}**`,
             }
         );
 
-        return { embed };
+        await interaction.editReply({embeds: [embed]});
     }
 };

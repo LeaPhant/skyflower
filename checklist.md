@@ -14,4 +14,4 @@
 - [ ] leaderboards
 - [ ] skills
 - [ ] togglelayout
-- [ ] weight
+- [x] weight
