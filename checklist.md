@@ -5,7 +5,7 @@
 - [ ] Permissions
 
 #### Command Interactions
-- [ ] bazaar
+- [x] bazaar
 - [x] calendar
 - [ ] forge
 - [ ] help
