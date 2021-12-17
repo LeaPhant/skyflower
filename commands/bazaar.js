@@ -159,14 +159,14 @@ export default {
             let itemName = "";
 
             if(summary.length > 1){
-                if(index < 6 && extendedLayout){
+                if(index < 6 && extendedLayout || index < 3 && summary.length < 3 && !extendedLayout){
                     embed.fields.push({
                         name: `${bazaarProduct.name}⠀`,
                         value: "⠀",
                         inline: true
                     });
                 }else{
-                    additionalItems.push({ amount, name: bazaarProduct.name, coinsMode });
+                    additionalItems.push({ amount: amount ?? 1, name: bazaarProduct.name, coinsMode });
                 }
             }
 
