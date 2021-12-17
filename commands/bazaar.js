@@ -53,21 +53,21 @@ export default {
         }
     ],
     call: async obj => {
-        const { argv, prefix, extendedLayout } = obj;
+        const { interaction, extendedLayout } = obj;
 
         let item;
         let itemSearch = "";
 
-        let commandText = argv.slice(1).join(" ");
+        let commandText = interaction.options.get('query');
 
-        let summary = commandText.split(" + ");
+        let summary = commandText.value.split(" + ");
 
         let embed = {
             color: helper.mainColor,
             fields: [],
             footer: {
                 icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-                text: `sky.lea.moe${helper.sep}${prefix}bazaar [amount] <item>`
+                text: `sky.lea.moe${helper.sep}/bazaar [amount] <item>`
             },
         };
 
@@ -314,6 +314,6 @@ export default {
             }
         }
 
-        return { embed };
+        await interaction.reply({ embeds: [embed] });
     }
 };
