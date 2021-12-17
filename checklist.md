@@ -7,7 +7,7 @@
 #### Command Interactions
 - [x] bazaar
 - [x] calendar
-- [ ] forge
+- [x] forge
 - [ ] help
 - [ ] info
 - [ ] jerry

@@ -1,7 +1,6 @@
 import helper from '../helper.js';
 import config from '../config.json';
 import axios from 'axios';
-const { CancelToken } = axios;
 import { findKey } from 'lodash-es';
 
 let items;
@@ -120,51 +119,37 @@ export default {
             result: "Returns forge for LeaPhant."
         }
     ],
+    options: [
+        {
+            name: 'username',
+            description: 'Player to retrieve forge for',
+            type: 3,
+            required: true
+        }, {
+            name: 'profile',
+            description: 'Profile to retrieve forge for',
+            type: 3
+        }
+    ],
     usage: '<username> [profile name]',
     call: async obj => {
-        const { guildId, argv, client, msg, prefix, responseMsg, endEmitter } = obj;
+        const { guildId, client, interaction } = obj;
 
-        extendedLayout = obj.extendedLayout;
-
-        const footer = {
-            icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-            text: `sky.lea.moe${helper.sep}${prefix}forge <user> [profile]`
-        }
-
-        const msgObj = {
-            embed: {
-                color: helper.mainColor,
-                author: {
-                    name: `${argv[1]}'s Forge`
-                },
-                footer,
-                description: `Awaiting API response... ${helper.emote('beespin', null, client)}`
-            }
-        };
-
-        let message = responseMsg;
-
-        if(responseMsg)
-            await responseMsg.edit(msgObj);
-        else
-            message = await msg.channel.send(msgObj);
-
-        const source = CancelToken.source();
+        await interaction.deferReply();
 
         axios.get(
-            `${config.sky_api_base}/api/v2/profile/${argv[1]}`, 
+            `${config.sky_api_base}/api/v2/profile/${interaction.options.get('username').value}`, 
             { 
-                params: { key: config.credentials.sky_api_key },
-                cancelToken: source.token
+                params: { key: config.credentials.sky_api_key }
             }
         ).then(async response => {
             const { data } = response;
 
             let profile = data.profiles[findKey(data.profiles, a => a.current)];
-            let customProfile;
+            let customProfile = interaction.options.get('profile')?.value;
 
-            if(argv.length > 2){
-                customProfile = argv[2].toLowerCase();
+            if(customProfile){
+                customProfile = customProfile.toLowerCase();
 
                 for(const key in data.profiles)
                     if(data.profiles[key].cute_name.toLowerCase() == customProfile)
@@ -172,8 +157,8 @@ export default {
             }
 
             if(!profile?.raw?.forge?.forge_processes?.forge_1){
-                await message.edit({
-                    embed: {
+                await interaction.editReply({embeds: [
+                    {
                         color: helper.errorColor,
                         author: {
                             name: 'Error'
@@ -181,7 +166,7 @@ export default {
                         footer,
                         description: 'Player does not have forge unlocked.'
                     }
-                });
+                ]});
             }
 
             const forge = Object.values(profile.raw.forge.forge_processes.forge_1);
@@ -238,13 +223,10 @@ export default {
                     name: `${profile.data.display_name}'s Forge (${profile.cute_name})`,
                     url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
                 },
-                footer,
                 description
             };
 
-            await message.edit({ embed });
+            await interaction.editReply({embeds: [embed] });
         }).catch(console.error);
-
-        return message;
     }
 };
