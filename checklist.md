@@ -9,7 +9,7 @@
 - [x] calendar
 - [x] forge
 - [ ] help
-- [ ] info
+- [x] info
 - [ ] jerry
 - [ ] leaderboards
 - [ ] skills
