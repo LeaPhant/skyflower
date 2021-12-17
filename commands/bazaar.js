@@ -307,7 +307,7 @@ module.exports = {
             }];
 
             if(!extendedLayout && summary.length > 2){
-                embed.description = description;
+                embed.description = ` \\> ${description}`;
                 embed.fields = summaryTotal;
             }else{
                 embed.fields.push(...summaryTotal);
