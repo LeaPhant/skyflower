@@ -71,6 +71,10 @@ module.exports = {
             },
         };
 
+        const additionalItems = [];
+
+        let description = "";
+
         let totalBuy = 0;
         let totalSell = 0;
 
@@ -154,12 +158,16 @@ module.exports = {
 
             let itemName = "";
 
-            if(summary.length > 1 && index < 6){
-                embed.fields.push({
-                    name: `${bazaarProduct.name}⠀`,
-                    value: "⠀",
-                    inline: true
-                });
+            if(summary.length > 1){
+                if(index < 6 && extendedLayout){
+                    embed.fields.push({
+                        name: `${bazaarProduct.name}⠀`,
+                        value: "⠀",
+                        inline: true
+                    });
+                }else{
+                    additionalItems.push({ amount, name: bazaarProduct.name, coinsMode });
+                }
             }
 
             if(amount || amount == 0){
@@ -261,22 +269,26 @@ module.exports = {
             }
         }
 
+        for(const [index,item] of additionalItems.entries()){
+            if(index > 0)
+                description += ' + ';
+
+            const amount = item.coinsMode ? numeral(item.amount).format('0.0a') : item.amount.toLocaleString();
+                
+            description += `**${amount}** ${item.name}`;
+
+            if(index % 2 == 1)
+                description += '\n';
+        }
+
         if(summary.length > 1){
             embed.title = "Bazaar Summary";
 
             if(summary.length > 6){
                 embed.fields.push({
                     name: `${summary.length - 6} more item${summary.length == 7 ? '' : 's'}…`,
-                    value: "⠀",
-                    inline: true
-                }, {
-                    name: "⠀",
-                    value: "⠀",
-                    inline: true
-                }, {
-                    name: "⠀",
-                    value: "⠀",
-                    inline: true
+                    value: `(${description})`,
+                    inline: false
                 });
             }
 
@@ -294,10 +306,12 @@ module.exports = {
                 inline: true
             }];
 
-            if(!extendedLayout && summary.length > 2)
+            if(!extendedLayout && summary.length > 2){
+                embed.description = description;
                 embed.fields = summaryTotal;
-            else
+            }else{
                 embed.fields.push(...summaryTotal);
+            }
         }
 
         return { embed };
