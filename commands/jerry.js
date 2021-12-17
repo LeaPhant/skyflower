@@ -43,9 +43,16 @@ export default {
     description: [
         "Check Perkpocalypse Calendar.",
     ],
+    options: [
+        {
+            name: 'mayor',
+            description: 'Filter result to a specific mayor',
+            type: 3
+        }
+    ],
     usage: '',
     call: async obj => {
-        const { prefix, argv } = obj;
+        const { interaction } = obj;
 
         let embed = {
             color: helper.mainColor,
@@ -73,8 +80,10 @@ export default {
 
         const cyclesLeft = nextMayors.length;
 
-        if(argv.length > 1)
-            nextMayors = nextMayors.filter(a => a.mayor.toLowerCase() == argv[1].toLowerCase());
+        const filterMayor = interaction.options.get('mayor')?.value;
+
+        if(filterMayor)
+            nextMayors = nextMayors.filter(a => a.mayor.toLowerCase() == filterMayor.toLowerCase());
 
         let nextMayorsValue = nextMayors.length > 0 ? '' : 'None';
 
@@ -88,13 +97,13 @@ export default {
             nextMayorsValue += `${nextMayors[i].mayor} – starts <t:${Math.floor(nextMayors[i].start / 1000)}:R>`
         }
 
-        embed.footer.text = `${cyclesLeft} Mayor terms left${helper.sep}${prefix}jerry [mayor]`;
+        embed.footer.text = `${cyclesLeft} Mayor terms left`;
 
         embed.fields.push({
             name: 'Next Mayors',
             value: nextMayorsValue,
         });
 
-        return { embed };
+        await interaction.reply({ embeds: [embed] });
     }
 };

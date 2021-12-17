@@ -10,7 +10,7 @@
 - [x] forge
 - [ ] help
 - [x] info
-- [ ] jerry
+- [x] jerry
 - [ ] leaderboards
 - [ ] skills
 - [ ] togglelayout
