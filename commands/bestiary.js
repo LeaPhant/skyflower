@@ -1,4 +1,5 @@
 import { startCase, lowerCase } from 'lodash-es';
+import { MessageActionRow } from 'discord.js';
 import fetch from 'node-fetch';
 import helper from '../helper.js';
 import config from '../config.json';
@@ -29,6 +30,8 @@ const BESTIARY_BOSS_LEVEL = {
 };
 
 const BESTIARY_BOSS_MAX = 41;
+
+const PER_PAGE = 9;
 
 const BESTIARY = {
     PRIVATE_ISLAND: [
@@ -338,7 +341,7 @@ export default {
     call: async obj => {
         const { interaction } = obj;
 
-        const profile = await helper.fetchProfile(interaction);
+        const { profile } = await helper.fetchProfile(interaction);
 
         let areas = Object.keys(BESTIARY);
 
@@ -367,14 +370,13 @@ export default {
         }
 
         const bestiary = new Array();
-        const filteredBestiary = new Array();
 
         let totalLevel = 0;
         
         for (const area in BESTIARY) {
-            const bestiary = BESTIARY[area];
+            const bestiaryArea = BESTIARY[area];
 
-            for (const bestiaryEntry of bestiary) {
+            for (const bestiaryEntry of bestiaryArea) {
                 let b = Object.assign({}, bestiaryEntry);
 
                 b.kills = 0;
@@ -391,50 +393,171 @@ export default {
 
                 totalLevel += b.level;
 
-                if (!b.boss && areas.includes(area))
-                    filteredBestiary.push(b);
+                if (areas.includes(area))
+                    bestiary.push(b);
             }
         }
 
-        let description = null;
+        const closestLevelUps = bestiary.filter(a => !a.max && !a.boss).sort((a, b) => a.killsLeft - b.killsLeft);
 
-        if (includingAreas.size > 0) {
-            const list = [...includingAreas].map(a => `**${startCase(a.toLowerCase())}**`);
+        let page = 0;
+        let currentType = 0;
+        let currentArray = closestLevelUps;
 
-            description = `Only including mobs in ${list.join(', ')}.`;
-        } else if (excludingAreas.size > 0) {
-            const list = [...excludingAreas].map(a => `**${startCase(a.toLowerCase())}**`);
+        const TYPES = ['closest', 'highest', 'lowest'];
 
-            description = `Excluding mobs in ${list.join(', ')}.`;
-        }
-
-        const fields = [];
-
-        const closestLevelUps = filteredBestiary.filter(a => !a.max).sort((a, b) => a.killsLeft - b.killsLeft);
-
-        for (const b of closestLevelUps.slice(0, 9)) {
-            fields.push({
-                name: `${b.name} ${b.level}`,
-                value: `Kills: **${b.currentKills}** / ${b.nextStep}`,
-                inline: true
-            });
-        }
-
-        const embed = {
-            color: helper.mainColor,
-            url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
-            author: {
-                icon_url: `https://minotar.net/helm/${profile.data.uuid}/64`,
-                name: `${profile.data.display_name}'s Bestiary (${profile.cute_name})`,
-                url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
+        const buttons = [
+            {
+                customId: 'left',
+                label: '🢀',
+                disabled: true,
+                style: 'SECONDARY'
+            }, {
+                customId: 'right',
+                label: '🢂',
+                style: 'SECONDARY'
             },
-            description,
-            fields,
-            footer: {
-                text: `Approximate Bestiary Milestone: ${Math.floor(totalLevel / 10)}`
+            {
+                customId: 'closest',
+                label: 'Closest',
+                disabled: true,
+                style: 'PRIMARY'
+            }, {
+                customId: 'highest',
+                label: 'Highest',
+                style: 'PRIMARY'
+            }, {
+                customId: 'lowest',
+                label: 'Lowest',
+                style: 'PRIMARY'
             }
+        ];
+
+        buttons.forEach(b => b.type = 'BUTTON');
+
+        const row = new MessageActionRow();
+
+        row.setComponents(...buttons);
+
+        const show = () => {
+            let title;
+            let description;
+
+            switch(currentType) {
+                case 0:
+                    title = "Closest level ups";
+                    break;
+                case 1:
+                    title = "Highest levels";
+                    break;
+                case 2:
+                    title = "Lowest levels";
+            }
+
+            if (includingAreas.size > 0) {
+                const list = [...includingAreas].map(a => `**${startCase(a.toLowerCase())}**`);
+
+                description = `Only including mobs in ${list.join(', ')}.`;
+            } else if (excludingAreas.size > 0) {
+                const list = [...excludingAreas].map(a => `**${startCase(a.toLowerCase())}**`);
+
+                description = `Excluding mobs in ${list.join(', ')}.`;
+            }
+
+            const fields = [];
+
+            const startIndex = PER_PAGE * page + 1;
+
+            const maxPage = Math.floor(currentArray.length / PER_PAGE);
+
+            for (const b of currentArray.slice(startIndex, startIndex + PER_PAGE)) {
+                const value = b.max ?
+                  `Total Kills: **${b.kills}**`
+                : `Kills: **${b.currentKills}** / ${b.nextStep}`;
+
+                fields.push({
+                    name: `${b.name} ${b.level}`,
+                    value,
+                    inline: true
+                });
+            }
+
+            const text 
+                = `Approximate Bestiary Milestone: ${Math.floor(totalLevel / 10)}`
+                + helper.sep
+                + `Page ${page + 1}/${maxPage + 1}`;
+
+            return {
+                color: helper.mainColor,
+                title,
+                author: {
+                    icon_url: `https://minotar.net/helm/${profile.data.uuid}/64`,
+                    name: `${profile.data.display_name}'s Bestiary (${profile.cute_name})`,
+                    url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
+                },
+                description,
+                fields,
+                footer: {
+                    text
+                }
+            };
         };
 
-        await interaction.editReply({ embeds: [embed] });
+        await interaction.editReply({ embeds: [show()], components: [row] });
+
+        const reply = await interaction.fetchReply();
+
+        const filter = interaction => interaction.user.id === interaction.user.id;
+        const collector = reply.createMessageComponentCollector({ filter, time: 120_000 });
+
+        collector.on('collect', async i => {
+            switch(i.customId) {
+                case 'left':
+                    page = Math.max(0, page - 1);
+                    break;
+                case 'right':
+                    page = Math.min(Math.floor(currentArray.length / PER_PAGE), page + 1);
+                    break;
+                case 'closest':
+                    page = 0;
+                    currentType = 0;
+                    currentArray = closestLevelUps;
+                    break;
+                case 'highest':
+                    page = 0;
+                    currentType = 1;
+                    currentArray = bestiary.sort((a, b) => b.level - a.level);
+                    break;
+                case 'lowest':
+                    page = 0;
+                    currentType = 2;
+                    currentArray = bestiary.sort((a, b) => a.level - b.level);
+                    break;
+            }
+
+            buttons.forEach(b => b.disabled = false);
+
+            if (page == 0) {
+                buttons[0].disabled = true;
+            } else {
+                buttons[0].disabled = false;
+            }
+
+            if (page == Math.floor(currentArray.length / PER_PAGE)) {
+                buttons[1].disabled = true;
+            } else {
+                buttons[1].disabled = false;
+            }
+
+            buttons[currentType + 2].disabled = true;
+
+            row.setComponents(...buttons);
+
+            await i.update({ embeds: [show()], components: [row] });
+        });
+
+        collector.on('end', async () => {
+            await interaction.editReply({ embeds: [show()], components: [] });
+        });
     }
 };

@@ -237,7 +237,7 @@ const module = {
             });
         }
 
-        await interaction.deferReply();
+        const reply = await interaction.deferReply();
 
         const response = await module.apiRequest(`/api/v2/profile/${username}`);
 
@@ -269,7 +269,7 @@ const module = {
             }
         }
 
-        return profile;
+        return { reply, profile };
     }
 };
 

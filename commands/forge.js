@@ -135,7 +135,7 @@ export default {
     call: async obj => {
         const { guildId, client, interaction } = obj;
 
-        const profile = await helper.fetchProfile(interaction);
+        const { profile } = await helper.fetchProfile(interaction);
 
         if (!profile?.raw?.forge?.forge_processes?.forge_1) {
             return await interaction.editReply({

@@ -27,7 +27,7 @@ for (const c of commands) {
         name: c.command[0],
         description: c.description[0],
         type: c?.type ?? 1,
-        default_permission: false
+        defaultPermission: true
     };
 
     if (c.hasOwnProperty('permsRequired') && c.permsRequired.length > 0) {
