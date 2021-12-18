@@ -2,23 +2,27 @@ import helper from '../helper.js';
 import numeral from 'numeral';
 import config from '../config.json';
 import { round } from 'lodash-es';
-import axios from 'axios';
+import fetch from 'node-fetch';
 import * as math from 'mathjs';
 
 let products = {};
 
 const updateProducts = async function(){
-    const bazaarResponse = await axios(`${config.sky_api_base}/api/v2/bazaar`);
+    const bazaarResponse = await helper.apiRequest('/api/v2/bazaar');
 
-    products = bazaarResponse.data;
+    if (!bazaarResponse.ok)
+        return;
 
-    for(const productId in products){
+    products = await bazaarResponse.json();
+
+    for (const productId in products) {
         const product = products[productId];
 
-        if(product.tag != null)
+        if (product.tag != null) {
             product.tag = product.tag.split(" ");
-        else
+        } else {
             product.tag = [];
+        }
 
         product.tag.push(...product.name.toLowerCase().split(" "));
     }
