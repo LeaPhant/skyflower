@@ -135,98 +135,73 @@ export default {
     call: async obj => {
         const { guildId, client, interaction } = obj;
 
-        await interaction.deferReply();
+        const profile = await helper.fetchProfile(interaction);
 
-        axios.get(
-            `${config.sky_api_base}/api/v2/profile/${interaction.options.get('username').value}`, 
-            { 
-                params: { key: config.credentials.sky_api_key }
+        if(!profile?.raw?.forge?.forge_processes?.forge_1){
+            return await interaction.editReply({
+                embeds: [
+                    helper.errorEmbed('Player does not have forge unlocked.')
+                ]
+            });
+        }
+
+        const forge = Object.values(profile.raw.forge.forge_processes.forge_1);
+
+        let description = '';
+
+        if(forge.length == 0)
+            description = 'Player has no items in forge.';
+
+        const groups = [];
+
+        for(const item of forge){
+            const index = groups.findIndex(a => a.id == item.id && Math.abs(item.startTime - a.startTime) < 120 * 1000);
+
+            if(index > -1)
+                groups[index].amount++;
+            else
+                groups.push({ amount: 1, ...item });
+        }
+
+        for(const [index, item] of groups.entries()){
+            if(index > 0)
+                description += '\n';
+
+            let name = item.id in items ? items[item.id].name : item.id;
+
+            if(item.id == 'PET')
+                name = '[Lvl 1] Ammonite';
+
+            if(item.amount > 1)
+                name = `**${item.amount}x** ${name}`;
+
+            description += `${name} ${helper.sep} `;
+
+            if(item.id in FORGE_TIMES){
+                let forgeTime = FORGE_TIMES[item.id] * 60;
+                
+                const quickForge = profile.raw?.mining_core?.nodes?.forge_time;
+
+                if(quickForge != null)
+                    forgeTime *= QUICK_FORGE_MULTIPLIER[quickForge];
+
+                description += `Finished <t:${Math.floor(item.startTime / 1000) + forgeTime}:R>`;
+            }else{
+                description += `Started <t:${Math.floor(item.startTime / 1000)}:R>`;
             }
-        ).then(async response => {
-            const { data } = response;
+        }
 
-            let profile = data.profiles[findKey(data.profiles, a => a.current)];
-            let customProfile = interaction.options.get('profile')?.value;
-
-            if(customProfile){
-                customProfile = customProfile.toLowerCase();
-
-                for(const key in data.profiles)
-                    if(data.profiles[key].cute_name.toLowerCase() == customProfile)
-                        profile = data.profiles[key];
-            }
-
-            if(!profile?.raw?.forge?.forge_processes?.forge_1){
-                await interaction.editReply({embeds: [
-                    {
-                        color: helper.errorColor,
-                        author: {
-                            name: 'Error'
-                        },
-                        footer,
-                        description: 'Player does not have forge unlocked.'
-                    }
-                ]});
-            }
-
-            const forge = Object.values(profile.raw.forge.forge_processes.forge_1);
-
-            let description = '';
-
-            if(forge.length == 0)
-                description = 'Player has no items in forge.';
-
-            const groups = [];
-
-            for(const item of forge){
-                const index = groups.findIndex(a => a.id == item.id && Math.abs(item.startTime - a.startTime) < 120 * 1000);
-
-                if(index > -1)
-                    groups[index].amount++;
-                else
-                    groups.push({ amount: 1, ...item });
-            }
-
-            for(const [index, item] of groups.entries()){
-                if(index > 0)
-                    description += '\n';
-
-                let name = item.id in items ? items[item.id].name : item.id;
-
-                if(item.id == 'PET')
-                    name = '[Lvl 1] Ammonite';
-
-                if(item.amount > 1)
-                    name = `**${item.amount}x** ${name}`;
-
-                description += `${name} ${helper.sep} `;
-
-                if(item.id in FORGE_TIMES){
-                    let forgeTime = FORGE_TIMES[item.id] * 60;
-                    
-                    const quickForge = profile.raw?.mining_core?.nodes?.forge_time;
-
-                    if(quickForge != null)
-                        forgeTime *= QUICK_FORGE_MULTIPLIER[quickForge];
-
-                    description += `Finished <t:${Math.floor(item.startTime / 1000) + forgeTime}:R>`;
-                }else{
-                    description += `Started <t:${Math.floor(item.startTime / 1000)}:R>`;
-                }
-            }
-
-            const embed = {
-                color: helper.mainColor,
+        const embed = {
+            color: helper.mainColor,
+            url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
+            author: {
+                icon_url: `https://minotar.net/helm/${profile.data.uuid}/64`,
+                name: `${profile.data.display_name}'s Forge (${profile.cute_name})`,
                 url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
-                author: {
-                    icon_url: `https://minotar.net/helm/${profile.data.uuid}/64`,
-                    name: `${profile.data.display_name}'s Forge (${profile.cute_name})`,
-                    url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
-                },
-                description
-            };
+            },
+            description
+        };
 
-            await interaction.editReply({embeds: [embed] });
-        }).catch(console.error);
+        return await interaction.editReply({embeds: [embed] });
     }
 };

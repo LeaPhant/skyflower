@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
 import distance from 'jaro-winkler';
+import fetch from 'node-fetch';
 
 import config from './config.json';
 import emotes from './emotes.json';
@@ -10,7 +10,7 @@ const backtick = "`";
 
 let commands, db;
 
-export default {
+const module = {
     init: (_commands, _db) => {
         commands = _commands;
         db = _db;
@@ -22,6 +22,16 @@ export default {
 
     mainColor: 0xdf73af,
     errorColor: 0xf04a4a,
+
+    errorEmbed: e => {
+        return {
+            color: module.errorColor,
+            author: {
+                name: 'Error'
+            },
+            description: e.toString()
+        }
+    },
 
     extendedLayout: async interaction => {
         if(interaction.guildId == null)
@@ -118,7 +128,7 @@ export default {
         for(let i = 0; i < commands.length; i++){
             let command = commands[i];
 
-            command.command = _.castArray(command.command);
+            command.command = [...command.command];
 
             if(command.command.includes(commandName)){
                 let embed = {
@@ -140,7 +150,7 @@ export default {
                     value: commandsValue + "\n"
                 });
 
-                command.description = _.castArray(command.description);
+                command.description = [...command.description];
 
                 if(command.description){
                     embed.fields.push({
@@ -157,7 +167,7 @@ export default {
                 }
 
                 if(command.example){
-                    let examples = _.castArray(command.example);
+                    let examples = [...command.example];
                     let examplesValue = "";
                     let examplesName = "Example";
 
@@ -202,5 +212,59 @@ export default {
             emote = client.emojis.cache.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
 
         return emote;
+    },
+
+    apiRequest: path => {
+        const url = new URL(`${config.sky_api_base}${path}`);
+        url.searchParams.append('key', config.credentials.sky_api_key);
+
+        return fetch(url);
+    },
+
+    fetchProfile: async interaction => {
+        const username = interaction.options.get('username')?.value;
+
+        if (username === undefined) {
+            return await interaction.reply({
+                ephemeral: true,
+                embeds: [module.errorEmbed('No username specified.')]
+            });
+        }
+
+        await interaction.deferReply();
+
+        const response = await module.apiRequest(`/api/v2/profile/${username}`);
+
+        if (!response.ok) {
+            return await interaction.editReply({
+                ephemeral: true,
+                embeds: [module.errorEmbed('Failed fetching profile.')]
+            });
+        }
+
+        const data = await response.json();
+
+        if (data.error !== undefined) {
+            return await interaction.editReply({
+                ephemeral: true,
+                embeds: [module.errorEmbed(data.error)]
+            });
+        }
+
+        let profile = Object.values(data.profiles).find(a => a.current);
+        const customProfile = interaction.options.get('profile')?.value.toLowerCase();
+
+        if (customProfile !== undefined) {
+            for (const key in data.profiles) {
+                if(data.profiles[key].cute_name.toLowerCase() == customProfile) {
+                    profile = data.profiles[key];
+                    break;
+                }  
+            }
+        }
+
+        return profile;
     }
 };
+
+export default module;
