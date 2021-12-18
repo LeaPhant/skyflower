@@ -34,7 +34,7 @@ const module = {
     },
 
     extendedLayout: async interaction => {
-        if(interaction.guildId == null)
+        if (interaction.guildId == null)
             return true;
 
         const layout = await db.get(`layout_${interaction.guildId}_${interaction.channelId}`) || 'basic';
@@ -43,7 +43,7 @@ const module = {
     },
 
     prefix: async guild => {
-        if(guild == null)
+        if (guild == null)
             return config.prefix;
 
         return (await db.get(`pfx_${guild.id}`)) || config.prefix;
@@ -61,25 +61,25 @@ const module = {
         let resultMatch;
         let itemResults = [];
 
-        for(const key in products)
-            itemResults.push({...products[key]});
+        for (const key in products)
+            itemResults.push({ ...products[key] });
 
-        for(const product of itemResults){
-            if(product.name.toLowerCase() == query)
+        for (const product of itemResults) {
+            if (product.name.toLowerCase() == query)
                 return product;
 
             product.tagMatches = 0;
 
-            for(const part of query.split(" "))
-                for(const tag of product.tag)
-                    if(tag == part)
+            for (const part of query.split(" "))
+                for (const tag of product.tag)
+                    if (tag == part)
                         product.tagMatches++;
         }
 
         itemResults = itemResults.sort((a, b) => b.tagMatches - a.tagMatches);
         itemResults = itemResults.filter(a => a.tagMatches == itemResults[0].tagMatches);
 
-        if(itemResults.length == 1)
+        if (itemResults.length == 1)
             return itemResults[0];
 
         itemResults.forEach(a => a.distance = distance(a.name, query, { caseSensitive: false }));
@@ -92,25 +92,25 @@ const module = {
         let resultMatch;
         let lbResults = [];
 
-        for(const lb of leaderboards)
-            lbResults.push({...lb});
+        for (const lb of leaderboards)
+            lbResults.push({ ...lb });
 
-        for(const lb of lbResults){
-            if(lb.name.toLowerCase() == query)
+        for (const lb of lbResults) {
+            if (lb.name.toLowerCase() == query)
                 return lb;
 
             lb.tagMatches = 0;
 
-            for(const queryPart of query.toLowerCase().split(" "))
-                for(const namePart of lb.name.toLowerCase().split(" "))
-                    if(namePart == queryPart)
+            for (const queryPart of query.toLowerCase().split(" "))
+                for (const namePart of lb.name.toLowerCase().split(" "))
+                    if (namePart == queryPart)
                         lb.tagMatches++;
         }
 
         lbResults = lbResults.sort((a, b) => b.tagMatches - a.tagMatches);
         lbResults = lbResults.filter(a => a.tagMatches == lbResults[0].tagMatches);
 
-        if(lbResults.length == 1)
+        if (lbResults.length == 1)
             return lbResults[0];
 
         lbResults.forEach(a => a.distance = distance(a.name, query, { caseSensitive: false }));
@@ -122,15 +122,15 @@ const module = {
     },
 
     commandHelp: async (commandName, prefix) => {
-        if(Array.isArray(commandName))
+        if (Array.isArray(commandName))
             commandName = commandName[0];
 
-        for(let i = 0; i < commands.length; i++){
+        for (let i = 0; i < commands.length; i++) {
             let command = commands[i];
 
             command.command = [...command.command];
 
-            if(command.command.includes(commandName)){
+            if (command.command.includes(commandName)) {
                 let embed = {
                     fields: []
                 };
@@ -139,7 +139,7 @@ const module = {
                 const commandsName = "Aliases";
 
                 command.command.forEach((_command, index) => {
-                    if(index > 0)
+                    if (index > 0)
                         commandsValue += ", ";
 
                     commandsValue += `\`${prefix}${_command}\``;
@@ -152,36 +152,36 @@ const module = {
 
                 command.description = [...command.description];
 
-                if(command.description){
+                if (command.description) {
                     embed.fields.push({
                         name: "Description",
                         value: command.description.join("\n") + "\n"
                     })
                 }
 
-                if(command.usage){
+                if (command.usage) {
                     embed.fields.push({
                         name: "Usage",
                         value: `${backtick}${prefix}${command.command[0]} ${command.usage}${backtick}\n`
                     });
                 }
 
-                if(command.example){
+                if (command.example) {
                     let examples = [...command.example];
                     let examplesValue = "";
                     let examplesName = "Example";
 
-                    if(examples.length > 1)
+                    if (examples.length > 1)
                         examplesName += "s";
 
                     examples.forEach((example, index) => {
-                        if(index > 0)
+                        if (index > 0)
                             examplesValue += "\n";
 
-                        if(example.result != null){
+                        if (example.result != null) {
                             examplesValue += `${backtick}${prefix}${example.run}${backtick}: `;
                             examplesValue += example.result;
-                        }else{
+                        } else {
                             examplesValue += `${backtick}${prefix}${example}${backtick}`;
                         }
                     });
@@ -200,15 +200,15 @@ const module = {
     },
 
     emote: (emoteName, guild, client) => {
-        if(emoteName in emotes)
+        if (emoteName in emotes)
             return client.emojis.cache.get(emotes[emoteName].id);
 
         let emote;
 
-        if(guild)
+        if (guild)
             emote = guild.emojis.cache.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
 
-        if(!emote)
+        if (!emote)
             emote = client.emojis.cache.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
 
         return emote;
@@ -256,10 +256,10 @@ const module = {
 
         if (customProfile !== undefined) {
             for (const key in data.profiles) {
-                if(data.profiles[key].cute_name.toLowerCase() == customProfile) {
+                if (data.profiles[key].cute_name.toLowerCase() == customProfile) {
                     profile = data.profiles[key];
                     break;
-                }  
+                }
             }
         }
 

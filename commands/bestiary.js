@@ -117,25 +117,25 @@ const BESTIARY = {
         'wither_skeleton'
     ],
     THE_END: [
-       {
-           name: 'Dragon',
-           id: [
-               'young_dragon', 'protector_dragon', 'strong_dragon', 'old_dragon', 
-               'unstable_dragon', 'wise_dragon', 'superior_dragon'
+        {
+            name: 'Dragon',
+            id: [
+                'young_dragon', 'protector_dragon', 'strong_dragon', 'old_dragon',
+                'unstable_dragon', 'wise_dragon', 'superior_dragon'
             ],
-           boss: true
-       },
-       'enderman',
-       'endermite',
-       {
-           name: 'Endstone Protector',
-           id: 'corrupted_protector',
-           boss: true
-       },
-       'voidling_extremist',
-       'voidling_fanatic',
-       'watcher',
-       'zealot'
+            boss: true
+        },
+        'enderman',
+        'endermite',
+        {
+            name: 'Endstone Protector',
+            id: 'corrupted_protector',
+            boss: true
+        },
+        'voidling_extremist',
+        'voidling_fanatic',
+        'watcher',
+        'zealot'
     ],
     DEEP_CAVERNS: [
         'automaton',

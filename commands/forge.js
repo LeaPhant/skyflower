@@ -5,12 +5,12 @@ import { findKey } from 'lodash-es';
 
 let items;
 
-const updateItems = async function(){
-    try{
+const updateItems = async function () {
+    try {
         const itemsResponse = await axios(`https://api.slothpixel.me/api/skyblock/items`);
 
         items = itemsResponse.data;
-    }catch(e){
+    } catch (e) {
         helper.error(e);
     }
 }
@@ -137,7 +137,7 @@ export default {
 
         const profile = await helper.fetchProfile(interaction);
 
-        if(!profile?.raw?.forge?.forge_processes?.forge_1){
+        if (!profile?.raw?.forge?.forge_processes?.forge_1) {
             return await interaction.editReply({
                 embeds: [
                     helper.errorEmbed('Player does not have forge unlocked.')
@@ -149,44 +149,44 @@ export default {
 
         let description = '';
 
-        if(forge.length == 0)
+        if (forge.length == 0)
             description = 'Player has no items in forge.';
 
         const groups = [];
 
-        for(const item of forge){
+        for (const item of forge) {
             const index = groups.findIndex(a => a.id == item.id && Math.abs(item.startTime - a.startTime) < 120 * 1000);
 
-            if(index > -1)
+            if (index > -1)
                 groups[index].amount++;
             else
                 groups.push({ amount: 1, ...item });
         }
 
-        for(const [index, item] of groups.entries()){
-            if(index > 0)
+        for (const [index, item] of groups.entries()) {
+            if (index > 0)
                 description += '\n';
 
             let name = item.id in items ? items[item.id].name : item.id;
 
-            if(item.id == 'PET')
+            if (item.id == 'PET')
                 name = '[Lvl 1] Ammonite';
 
-            if(item.amount > 1)
+            if (item.amount > 1)
                 name = `**${item.amount}x** ${name}`;
 
             description += `${name} ${helper.sep} `;
 
-            if(item.id in FORGE_TIMES){
+            if (item.id in FORGE_TIMES) {
                 let forgeTime = FORGE_TIMES[item.id] * 60;
-                
+
                 const quickForge = profile.raw?.mining_core?.nodes?.forge_time;
 
-                if(quickForge != null)
+                if (quickForge != null)
                     forgeTime *= QUICK_FORGE_MULTIPLIER[quickForge];
 
                 description += `Finished <t:${Math.floor(item.startTime / 1000) + forgeTime}:R>`;
-            }else{
+            } else {
                 description += `Started <t:${Math.floor(item.startTime / 1000)}:R>`;
             }
         }
@@ -202,6 +202,6 @@ export default {
             description
         };
 
-        return await interaction.editReply({embeds: [embed] });
+        return await interaction.editReply({ embeds: [embed] });
     }
 };

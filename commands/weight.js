@@ -40,13 +40,13 @@ export default {
 
         const embed = {
             color: helper.mainColor,
+            url: `https://sky.lea.moe/stats/${weight.uuid}`,
+            author: {
+                name: `${username}'s Lily Weight`,
                 url: `https://sky.lea.moe/stats/${weight.uuid}`,
-                author: {
-                    name: `${username}'s Lily Weight`,
-                    url: `https://sky.lea.moe/stats/${weight.uuid}`,
-                    icon_url: `https://minotar.net/helm/${weight.uuid}/128`
-                },
-                fields: []
+                icon_url: `https://minotar.net/helm/${weight.uuid}/128`
+            },
+            fields: []
         };
 
         embed.fields.push(
@@ -78,6 +78,6 @@ Experience: **${format(weight.catacombs.experience)}**`,
             }
         );
 
-        await interaction.editReply({embeds: [embed]});
+        await interaction.editReply({ embeds: [embed] });
     }
 };

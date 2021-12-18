@@ -24,7 +24,7 @@ const JERRY_TIMES = [];
 let time = JERRY_START;
 let i = 0;
 
-while(time < JERRY_END){
+while (time < JERRY_END) {
     JERRY_TIMES.push({
         start: JERRY_START + i * JERRY_DURATION,
         end: JERRY_START + (i + 1) * JERRY_DURATION - 1,
@@ -66,7 +66,7 @@ export default {
         const currentMayorIndex = JERRY_TIMES.findIndex(a => Date.now() >= a.start && Date.now() < a.end);
         let currentMayorValue = 'None';
 
-        if(currentMayorIndex > -1){
+        if (currentMayorIndex > -1) {
             const mayor = JERRY_TIMES[currentMayorIndex];
             currentMayorValue = `${mayor.mayor} – ends <t:${Math.floor(mayor.end / 1000)}:R>`;
         }
@@ -82,16 +82,16 @@ export default {
 
         const filterMayor = interaction.options.get('mayor')?.value;
 
-        if(filterMayor)
+        if (filterMayor)
             nextMayors = nextMayors.filter(a => a.mayor.toLowerCase() == filterMayor.toLowerCase());
 
         let nextMayorsValue = nextMayors.length > 0 ? '' : 'None';
 
-        for(let i = 0; i < 3; i++){
-            if(i > nextMayors.length - 1)
+        for (let i = 0; i < 3; i++) {
+            if (i > nextMayors.length - 1)
                 break;
 
-            if(i > 0)
+            if (i > 0)
                 nextMayorsValue += '\n';
 
             nextMayorsValue += `${nextMayors[i].mayor} – starts <t:${Math.floor(nextMayors[i].start / 1000)}:R>`

@@ -4,7 +4,7 @@ import { REST } from '@discordjs/rest';
 import fs from 'fs/promises';
 import { ShardingManager } from 'discord.js';
 
-if(!config.credentials.bot_token)
+if (!config.credentials.bot_token)
     throw "Please provide a Discord bot token";
 
 const CLIENT_ID = config.credentials.discord_client_id;
@@ -14,8 +14,8 @@ const commands = [];
 const commandFiles = (await fs.readdir('./commands')).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-	const command = await import(`./commands/${file}`);
-	commands.push(command.default);
+    const command = await import(`./commands/${file}`);
+    commands.push(command.default);
 }
 
 const rest = new REST({ version: '9' }).setToken(TOKEN);
@@ -50,12 +50,12 @@ for (const c of commands) {
 }
 
 const manager = new ShardingManager('./bot.js', { token: config.credentials.bot_token, mode: 'worker' });
-    
+
 manager.spawn();
 manager.on('shardCreate', shard => {
-    shard.on('message', message => { 
-        if(typeof message == 'string') 
-            manager.broadcast(message) 
+    shard.on('message', message => {
+        if (typeof message == 'string')
+            manager.broadcast(message)
     });
 
     console.log(`Launched shard ${shard.id}`);
