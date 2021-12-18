@@ -26,7 +26,8 @@ for (const c of commands) {
     const command = {
         name: c.command[0],
         description: c.description[0],
-        type: c?.type ?? 1
+        type: c?.type ?? 1,
+        default_permission: false
     };
 
     if (c.hasOwnProperty('permsRequired') && c.permsRequired.length > 0) {
@@ -64,10 +65,12 @@ manager.on('shardCreate', shard => {
 try {
     console.log('Started refreshing application (/) commands.');
 
-    await rest.put(
-        Routes.applicationGuildCommands(CLIENT_ID, config.test_guild),
-        { body: commandPayload },
-    );
+    for (const guild of config.test_guilds) {
+        await rest.put(
+            Routes.applicationGuildCommands(CLIENT_ID, guild),
+            { body: commandPayload },
+        );
+    }
 
     console.log('Successfully reloaded application (/) commands.');
 } catch (error) {
