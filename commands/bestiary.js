@@ -435,6 +435,9 @@ export default {
 
         buttons.forEach(b => b.type = 'BUTTON');
 
+        if (currentArray.length < PER_PAGE)
+            buttons[1].disabled = true;
+
         const row = new MessageActionRow();
 
         row.setComponents(...buttons);
@@ -466,7 +469,7 @@ export default {
 
             const fields = [];
 
-            const startIndex = PER_PAGE * page + 1;
+            const startIndex = PER_PAGE * page;
 
             const maxPage = Math.floor(currentArray.length / PER_PAGE);
 
