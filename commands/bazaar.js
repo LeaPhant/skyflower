@@ -7,7 +7,7 @@ import * as math from 'mathjs';
 
 let products = {};
 
-const updateProducts = async function(){
+const updateProducts = async () => {
     const bazaarResponse = await helper.apiRequest('/api/v2/bazaar');
 
     if (!bazaarResponse.ok)
@@ -18,11 +18,10 @@ const updateProducts = async function(){
     for (const productId in products) {
         const product = products[productId];
 
-        if (product.tag != null) {
+        if (product.tag != null)
             product.tag = product.tag.split(" ");
-        } else {
+        else
             product.tag = [];
-        }
 
         product.tag.push(...product.name.toLowerCase().split(" "));
     }
@@ -84,7 +83,7 @@ export default {
 
         let coinsMode = false;
 
-        for(const [index, part] of summary.entries()){
+        for (const [index, part] of summary.entries()) {
             let stacks = false;
 
             const argv_ = part.split(" ");
@@ -92,10 +91,10 @@ export default {
             let amount;
             coinsMode = false;
 
-            if(['k', 'm', 'b'].includes(argv_[0].charAt(argv_[0].length - 1).toLowerCase()) && !isNaN(parseFloat(argv_[0]))){
+            if (['k', 'm', 'b'].includes(argv_[0].charAt(argv_[0].length - 1).toLowerCase()) && !isNaN(parseFloat(argv_[0]))) {
                 amount = parseFloat(argv_[0]);
 
-                switch(argv_[0].charAt(argv_[0].length - 1).toLowerCase()){
+                switch (argv_[0].charAt(argv_[0].length - 1).toLowerCase()) {
                     case 'b':
                         amount *= 1000;
                     case 'm':
@@ -105,12 +104,12 @@ export default {
                 }
 
                 coinsMode = true;
-            }else if(!isNaN(parseInt(argv_[0]))){
+            } else if (!isNaN(parseInt(argv_[0]))) {
                 const expression = argv_[0].replace(/x/g, '*');
 
-                try{
+                try {
                     amount = Math.ceil(math.evaluate(expression));
-                }catch(e){
+                } catch (e) {
                     throw {
                         embed: {
                             color: helper.errorColor,
@@ -124,11 +123,11 @@ export default {
                 }
             }
 
-            if(amount !== undefined && argv_.length < 1)
+            if (amount !== undefined && argv_.length < 1)
                 return await helper.commandHelp(module.exports.command, prefix);
-                
 
-            if(amount !== undefined && argv_.length < 2)
+
+            if (amount !== undefined && argv_.length < 2)
                 throw {
                     embed: {
                         color: helper.errorColor,
@@ -140,19 +139,19 @@ export default {
                     }
                 };
 
-            if(amount !== undefined && ['stack', 'stacks'].includes(argv_[1].toLowerCase())){
+            if (amount !== undefined && ['stack', 'stacks'].includes(argv_[1].toLowerCase())) {
                 stacks = true;
 
                 itemSearch = argv_.slice(2);
-            }else{
+            } else {
                 itemSearch = argv_.slice(1);
             }
 
-            if(amount == undefined)
+            if (amount == undefined)
                 itemSearch = argv_;
 
-            for(const [index, part] of itemSearch.entries()){
-                if(part == 'e' || part == 'ench')
+            for (const [index, part] of itemSearch.entries()) {
+                if (part == 'e' || part == 'ench')
                     itemSearch[index] = 'enchanted';
             }
 
@@ -162,20 +161,20 @@ export default {
 
             let itemName = "";
 
-            if(summary.length > 1){
-                if(index < 6 && extendedLayout || index < 3 && summary.length < 3 && !extendedLayout){
+            if (summary.length > 1) {
+                if (index < 6 && extendedLayout || index < 3 && summary.length < 3 && !extendedLayout) {
                     embed.fields.push({
                         name: `${bazaarProduct.name}⠀`,
                         value: "⠀",
                         inline: true
                     });
-                }else{
+                } else {
                     additionalItems.push({ amount: amount ?? 1, name: bazaarProduct.name, coinsMode });
                 }
             }
 
-            if(amount || amount == 0){
-                if(coinsMode){
+            if (amount || amount == 0) {
+                if (coinsMode) {
                     let buyText = "";
                     let sellText = "";
 
@@ -185,15 +184,15 @@ export default {
                     buyText += `Buy ${itemsBuy.toLocaleString()}`;
                     sellText += `Sell ${itemsSell.toLocaleString()}`;
 
-                    let buyStacks = `${ _.round(itemsBuy / 64, 1).toLocaleString() } × 64`;
-                    let sellStacks = `${ _.round(itemsSell / 64, 1).toLocaleString() } × 64`;
+                    let buyStacks = `${_.round(itemsBuy / 64, 1).toLocaleString()} × 64`;
+                    let sellStacks = `${_.round(itemsSell / 64, 1).toLocaleString()} × 64`;
 
-                    if(itemsBuy >= 128 && itemsSell >= 128){
+                    if (itemsBuy >= 128 && itemsSell >= 128) {
                         buyText += ` (${buyStacks})`;
                         sellText += ` (${sellStacks})`;
                     }
 
-                    if(itemsBuy >= 1280 && itemsSell >= 1280){
+                    if (itemsBuy >= 1280 && itemsSell >= 1280) {
                         buyText = buyStacks;
                         sellText = sellStacks;
                     }
@@ -201,7 +200,7 @@ export default {
                     totalBuy += itemsBuy * bazaarProduct.buyPrice;
                     totalSell += itemsSell * bazaarProduct.sellPrice;
 
-                    if(index < 6){
+                    if (index < 6) {
                         embed.fields.push({
                             name: `Spend ${numeral(amount).format('0.0a')}`,
                             value: buyText,
@@ -212,14 +211,14 @@ export default {
                             inline: true
                         });
                     }
-                }else{
-                    if(stacks){
+                } else {
+                    if (stacks) {
                         const name = amount > 1 ? `Buy ${amount.toLocaleString()} × 64` : `Buy 64`;
 
                         totalBuy += amount * 64 * bazaarProduct.buyPrice;
                         totalSell += amount * 64 * bazaarProduct.sellPrice;
 
-                        if(index < 6){
+                        if (index < 6) {
                             embed.fields.push({
                                 name: `Buy ${amount.toLocaleString()} × 64`,
                                 value: amount == 0 ? 'Free' : numeral(amount * 64 * bazaarProduct.buyPrice).format('0.00a'),
@@ -230,11 +229,11 @@ export default {
                                 inline: true
                             });
                         }
-                    }else{
+                    } else {
                         totalBuy += amount * bazaarProduct.buyPrice;
                         totalSell += amount * bazaarProduct.sellPrice;
 
-                        if(index < 6){
+                        if (index < 6) {
                             embed.fields.push({
                                 name: `Buy ${amount.toLocaleString()}`,
                                 value: amount == 0 ? 'Free' : numeral(amount * bazaarProduct.buyPrice).format('0.00a'),
@@ -247,11 +246,11 @@ export default {
                         }
                     }
                 }
-            }else{
+            } else {
                 totalBuy += bazaarProduct.buyPrice;
                 totalSell += bazaarProduct.sellPrice;
 
-                if(index < 6){
+                if (index < 6) {
                     embed.fields.push({
                         name: "Buy Price",
                         value: numeral(bazaarProduct.buyPrice).format('0.00a'),
@@ -264,31 +263,31 @@ export default {
                 }
             }
 
-            if(summary.length == 1){
+            if (summary.length == 1) {
                 embed.title = bazaarProduct.name,
-                embed.url = `https://bazaartracker.com/product/${bazaarProduct.name.toLowerCase().replace(/\ /g, '_')}`
+                    embed.url = `https://bazaartracker.com/product/${bazaarProduct.name.toLowerCase().replace(/\ /g, '_')}`
                 embed.thumbnail = {
                     url: `https://sky.lea.moe/item/${bazaarProduct.id}`
                 }
             }
         }
 
-        for(const [index,item] of additionalItems.entries()){
-            if(index > 0)
+        for (const [index, item] of additionalItems.entries()) {
+            if (index > 0)
                 description += ' + ';
 
             const amount = item.coinsMode ? numeral(item.amount).format('0.0a') : item.amount.toLocaleString();
-                
+
             description += `**${amount}** ${item.name}`;
 
-            if(index % 2 == 1)
+            if (index % 2 == 1)
                 description += '\n';
         }
 
-        if(summary.length > 1){
+        if (summary.length > 1) {
             embed.title = "Bazaar Summary";
 
-            if(summary.length > 6){
+            if (summary.length > 6) {
                 embed.fields.push({
                     name: `${summary.length - 6} more item${summary.length == 7 ? '' : 's'}…`,
                     value: `(${description})`,
@@ -310,10 +309,10 @@ export default {
                 inline: true
             }];
 
-            if(!extendedLayout && summary.length > 2){
+            if (!extendedLayout && summary.length > 2) {
                 embed.description = ` \\> ${description}`;
                 embed.fields = summaryTotal;
-            }else{
+            } else {
                 embed.fields.push(...summaryTotal);
             }
         }
