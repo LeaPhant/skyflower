@@ -508,7 +508,7 @@ export default {
         const reply = await interaction.fetchReply();
 
         const filter = interaction => interaction.user.id === interaction.user.id;
-        const collector = reply.createMessageComponentCollector({ filter, time: 120_000 });
+        const collector = reply.createMessageComponentCollector({ filter, idle: 120_000 });
 
         collector.on('collect', async i => {
             switch(i.customId) {
