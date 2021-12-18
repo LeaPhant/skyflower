@@ -1,4 +1,6 @@
+import { startCase, lowerCase } from 'lodash-es';
 import fetch from 'node-fetch';
+import helper from '../helper.js';
 import config from '../config.json';
 
 const BESTIARY_LEVEL = {
@@ -35,10 +37,6 @@ const BESTIARY = {
             max: 5
         },
         {
-            id: 'enderman',
-            max: 5
-        },
-        {
             id: 'skeleton',
             max: 5
         },
@@ -52,10 +50,6 @@ const BESTIARY = {
         },
         {
             id: 'witch',
-            max: 5
-        },
-        {
-            id: 'zombie',
             max: 5
         }
     ],
@@ -85,7 +79,8 @@ const BESTIARY = {
             id: 'arachne_keeper'
         },
         {
-            id: 'brood_mother',
+            name: 'Brood Mother',
+            id: 'brood_mother_spider',
             boss: true
         },
         'dasher_spider',
@@ -135,7 +130,10 @@ const BESTIARY = {
         'voidling_extremist',
         'voidling_fanatic',
         'watcher',
-        'zealot'
+        {
+            name: 'Zealot',
+            id: 'zealot_enderman'
+        }
     ],
     DEEP_CAVERNS: [
         'automaton',
@@ -172,7 +170,10 @@ const BESTIARY = {
         },
         'redstone_pigman',
         'sludge',
-        'sneaky_creeper',
+        {
+            name: 'Sneaky Creeper',
+            id: 'invisible_creeper'
+        },
         'thyst',
         'treasure_hoarder',
         {
@@ -217,7 +218,7 @@ const BESTIARY = {
         'shadow_assassin',
         'skeleton_grunt',
         'skeleton_master',
-        'skeleton_solider',
+        'skeleton_soldier',
         'skeletor_prime',
         {
             name: 'Sniper',
@@ -248,9 +249,64 @@ const BESTIARY = {
         'zombie_commander',
         'zombie_grunt',
         'zombie_knight',
-        'zombie_solider',
+        'zombie_soldier',
     ]
 };
+
+const extendEntry = e => {
+    const entry = new Object();
+
+    if (typeof e === 'string')
+        entry.id = e;
+    else
+        Object.assign(entry, e);
+
+    if (!Array.isArray(entry.id))
+        entry.id = [entry.id];
+
+    if (e.name === undefined)
+        entry.name = startCase(entry.id[0]);
+
+    entry.boss = e.boss === true;
+    entry.max = e.max ?? (entry.boss ? BESTIARY_BOSS_MAX : null);
+
+    return entry;
+};
+
+const getBestiaryLevel = b => {
+    let kills = b.kills;
+    let killsLeft = 0;
+    let level = 0;
+    let nextStep;
+
+    const steps = b.boss ? BESTIARY_BOSS_LEVEL : BESTIARY_LEVEL;
+
+    while (level < (b.max ?? Infinity)) {
+        const step = Object.keys(steps).slice().reverse().find(a => a <= level + 1);
+        nextStep = steps[step];
+
+        if (kills >= nextStep) {
+            level++;
+            kills -= nextStep;
+            continue;
+        }
+
+        killsLeft = nextStep - kills;
+        break;
+    }
+
+    return {
+        level,
+        max: level == b.max,
+        killsLeft,
+        currentKills: kills,
+        nextStep
+    };
+}
+
+for (const b in BESTIARY) {
+    BESTIARY[b] = BESTIARY[b].map(extendEntry);
+}
 
 export default {
     command: ['bestiary'],
@@ -268,12 +324,117 @@ export default {
             name: 'profile',
             description: 'Profile to retrieve bestiary for',
             type: 3
+        }, {
+            name: 'exclude',
+            description: 'Exclude mobs from specific areas (seperate multiple with ,)',
+            type: 3
+        }, {
+            name: 'include',
+            description: 'Only include mobs from specific areas (separate multiple with ,)',
+            type: 3
         }
     ],
     usage: '<username> [profile name]',
     call: async obj => {
         const { interaction } = obj;
 
-        // TODO
+        const profile = await helper.fetchProfile(interaction);
+
+        let areas = Object.keys(BESTIARY);
+
+        const excludingAreas = new Set();
+        const excludeAreas = interaction.options.get('exclude')?.value;
+
+        if (excludeAreas !== undefined) {
+            for (const area of excludeAreas.split(',')) {
+                const exclude = areas.filter(a => lowerCase(a).includes(area.toLowerCase()));
+                exclude.forEach(a => excludingAreas.add(a));
+
+                areas = areas.filter(a => exclude.includes(a) == false);
+            }
+        }
+
+        const includingAreas = new Set();
+        const includeAreas = interaction.options.get('include')?.value;
+
+        if (includeAreas !== undefined) {
+            for (const area of includeAreas.split(',')) {
+                const include = areas.filter(a => lowerCase(a).includes(area.toLowerCase()));
+                include.forEach(a => includingAreas.add(a));
+
+                areas = areas.filter(a => include.includes(a));
+            }
+        }
+
+        const bestiary = new Array();
+        const filteredBestiary = new Array();
+
+        let totalLevel = 0;
+        
+        for (const area in BESTIARY) {
+            const bestiary = BESTIARY[area];
+
+            for (const bestiaryEntry of bestiary) {
+                let b = Object.assign({}, bestiaryEntry);
+
+                b.kills = 0;
+
+                for (const id of b.id) {
+                    b.kills += profile?.raw?.stats[`kills_${id}`] ?? 0;
+
+                    if (area == 'CATACOMBS') {
+                        b.kills += profile?.raw?.stats[`kills_master_${id}`] ?? 0;
+                    }
+                }
+
+                b = Object.assign(b, getBestiaryLevel(b));
+
+                totalLevel += b.level;
+
+                if (!b.boss && areas.includes(area))
+                    filteredBestiary.push(b);
+            }
+        }
+
+        let description = null;
+
+        if (includingAreas.size > 0) {
+            const list = [...includingAreas].map(a => `**${startCase(a.toLowerCase())}**`);
+
+            description = `Only including mobs in ${list.join(', ')}.`;
+        } else if (excludingAreas.size > 0) {
+            const list = [...excludingAreas].map(a => `**${startCase(a.toLowerCase())}**`);
+
+            description = `Excluding mobs in ${list.join(', ')}.`;
+        }
+
+        const fields = [];
+
+        const closestLevelUps = filteredBestiary.filter(a => !a.max).sort((a, b) => a.killsLeft - b.killsLeft);
+
+        for (const b of closestLevelUps.slice(0, 9)) {
+            fields.push({
+                name: `${b.name} ${b.level}`,
+                value: `Kills: **${b.currentKills}** / ${b.nextStep}`,
+                inline: true
+            });
+        }
+
+        const embed = {
+            color: helper.mainColor,
+            url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
+            author: {
+                icon_url: `https://minotar.net/helm/${profile.data.uuid}/64`,
+                name: `${profile.data.display_name}'s Bestiary (${profile.cute_name})`,
+                url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
+            },
+            description,
+            fields,
+            footer: {
+                text: `Approximate Bestiary Milestone: ${Math.floor(totalLevel / 10)}`
+            }
+        };
+
+        await interaction.editReply({ embeds: [embed] });
     }
 };
