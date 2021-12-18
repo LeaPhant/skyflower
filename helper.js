@@ -128,7 +128,8 @@ const module = {
         for (let i = 0; i < commands.length; i++) {
             let command = commands[i];
 
-            command.command = [...command.command];
+            if (!Array.isArray(command.command))
+                command.command = [command.command];
 
             if (command.command.includes(commandName)) {
                 let embed = {
@@ -150,7 +151,8 @@ const module = {
                     value: commandsValue + "\n"
                 });
 
-                command.description = [...command.description];
+                if (!Array.isArray(command.description))
+                    command.description = [command.description];
 
                 if (command.description) {
                     embed.fields.push({
@@ -167,7 +169,11 @@ const module = {
                 }
 
                 if (command.example) {
-                    let examples = [...command.example];
+                    let examples = command.example;
+
+                    if (!Array.isArray(examples))
+                        examples = [examples];
+
                     let examplesValue = "";
                     let examplesName = "Example";
 
