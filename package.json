@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/LeaPhant/skybot#readme",
   "dependencies": {
+    "@discordjs/builders": "^0.9.0",
     "@discordjs/rest": "^0.1.0-canary.0",
     "@keyv/redis": "^2.1.2",
     "axios": "^0.21.2",

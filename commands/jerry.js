@@ -1,3 +1,6 @@
+import { bold, time } from '@discordjs/builders';
+import helper from '../helper.js';
+
 const HOUR_MS = 50_000;
 const DAY_MS = 24 * HOUR_MS;
 const MONTH_LENGTH = 31;
@@ -21,10 +24,10 @@ const JERRY_END = JERRY_START + YEAR_MS;
 
 const JERRY_TIMES = [];
 
-let time = JERRY_START;
+let currentTime = JERRY_START;
 let i = 0;
 
-while (time < JERRY_END) {
+while (currentTime < JERRY_END) {
     JERRY_TIMES.push({
         start: JERRY_START + i * JERRY_DURATION,
         end: JERRY_START + (i + 1) * JERRY_DURATION - 1,
@@ -33,10 +36,8 @@ while (time < JERRY_END) {
 
     i++;
 
-    time += JERRY_DURATION;
+    currentTime += JERRY_DURATION;
 }
-
-import helper from '../helper.js';
 
 export default {
     command: ['jerry'],
@@ -68,7 +69,7 @@ export default {
 
         if (currentMayorIndex > -1) {
             const mayor = JERRY_TIMES[currentMayorIndex];
-            currentMayorValue = `${mayor.mayor} – ends <t:${Math.floor(mayor.end / 1000)}:R>`;
+            currentMayorValue = `${mayor.mayor} – ends ${time(new Date(mayor.end), 'R')}`;
         }
 
         embed.fields.push({
@@ -94,7 +95,7 @@ export default {
             if (i > 0)
                 nextMayorsValue += '\n';
 
-            nextMayorsValue += `${nextMayors[i].mayor} – starts <t:${Math.floor(nextMayors[i].start / 1000)}:R>`
+            nextMayorsValue += `${nextMayors[i].mayor} – starts ${time(new Date(nextMayors[i].start), 'R')}`;
         }
 
         embed.footer.text = `${cyclesLeft} Mayor terms left`;

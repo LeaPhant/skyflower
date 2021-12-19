@@ -1,6 +1,6 @@
 import { startCase, lowerCase } from 'lodash-es';
 import { MessageActionRow } from 'discord.js';
-import fetch from 'node-fetch';
+import { bold, italic } from '@discordjs/builders';
 import helper from '../helper.js';
 import config from '../config.json';
 
@@ -336,6 +336,10 @@ const getBestiaryLevel = b => {
     };
 }
 
+const formatArea = a => {
+    return startCase(a.toLowerCase());
+}
+
 for (const b in BESTIARY)
     BESTIARY[b] = BESTIARY[b].map(extendEntry);
 
@@ -478,11 +482,11 @@ export default {
             }
 
             if (includingAreas.size > 0) {
-                const list = [...includingAreas].map(a => `**${startCase(a.toLowerCase())}**`);
+                const list = [...includingAreas].map(a => `${bold(formatArea(a.toLowerCase))}`);
 
                 description += `Only including mobs in ${list.join(', ')}.`;
             } else if (excludingAreas.size > 0) {
-                const list = [...excludingAreas].map(a => `**${startCase(a.toLowerCase())}**`);
+                const list = [...excludingAreas].map(a => `${bold(formatArea(a.toLowerCase))}`);
 
                 description += `Excluding mobs in ${list.join(', ')}.`;
             }
@@ -504,8 +508,8 @@ export default {
                 }
 
                 const value = b.max
-                    ? `Total Kills: **${b.kills}**`
-                    : `Kills: **${b.currentKills}** / ${b.nextStep}`;
+                    ? `Total Kills: ${bold(b.kills)}`
+                    : `Kills: ${bold(b.currentKills)} / ${b.nextStep}`;
 
                 fields.push({
                     name,
@@ -515,7 +519,7 @@ export default {
             }
 
             if (inaccurateCount > 0) {
-                description += `\n*\\* = Possibly inaccurate due to mismatching API value*`;
+                description += '\n' + italic('\\* = Possibly inaccurate due to mismatching API value');
             }
 
             const text = `Approximate Bestiary Milestone: ${Math.floor(totalLevel / 10)}`

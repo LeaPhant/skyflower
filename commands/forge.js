@@ -1,15 +1,16 @@
 import helper from '../helper.js';
 import config from '../config.json';
-import axios from 'axios';
+import fetch from 'node-fetch';
+import { time, bold } from '@discordjs/builders';
 import { findKey } from 'lodash-es';
 
 let items;
 
 const updateItems = async function () {
     try {
-        const itemsResponse = await axios(`https://api.slothpixel.me/api/skyblock/items`);
+        const itemsResponse = await fetch(`https://api.slothpixel.me/api/skyblock/items`);
 
-        items = itemsResponse.data;
+        items = await itemsResponse.json();
     } catch (e) {
         helper.error(e);
     }
@@ -171,24 +172,27 @@ export default {
                 name = '[Lvl 1] Ammonite';
 
             if (item.amount > 1)
-                name = `**${item.amount}x** ${name}`;
+                name = `${bold(item.amount)}x ${name}`;
 
             description += `${name} ${helper.sep} `;
 
             if (item.id in FORGE_TIMES) {
-                let forgeTime = FORGE_TIMES[item.id] * 60;
+                let forgeTime = FORGE_TIMES[item.id] * 60 * 1000;
 
                 const quickForge = profile.raw?.mining_core?.nodes?.forge_time;
 
                 if (quickForge != null)
                     forgeTime *= QUICK_FORGE_MULTIPLIER[quickForge];
 
-                description += `Finished <t:${Math.floor(item.startTime / 1000) + forgeTime}:R>`;
+                description += `Finished ${time(new Date(item.startTime + forgeTime), 'R')}`;
             } else {
-                description += `Started <t:${Math.floor(item.startTime / 1000)}:R>`;
+                description += `Started ${time(new Date(item.startTime), 'R')}`;
             }
         }
 
-        return await interaction.editReply({ embeds: [embed] });
+        return await interaction.editReply({ embeds: [{
+            ...embed,
+            description
+        }] });
     }
 };

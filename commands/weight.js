@@ -1,10 +1,11 @@
 import helper from '../helper.js';
 import config from '../config.json';
+import { bold } from '@discordjs/builders';
 import LilyWeight from 'lilyweight';
 import numeral from 'numeral';
 
 const format = value => {
-    return numeral(value).format('0.0');
+    return bold(numeral(value).format('0.0'))
 };
 
 const lily = new LilyWeight(config.credentials.hypixel_api_key);
@@ -52,25 +53,25 @@ export default {
         embed.fields.push(
             {
                 name: 'Skills',
-                value: `Base: **${format(weight.skill.base)}**
-Overflow: **${format(weight.skill.overflow)}**`,
+                value: `Base: ${format(weight.skill.base)}
+Overflow: ${format(weight.skill.overflow)}`,
                 inline: true
             },
             {
                 name: 'Catacombs',
-                value: `Regular: **${format(weight.catacombs.completion.base)}**
-Master: **${format(weight.catacombs.completion.master)}**
-Experience: **${format(weight.catacombs.experience)}**`,
+                value: `Regular: ${format(weight.catacombs.completion.base)}
+Master: ${format(weight.catacombs.completion.master)}
+Experience: ${format(weight.catacombs.experience)}`,
                 inline: true
             },
             {
                 name: 'Slayer',
-                value: `Total: **${format(weight.slayer)}**`,
+                value: `Total: ${format(weight.slayer)}`,
                 inline: true
             },
             {
                 name: 'Total',
-                value: `**${format(weight.total)}** Weight`
+                value: `${format(weight.total)} Weight`
             },
             {
                 name: 'Links',

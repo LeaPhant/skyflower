@@ -1,4 +1,5 @@
 import helper from '../helper.js';
+import { bold } from '@discordjs/builders';
 import numeral from 'numeral';
 import config from '../config.json';
 import { round } from 'lodash-es';
@@ -278,7 +279,7 @@ export default {
 
             const amount = item.coinsMode ? numeral(item.amount).format('0.0a') : item.amount.toLocaleString();
 
-            description += `**${amount}** ${item.name}`;
+            description += `${bold(amount)} ${item.name}`;
 
             if (index % 2 == 1)
                 description += '\n';

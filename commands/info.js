@@ -1,5 +1,6 @@
 import config from '../config.json';
 import helper from '../helper.js';
+import { bold } from '@discordjs/builders';
 
 export default {
     command: ['info', 'skyflower', 'about'],
@@ -37,7 +38,7 @@ export default {
         const memberCount = memberCountResponse.reduce((acc, count) => acc + count, 0).toLocaleString();
         const guildCount = guildCountResponse.reduce((acc, count) => acc + count, 0).toLocaleString();
 
-        embed.description += `\nserving **${memberCount} Members** in **${guildCount} Servers**.`;
+        embed.description += `\nserving ${bold(memberCount)} Members in ${bold(guildCount)} Servers.`;
         embed.description += `\n\nFor a list of commands run /help.`;
 
         await interaction.editReply({ embeds: [embed] });
