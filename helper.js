@@ -242,19 +242,23 @@ const module = {
         const response = await module.apiRequest(`/api/v2/profile/${username}`);
 
         if (!response.ok) {
-            return await interaction.editReply({
+            await interaction.editReply({
                 ephemeral: true,
                 embeds: [module.errorEmbed('Failed fetching profile.')]
             });
+
+            throw 'Failed fetching profile';
         }
 
         const data = await response.json();
 
         if (data.error !== undefined) {
-            return await interaction.editReply({
+            await interaction.editReply({
                 ephemeral: true,
                 embeds: [module.errorEmbed(data.error)]
             });
+
+            throw data.error;
         }
 
         let profile = Object.values(data.profiles).find(a => a.current);
@@ -269,8 +273,41 @@ const module = {
             }
         }
 
-        return { reply, profile };
+        return profile;
+    },
+
+    profileEmbed: (profile, title) => {
+        let name = profile.data.display_name;
+
+        if (title != null) {
+            name += "'";
+
+            if (!profile.data.display_name.toLowerCase().endsWith('s'))
+                name += 's';
+
+            name += ` ${title}`;
+        }
+
+        let gamemodeIcon = '';
+
+        if (profile.game_mode == 'ironman')
+            gamemodeIcon = '♲ ';
+        else if (profile.game_mode == 'bingo')
+            gamemodeIcon = 'Ⓑ ';
+
+        name += ` (${gamemodeIcon}${profile.cute_name})`
+
+        return {
+            color: module.mainColor,
+            author: {
+                icon_url: `https://minotar.net/helm/${profile.data.uuid}/64`,
+                name,
+                url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
+            },
+        };
     }
+
+    
 };
 
 export default module;

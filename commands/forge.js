@@ -135,14 +135,21 @@ export default {
     call: async obj => {
         const { guildId, client, interaction } = obj;
 
-        const { profile } = await helper.fetchProfile(interaction);
+        let profile;
+
+        try {
+            profile = await helper.fetchProfile(interaction);
+        } catch(e) {
+            return;
+        }
+
+        const embed = helper.profileEmbed(profile, 'Forge');
 
         if (!profile?.raw?.forge?.forge_processes?.forge_1) {
-            return await interaction.editReply({
-                embeds: [
-                    helper.errorEmbed('Player does not have forge unlocked.')
-                ]
-            });
+            return await interaction.editReply({ embeds: [{
+                ...embed,
+                description: 'Player does not have forge unlocked.'
+            }] });
         }
 
         const forge = Object.values(profile.raw.forge.forge_processes.forge_1);
@@ -190,17 +197,6 @@ export default {
                 description += `Started <t:${Math.floor(item.startTime / 1000)}:R>`;
             }
         }
-
-        const embed = {
-            color: helper.mainColor,
-            url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
-            author: {
-                icon_url: `https://minotar.net/helm/${profile.data.uuid}/64`,
-                name: `${profile.data.display_name}'s Forge (${profile.cute_name})`,
-                url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
-            },
-            description
-        };
 
         return await interaction.editReply({ embeds: [embed] });
     }
