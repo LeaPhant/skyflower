@@ -120,16 +120,7 @@ export default {
         }
     ],
     options: [
-        {
-            name: 'username',
-            description: 'Player to retrieve forge for',
-            type: 3,
-            required: true
-        }, {
-            name: 'profile',
-            description: 'Profile to retrieve forge for',
-            type: 3
-        }
+        ...helper.profileOptions
     ],
     usage: '<username> [profile name]',
     call: async obj => {

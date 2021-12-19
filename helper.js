@@ -10,6 +10,49 @@ const backtick = "`";
 
 let commands, db;
 
+const PROFILE_NAMES = [
+    "Apple",
+    "Banana",
+    "Blueberry",
+    "Coconut",
+    "Cucumber",
+    "Grapes",
+    "Kiwi",
+    "Lemon",
+    "Lime",
+    "Mango",
+    "Orange",
+    "Papaya",
+    "Peach",
+    "Pear",
+    "Pineapple",
+    "Pomegranate",
+    "Raspberry",
+    "Strawberry",
+    "Tomato",
+    "Watermelon",
+    "Zucchini"
+];
+
+const profileOptions = [
+    {
+        name: 'username',
+        description: 'Player to retrieve data for',
+        type: 3,
+        required: true
+    }, {
+        name: 'profile',
+        description: 'Profile to retrieve data for',
+        type: 3,
+        choices: PROFILE_NAMES.map(p => {
+            return {
+                name: p,
+                value: p
+            };
+        })
+    }
+];
+
 const module = {
     init: (_commands, _db) => {
         commands = _commands;
@@ -19,6 +62,8 @@ const module = {
     sep: sep,
 
     cmd_escape: cmd_escape,
+
+    profileOptions,
 
     mainColor: 0xdf73af,
     errorColor: 0xf04a4a,

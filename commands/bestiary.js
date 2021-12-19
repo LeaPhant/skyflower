@@ -336,9 +336,8 @@ const getBestiaryLevel = b => {
     };
 }
 
-for (const b in BESTIARY) {
+for (const b in BESTIARY)
     BESTIARY[b] = BESTIARY[b].map(extendEntry);
-}
 
 export default {
     command: ['bestiary'],
@@ -347,16 +346,8 @@ export default {
         "Check bestiary for a player.",
     ],
     options: [
+        ...helper.profileOptions,
         {
-            name: 'username',
-            description: 'Player to retrieve bestiary for',
-            type: 3,
-            required: true
-        }, {
-            name: 'profile',
-            description: 'Profile to retrieve bestiary for',
-            type: 3
-        }, {
             name: 'exclude',
             description: 'Exclude mobs from specific areas (seperate multiple with ,)',
             type: 3
