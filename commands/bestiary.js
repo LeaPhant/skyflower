@@ -133,7 +133,10 @@ const BESTIARY = {
             ],
             boss: true
         },
-        'enderman',
+        {
+            id: 'enderman',
+            inaccurate: true
+        },
         'endermite',
         {
             name: 'Endstone Protector',
