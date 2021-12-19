@@ -40,6 +40,11 @@ const BESTIARY = {
             max: 5
         },
         {
+            id: 'enderman',
+            max: 5,
+            inaccurate: true
+        },
+        {
             id: 'skeleton',
             max: 5
         },
@@ -54,6 +59,11 @@ const BESTIARY = {
         {
             id: 'witch',
             max: 5
+        },
+        {
+            id: 'zombie',
+            max: 5,
+            inaccurate: true
         }
     ],
     HUB: [
