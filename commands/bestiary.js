@@ -370,7 +370,7 @@ export default {
     call: async obj => {
         const { interaction } = obj;
 
-        const { profile } = await helper.fetchProfile(interaction);
+        const profile = await helper.fetchProfile(interaction);
 
         let areas = Object.keys(BESTIARY);
 
@@ -406,7 +406,7 @@ export default {
             const bestiaryArea = BESTIARY[area];
 
             for (const bestiaryEntry of bestiaryArea) {
-                let b = Object.assign({}, bestiaryEntry);
+                let b = { ...bestiaryEntry };
 
                 b.kills = 0;
 
@@ -418,7 +418,7 @@ export default {
                     }
                 }
 
-                b = Object.assign(b, getBestiaryLevel(b));
+                b = { ...b, ...getBestiaryLevel(b) };
 
                 totalLevel += b.level;
 
