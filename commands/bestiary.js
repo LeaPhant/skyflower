@@ -546,7 +546,7 @@ export default {
 
         const reply = await interaction.fetchReply();
 
-        const filter = interaction => interaction.user.id === interaction.user.id;
+        const filter = i => i.user.id === interaction.user.id;
         const collector = reply.createMessageComponentCollector({ filter, idle: 120_000 });
 
         collector.on('collect', async i => {
