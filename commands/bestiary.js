@@ -464,7 +464,7 @@ export default {
 
         const show = () => {
             let title;
-            let description;
+            let description = '';
 
             switch(currentType) {
                 case 0:
@@ -480,11 +480,11 @@ export default {
             if (includingAreas.size > 0) {
                 const list = [...includingAreas].map(a => `**${startCase(a.toLowerCase())}**`);
 
-                description = `Only including mobs in ${list.join(', ')}.`;
+                description += `Only including mobs in ${list.join(', ')}.`;
             } else if (excludingAreas.size > 0) {
                 const list = [...excludingAreas].map(a => `**${startCase(a.toLowerCase())}**`);
 
-                description = `Excluding mobs in ${list.join(', ')}.`;
+                description += `Excluding mobs in ${list.join(', ')}.`;
             }
 
             const fields = [];
