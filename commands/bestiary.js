@@ -130,8 +130,14 @@ const BESTIARY = {
             id: 'corrupted_protector',
             boss: true
         },
-        'voidling_extremist',
-        'voidling_fanatic',
+        {
+            id: 'voidling_extremist',
+            inaccurate: true
+        },
+        {
+            id: 'voidling_fanatic',
+            inaccurate: true
+        },
         'watcher',
         {
             name: 'Zealot',
@@ -186,9 +192,18 @@ const BESTIARY = {
         'yog'
     ],
     THE_PARK: [
-        'howling_spirit',
-        'pack_spirit',
-        'soul_of_the_alpha'
+        {
+            id: 'howling_spirit',
+            inaccurate: true
+        },
+        {
+            id: 'pack_spirit',
+            inaccurate: true
+        },
+        {
+            id: 'soul_of_the_alpha',
+            inaccurate: true
+        }
     ],
     SPOOKY_FESTIVAL: [
         {
@@ -270,7 +285,8 @@ const extendEntry = e => {
     if (e.name === undefined)
         entry.name = startCase(entry.id[0]);
 
-    entry.boss = e.boss === true;
+    entry.boss = e.boss == true;
+    entry.inaccurate = e.inaccurate == true || e.boss == true;
     entry.max = e.max ?? (entry.boss ? BESTIARY_BOSS_MAX : null);
 
     return entry;
@@ -473,20 +489,32 @@ export default {
 
             const maxPage = Math.floor(currentArray.length / PER_PAGE);
 
+            let inaccurateCount = 0;
+
             for (const b of currentArray.slice(startIndex, startIndex + PER_PAGE)) {
-                const value = b.max ?
-                  `Total Kills: **${b.kills}**`
-                : `Kills: **${b.currentKills}** / ${b.nextStep}`;
+                let name = `${b.name} ${b.level}`;
+
+                if (b.inaccurate) {
+                    name += '*';
+                    inaccurateCount++;
+                }
+
+                const value = b.max
+                    ? `Total Kills: **${b.kills}**`
+                    : `Kills: **${b.currentKills}** / ${b.nextStep}`;
 
                 fields.push({
-                    name: `${b.name} ${b.level}`,
+                    name,
                     value,
                     inline: true
                 });
             }
 
-            const text 
-                = `Approximate Bestiary Milestone: ${Math.floor(totalLevel / 10)}`
+            if (inaccurateCount > 0) {
+                description += `\n*\\* = Possibly inaccurate due to mismatching API value*`;
+            }
+
+            const text = `Approximate Bestiary Milestone: ${Math.floor(totalLevel / 10)}`
                 + helper.sep
                 + `Page ${page + 1}/${maxPage + 1}`;
 
