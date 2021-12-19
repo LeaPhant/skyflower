@@ -141,6 +141,15 @@ for (const month of MONTHS)
 
 EVENTS.push(FISHING_FESTIVAL);
 
+const choices = [];
+
+for (const event of EVENTS) {
+    choices.push({
+        name: event.name,
+        value: event.name
+    });
+}
+
 export default {
     command: ['calendar', 'cal'],
     description: [
@@ -150,7 +159,8 @@ export default {
         {
             name: 'event',
             description: 'Filter result to a specific event',
-            type: 3
+            type: 3,
+            choices
         }
     ],
     usage: '',
