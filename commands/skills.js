@@ -125,20 +125,25 @@ const skillEmbed = (profile, skillName, embed) => {
 
             break;
         case "fishing":
-            output.description += `\n\nItems fished: **${(profile.raw.stats.items_fished || 0).toLocaleString()}**`;
+            let fishingActions = 0;
+            fishingActions += profile.raw?.stats?.items_fished ?? 0;
+            fishingActions += profile.data?.fishing?.sea_creatures_killed ?? 0;
+
+            output.description += `\n\nItems fished: ${bold((profile.raw?.stats?.items_fished || 0).toLocaleString())}`;
+            output.description += `\nFishing Actions: ${bold(fishingActions.toLocaleString())}`;
             skillContext = true;
 
             break;
         case "alchemy":
             if ('collection' in profile.raw) {
-                output.description += `\n\nSugar Cane Collection: **${(profile.raw.collection.SUGAR_CANE || 0).toLocaleString()}**`;
+                output.description += `\n\nSugar Cane Collection: ${bold((profile.raw.collection.SUGAR_CANE || 0).toLocaleString())}`;
                 skillContext = true;
             }
 
             break;
         case "mining":
             if ('pet_milestone_ores_mined' in profile.raw.stats) {
-                output.description += `\n\nOres Mined Milestone: **${(profile.raw.stats.pet_milestone_ores_mined || 0).toLocaleString()}**`;
+                output.description += `\n\nOres Mined Milestone: **${bold((profile.raw.stats.pet_milestone_ores_mined || 0).toLocaleString())}`;
                 skillContext = true;
             }
 
