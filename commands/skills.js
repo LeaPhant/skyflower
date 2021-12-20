@@ -311,7 +311,6 @@ export default {
 
             buttons.push({
                 customId: skillName,
-                label: name,
                 emoji: skillEmote,
                 style: 'SECONDARY'
             })
