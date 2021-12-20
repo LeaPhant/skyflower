@@ -42,10 +42,18 @@ export default {
 
         const { purse, bank } = profile.data;
 
-        return await interaction.editReply({ embeds: [{
-            ...embed,
-            description: `Purse: ${format(purse)} Coins\n`
-            + `Bank: ${bank ? format(bank) + ' Coins' : bold('API disabled')}`
-        }] });
+        embed.fields = [
+            {
+                name: 'Purse',
+                value: `${format(purse)} Coins`,
+                inline: true
+            }, {
+                name: 'Bank',
+                value: `${bank ? format(bank) + ' Coins' : bold('API disabled')}`,
+                inline: true
+            }
+        ];
+
+        return await interaction.editReply({ embeds: [embed] });
     }
 };
