@@ -1,3 +1,5 @@
+import Command from '../command.js';
+
 import helper from '../helper.js';
 import config from '../config.json';
 import fetch from 'node-fetch';
@@ -108,23 +110,18 @@ const QUICK_FORGE_MULTIPLIER = {
     20: 0.7
 };
 
-export default {
-    command: ['forge'],
-    argsRequired: 1,
-    description: [
-        "Check forge for a player.",
-    ],
-    example: [
+class ForgeCommand extends Command {
+    command = 'forge';
+    description = "Check forge for a player.";
+    example = [
         {
             run: "forge leaphant",
             result: "Returns forge for LeaPhant."
         }
-    ],
-    options: [
-        ...helper.profileOptions
-    ],
-    usage: '<username> [profile name]',
-    call: async obj => {
+    ];
+    options = helper.profileOptions;
+
+    async call(obj) {
         const { guildId, client, interaction } = obj;
 
         let profile;
@@ -196,3 +193,5 @@ export default {
         }] });
     }
 };
+
+export default ForgeCommand;

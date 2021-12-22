@@ -1,3 +1,5 @@
+import Command from '../command.js';
+
 import helper from '../helper.js';
 import config from '../config.json';
 import fetch from 'node-fetch';
@@ -18,16 +20,12 @@ const format = n => {
     return bold(output);
 };
 
-export default {
-    command: ['purse'],
-    description: [
-        "Check purse and bank account for a player.",
-    ],
-    options: [
-        ...helper.profileOptions
-    ],
-    usage: '<username> [profile name]',
-    call: async obj => {
+class PurseCommand extends Command {
+    command = 'purse';
+    description = "Check purse and bank account for a player.";
+    options = helper.profileOptions;
+
+    async call(obj) {
         const { guildId, client, interaction } = obj;
 
         let profile;
@@ -57,3 +55,5 @@ export default {
         return await interaction.editReply({ embeds: [embed] });
     }
 };
+
+export default PurseCommand;

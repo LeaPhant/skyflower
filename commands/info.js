@@ -1,14 +1,14 @@
+import Command from '../command.js';
+
 import config from '../config.json';
 import helper from '../helper.js';
 import { bold } from '@discordjs/builders';
 
-export default {
-    command: ['info', 'skyflower', 'about'],
-    description: [
-        "Show info about the bot."
-    ],
-    argsRequired: 0,
-    call: async obj => {
+class InfoCommand extends Command {
+    command = 'info';
+    description = "Show info about the bot.";
+
+    async call(obj) {
         const { interaction, client } = obj;
 
         await interaction.deferReply();
@@ -44,3 +44,5 @@ export default {
         await interaction.editReply({ embeds: [embed] });
     }
 };
+
+export default InfoCommand;

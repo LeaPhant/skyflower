@@ -14,8 +14,8 @@ const commands = [];
 const commandFiles = (await fs.readdir('./commands')).filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-    const command = await import(`./commands/${file}`);
-    commands.push(command.default);
+    const { default: Command } = await import(`./commands/${file}`);
+    commands.push(new Command());
 }
 
 const rest = new REST({ version: '9' }).setToken(TOKEN);
@@ -24,8 +24,8 @@ const commandPayload = [];
 
 for (const c of commands) {
     const command = {
-        name: c.command[0],
-        description: c.description[0],
+        name: c.command,
+        description: c.description,
         type: c?.type ?? 1,
         defaultPermission: true
     };

@@ -1,3 +1,5 @@
+import Command from '../command.js';
+
 import { bold, time } from '@discordjs/builders';
 import helper from '../helper.js';
 
@@ -39,20 +41,18 @@ while (currentTime < JERRY_END) {
     currentTime += JERRY_DURATION;
 }
 
-export default {
-    command: ['jerry'],
-    description: [
-        "Check Perkpocalypse Calendar.",
-    ],
-    options: [
+class JerryCommand extends Command {
+    command = 'jerry';
+    description = "Check Perkpocalypse Calendar.";
+    options = [
         {
             name: 'mayor',
             description: 'Filter result to a specific mayor',
             type: 3
         }
-    ],
-    usage: '',
-    call: async obj => {
+    ];
+
+    async call(obj) {
         const { interaction } = obj;
 
         let embed = {
@@ -108,3 +108,5 @@ export default {
         await interaction.reply({ embeds: [embed] });
     }
 };
+
+export default JerryCommand;

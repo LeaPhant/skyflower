@@ -1,3 +1,5 @@
+import Command from '../command.js';
+
 import { startCase, lowerCase } from 'lodash-es';
 import { MessageActionRow } from 'discord.js';
 import { bold, italic } from '@discordjs/builders';
@@ -337,19 +339,16 @@ const getBestiaryLevel = b => {
 }
 
 const formatArea = a => {
-    return startCase(a.toLowerCase());
+    return bold(startCase(a.toLowerCase()));
 }
 
 for (const b in BESTIARY)
     BESTIARY[b] = BESTIARY[b].map(extendEntry);
 
-export default {
-    command: ['bestiary'],
-    argsRequired: 1,
-    description: [
-        "Check bestiary for a player.",
-    ],
-    options: [
+class BestiaryCommand extends Command {
+    command = 'bestiary';
+    description = "Check bestiary for a player.";
+    options = [
         ...helper.profileOptions,
         {
             name: 'exclude',
@@ -360,9 +359,9 @@ export default {
             description: 'Only include mobs from specific areas (separate multiple with ,)',
             type: 3
         }
-    ],
-    usage: '<username> [profile name]',
-    call: async obj => {
+    ];
+    
+    async call(obj) {
         const { interaction } = obj;
 
         const profile = await helper.fetchProfile(interaction);
@@ -482,11 +481,11 @@ export default {
             }
 
             if (includingAreas.size > 0) {
-                const list = [...includingAreas].map(a => `${bold(formatArea(a.toLowerCase))}`);
+                const list = [...includingAreas].map(a => `${formatArea(a)}`);
 
                 description += `Only including mobs in ${list.join(', ')}.`;
             } else if (excludingAreas.size > 0) {
-                const list = [...excludingAreas].map(a => `${bold(formatArea(a.toLowerCase))}`);
+                const list = [...excludingAreas].map(a => `${formatArea(a)}`);
 
                 description += `Excluding mobs in ${list.join(', ')}.`;
             }
@@ -600,3 +599,5 @@ export default {
         });
     }
 };
+
+export default BestiaryCommand;

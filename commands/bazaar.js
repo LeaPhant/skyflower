@@ -1,3 +1,5 @@
+import Command from '../command.js';
+
 import helper from '../helper.js';
 import { bold } from '@discordjs/builders';
 import numeral from 'numeral';
@@ -31,14 +33,16 @@ const updateProducts = async () => {
 updateProducts();
 setInterval(updateProducts, 60 * 1000);
 
-export default {
-    command: ['bazaar', 'bazzar', 'baz', 'bz', 'b'],
-    argsRequired: 1,
-    description: [
-        "Check prices for one or more items on Bazaar.",
-    ],
-    usage: '[amount] <item>',
-    example: [
+class BazaarCommand extends Command {
+    command = 'bazaar';
+    description = "Check prices for one or more items on Bazaar.";
+    options = [{
+        name: 'items',
+        description: 'Query for one or multiple items (e.g. 128 e cocoa + 32 wheat)',
+        type: 3,
+        required: true
+    }];
+    example = [
         {
             run: "bazaar enchanted iron ingot",
             result: `Bazaar price for Enchanted Iron Ingot.`
@@ -55,14 +59,15 @@ export default {
             run: "bazaar 50m summoning eye",
             result: "Amount of summoning eyes you have to buy/sell to spend/earn 50 million coins"
         }
-    ],
-    call: async obj => {
+    ];
+
+    async call(obj) {
         const { interaction, extendedLayout } = obj;
 
         let item;
         let itemSearch = "";
 
-        let commandText = interaction.options.get('query');
+        let commandText = interaction.options.get('items');
 
         let summary = commandText.value.split(" + ");
 
@@ -321,3 +326,5 @@ export default {
         await interaction.reply({ embeds: [embed] });
     }
 };
+
+export default BazaarCommand;

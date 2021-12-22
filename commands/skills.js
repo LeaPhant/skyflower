@@ -1,3 +1,5 @@
+import Command from '../command.js';
+
 import helper from '../helper.js';
 import { bold } from '@discordjs/builders';
 import numeral from 'numeral';
@@ -218,19 +220,10 @@ const skillEmbed = (profile, skillName, embed) => {
     return output;
 };
 
-export default {
-    command: ['skills', 's'],
-    argsRequired: 1,
-    description: [
-        "Check skills for a player.",
-    ],
-    example: [
-        {
-            run: "skills leaphant",
-            result: "Returns skills for LeaPhant."
-        }
-    ],
-    options: [
+class SkillsCommand extends Command {
+    command ='skills';
+    description = "Check skills for a player";
+    options = [
         ...helper.profileOptions,
         {
             name: 'skill',
@@ -243,10 +236,10 @@ export default {
                 };
             })
         }
-    ],
-    usage: '<username> [profile name] [skill name]',
-    call: async obj => {
-        const { interaction, client } = obj;
+    ];
+    
+    async call(obj) {
+        const { interaction } = obj;
 
         extendedLayout = obj.extendedLayout;
 
@@ -281,7 +274,7 @@ export default {
                 continue;
 
             const name = upperFirst(skillName);
-            const skillEmote = helper.emote('sb' + name, null, client);
+            const skillEmote = helper.emote('sb' + name, null, this.client);
 
             const field = {};
 
@@ -395,4 +388,6 @@ export default {
             await interaction.editReply({ embeds: reply.embeds, components: [] });
         });
     }
-};
+}
+
+export default SkillsCommand;

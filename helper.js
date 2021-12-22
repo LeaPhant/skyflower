@@ -8,7 +8,7 @@ const sep = ' ✦ ';
 const cmd_escape = "```";
 const backtick = "`";
 
-let commands, db;
+let db;
 
 const PROFILE_NAMES = [
     "Apple",
@@ -54,8 +54,7 @@ const profileOptions = [
 ];
 
 const module = {
-    init: (_commands, _db) => {
-        commands = _commands;
+    init: ( _db) => {
         db = _db;
     },
 
@@ -166,7 +165,7 @@ const module = {
         return lbResults[0];
     },
 
-    commandHelp: async (commandName, prefix) => {
+    /*commandHelp: async (commandName, prefix) => {
         if (Array.isArray(commandName))
             commandName = commandName[0];
 
@@ -248,7 +247,7 @@ const module = {
         }
 
         return "Couldn't find command.";
-    },
+    },*/
 
     emote: (emoteName, guild, client) => {
         if (emoteName in emotes)

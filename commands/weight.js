@@ -1,3 +1,5 @@
+import Command from '../command.js';
+
 import helper from '../helper.js';
 import config from '../config.json';
 import { bold } from '@discordjs/builders';
@@ -10,27 +12,25 @@ const format = value => {
 
 const lily = new LilyWeight(config.credentials.hypixel_api_key);
 
-export default {
-    command: ['weight', 'lilyweight'],
-    description: [
-        "Calculate lily weight for a player.",
-    ],
-    options: [
+class WeightCommand extends Command {
+    command = 'weight';
+    description = "Calculate lily weight for a player.";
+    options = [
         {
             name: 'username',
             description: 'Player to retrieve weight for',
             type: 3,
             required: true
         }
-    ],
-    usage: '[username]',
-    example: [
+    ];
+    example = [
         {
             run: "weight lappysheep",
             result: `Weight for LappySheep.`
         }
-    ],
-    call: async obj => {
+    ];
+    
+    async call(obj) {
         const { interaction } = obj;
 
         const username = interaction.options.get('username').value;
@@ -82,3 +82,5 @@ Experience: ${format(weight.catacombs.experience)}`,
         await interaction.editReply({ embeds: [embed] });
     }
 };
+
+export default WeightCommand;

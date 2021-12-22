@@ -6,12 +6,12 @@ const { CancelToken } = axios;
 
 let leaderboards;
 
-const updateLeaderboards = async function(){
-    try{
+const updateLeaderboards = async function () {
+    try {
         const lbResponse = await axios(`${config.sky_api_base}/api/v2/leaderboards`);
 
         leaderboards = lbResponse.data;
-    }catch(e){
+    } catch (e) {
         helper.error(e);
     }
 }
@@ -22,7 +22,7 @@ setInterval(updateLeaderboards, 60 * 1000);
 const errorHandler = (e, embed) => {
     let error = "Failed retrieving data from API.";
 
-    if(e.response != null && e.response.data != null && 'error' in e.response.data)
+    if (e.response != null && e.response.data != null && 'error' in e.response.data)
         error = e.response.data.error;
 
     return {
@@ -35,19 +35,19 @@ const errorHandler = (e, embed) => {
     };
 };
 
-const drawLeaderboard = async function(_embed, args, params, _self = {}){
-    try{
+const drawLeaderboard = async function (_embed, args, params, _self = {}) {
+    try {
         const lb = helper.getLeaderboard(args.join(" "), leaderboards);
         const { data } = await axios(`${config.sky_api_base}/api/v2/leaderboard/${encodeURIComponent(lb.key)}`, { params });
-        
+
         const embed = cloneDeep(_embed);
 
         let self = _self;
 
-        if(data.self)
+        if (data.self)
             self = data.self;
 
-        if(self.rank){
+        if (self.rank) {
             embed.author = {
                 icon_url: `https://crafatar.com/avatars/${self.uuid}?size=128&overlay`,
                 name: self.username,
@@ -56,13 +56,13 @@ const drawLeaderboard = async function(_embed, args, params, _self = {}){
 
             embed.description = '';
 
-            if(self.guild)
+            if (self.guild)
                 embed.description += `Guild: **${self.guild}**\nGuild `;
 
             embed.description += `Rank: **#${self.rank.toLocaleString()}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
         }
 
-        if(lb.thumbnail)
+        if (lb.thumbnail)
             embed.thumbnail = { url: lb.thumbnail };
 
         params.page = data.page;
@@ -71,19 +71,19 @@ const drawLeaderboard = async function(_embed, args, params, _self = {}){
 
         embed.title = `${lb.name} Leaderboards`;
 
-        if(params['mode'])
+        if (params['mode'])
             embed.title += ` – ${upperFirst(params['mode'])}`;
 
         embed.fields = [];
 
-        for(const [index, position] of data.positions.entries()){
+        for (const [index, position] of data.positions.entries()) {
             embed.fields.push({
                 name: `#${position.rank.toLocaleString()} – ${position.username.replace(/\_/g, '\\_')}`,
                 value: `[🔗](https://sky.lea.moe/stats/${position.uuid}) ${typeof position.amount === 'number' ? position.amount.toLocaleString() : position.amount}`,
                 inline: true
             });
 
-            if(index % 2 == 1)
+            if (index % 2 == 1)
                 embed.fields.push({
                     name: "⠀",
                     value: "⠀",
@@ -92,17 +92,17 @@ const drawLeaderboard = async function(_embed, args, params, _self = {}){
         }
 
         return { embed, self };
-    }catch(e){
+    } catch (e) {
         return { embed: errorHandler(e, _embed), _self };
     }
 };
 
-const leaderboardCollector = async function(reaction, user, embed, message, params, args, self){
+const leaderboardCollector = async function (reaction, user, embed, message, params, args, self) {
     const currentRank = params.page * params.count;
     const addRank = currentRank < 1000 ? 100 : 1000;
     const removeRank = currentRank < 2000 ? 100 : 1000;
 
-    switch(reaction._emoji.name){
+    switch (reaction._emoji.name) {
         case '⏪':
             params.page = Math.max(1, params.page - Math.floor(removeRank / params.count));
             break;
@@ -116,25 +116,26 @@ const leaderboardCollector = async function(reaction, user, embed, message, para
             params.page += Math.floor(addRank / params.count);
     }
 
-    if('find' in params)
+    if ('find' in params)
         delete params.find;
-    
-    try{
+
+    try {
         const lbObj = await drawLeaderboard(embed, args, params, self);
         self = lbObj.self;
 
         message.edit({ embed: lbObj.embed });
-    }catch(e){
+    } catch (e) {
         helper.error(e);
     }
 };
 
-const drawTopPositions = function(_embed, topPositions){
+const drawTopPositions = function (_embed, topPositions) {
     const { self } = topPositions;
 
     let embed = cloneDeep(_embed);
 
-    embed = { ...embed,
+    embed = {
+        ...embed,
         title: "Top leaderboard ranks",
         description: `Top 1000 ranks: **${topPositions.positions.filter(a => a.rank <= 1000).length}**`,
         author: {
@@ -150,16 +151,16 @@ const drawTopPositions = function(_embed, topPositions){
     const startPosition = (topPositions.page - 1) * topPositions.count;
 
     const positions = topPositions.positions
-    .slice(startPosition, startPosition + topPositions.count);
+        .slice(startPosition, startPosition + topPositions.count);
 
-    for(const [index, position] of positions.entries()){
+    for (const [index, position] of positions.entries()) {
         embed.fields.push({
             name: `#${position.rank.toLocaleString()} in ${position.leaderboard.name}`,
             value: typeof position.amount === 'number' ? position.amount.toLocaleString() : position.amount,
             inline: true
         });
 
-        if(index % 2 == 1)
+        if (index % 2 == 1)
             embed.fields.push({
                 name: "⠀",
                 value: "⠀",
@@ -170,8 +171,8 @@ const drawTopPositions = function(_embed, topPositions){
     return embed;
 };
 
-const topPositionsCollector = function(reaction, user, embed, message, topPositions){
-    switch(reaction._emoji.name){
+const topPositionsCollector = function (reaction, user, embed, message, topPositions) {
+    switch (reaction._emoji.name) {
         case '⬅️':
             topPositions.page = Math.max(1, topPositions.page - 1);
             break;
@@ -179,10 +180,10 @@ const topPositionsCollector = function(reaction, user, embed, message, topPositi
             topPositions.page = Math.min(topPositions.page + 1, Math.floor(topPositions.positions.length / topPositions.count) + 1);
             break;
     }
-    
-    try{
+
+    try {
         message.edit({ embed: drawTopPositions(embed, topPositions) });
-    }catch(e){
+    } catch (e) {
         helper.error(e);
     }
 };
@@ -225,8 +226,8 @@ export default {
 
         const args = [];
         const params = { count: extendedLayout ? 10 : 4, page: 1 };
-        
-        if(config.credentials.sky_api_key != null)
+
+        if (config.credentials.sky_api_key != null)
             params.key = config.credentials.sky_api_key
 
         const embed = {
@@ -238,35 +239,35 @@ export default {
             },
         };
 
-        for(const arg of argv.slice(1)){
-            if(arg.toLowerCase().startsWith('u:')){
+        for (const arg of argv.slice(1)) {
+            if (arg.toLowerCase().startsWith('u:')) {
                 params['find'] = arg.substring(2);
-            }else if(arg.toLowerCase().startsWith('g:')){
+            } else if (arg.toLowerCase().startsWith('g:')) {
                 params['guild'] = arg.substring(2);
-            }else if(arg.toLowerCase().startsWith('m:')){
+            } else if (arg.toLowerCase().startsWith('m:')) {
                 let mode = arg.toLowerCase().substring(2);
 
-                if(mode == 'iron')
+                if (mode == 'iron')
                     mode = 'ironman';
 
-                if(mode != 'ironman')
+                if (mode != 'ironman')
                     throw "Please specify a valid mode (like `iron`).";
 
                 params['mode'] = mode;
-            }else if(arg.toLowerCase().startsWith('r:')){
+            } else if (arg.toLowerCase().startsWith('r:')) {
                 const rank = Number(arg.substring(2));
 
-                if(isNaN(rank))
+                if (isNaN(rank))
                     throw "Passed rank is not a valid number";
 
                 params['page'] = Math.floor(rank / params.count);
                 params['rank'] = rank;
-            }else{
+            } else {
                 args.push(arg);
             }
         }
 
-        if(args.length == 0 && params.find == null)
+        if (args.length == 0 && params.find == null)
             throw "Please specify either a leaderboard or a user.";
 
         const msgObj = {};
@@ -275,12 +276,12 @@ export default {
         let topPositions, self;
 
         const source = CancelToken.source();
-        
-        if(args.length == 0){
-            try{
+
+        if (args.length == 0) {
+            try {
                 const response = await axios.get(
                     `${config.sky_api_base}/api/v2/leaderboards/${params.find}`,
-                    { 
+                    {
                         params,
                         cancelToken: source.token
                     }
@@ -290,10 +291,10 @@ export default {
 
                 msgObj.embed = drawTopPositions(embed, topPositions);
                 reactions.push('⬅️', '➡️');
-            }catch(e){
+            } catch (e) {
                 msgObj.embed = errorHandler(e, embed);
-            }            
-        }else{
+            }
+        } else {
             const lbObj = await drawLeaderboard(embed, args, params);
 
             msgObj.embed = lbObj.embed;
@@ -304,15 +305,15 @@ export default {
 
         let message = responseMsg;
 
-        if(responseMsg)
+        if (responseMsg)
             await responseMsg.edit(msgObj);
         else
             message = await msg.channel.send(msgObj);
 
-        if(reactions.length == 0)
+        if (reactions.length == 0)
             return message;
 
-        reactions.map(a => message.react(a).catch(() => {}));
+        reactions.map(a => message.react(a).catch(() => { }));
 
         const collector = message.createReactionCollector(
             (reaction, user) => user.bot === false && user.id == msg.author.id,
@@ -320,16 +321,16 @@ export default {
         );
 
         collector.on('collect', async (reaction, user) => {
-            reaction.users.remove(user.id).catch(() => {});
+            reaction.users.remove(user.id).catch(() => { });
         });
 
-        if(args.length == 0)
-            collector.on('collect', (...reactionArgs) => { 
-                topPositionsCollector(...reactionArgs, embed, message, topPositions) 
+        if (args.length == 0)
+            collector.on('collect', (...reactionArgs) => {
+                topPositionsCollector(...reactionArgs, embed, message, topPositions)
             });
         else
-            collector.on('collect', (...reactionArgs) => { 
-                leaderboardCollector(...reactionArgs, embed, message, params, args, self) 
+            collector.on('collect', (...reactionArgs) => {
+                leaderboardCollector(...reactionArgs, embed, message, params, args, self)
             });
 
         collector.on('end', () => {

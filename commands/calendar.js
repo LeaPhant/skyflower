@@ -1,3 +1,5 @@
+import Command from '../command.js';
+
 import helper from '../helper.js';
 import { bold, time } from '@discordjs/builders';
 import { uniqBy } from 'lodash-es';
@@ -150,22 +152,20 @@ for (const event of EVENTS) {
     });
 }
 
-export default {
-    command: ['calendar', 'cal'],
-    description: [
-        "Check SkyBlock Calendar.",
-    ],
-    options: [
+class CalendarCommand extends Command {
+    command = 'calendar';
+    description = "Check SkyBlock Calendar.";
+    options = [
         {
             name: 'event',
             description: 'Filter result to a specific event',
             type: 3,
             choices
         }
-    ],
-    usage: '',
-    call: async obj => {
-        const { interaction, client, extendedLayout } = obj;
+    ];
+    
+    async call(obj) {
+        const { interaction, extendedLayout } = obj;
 
         let embed = {
             color: helper.mainColor,
@@ -232,7 +232,7 @@ export default {
                     let { emoji } = event;
 
                     if (event.name == 'Traveling Zoo')
-                        emoji = helper.emote(getZooPet(Date.now() + msTill), null, client);
+                        emoji = helper.emote(getZooPet(Date.now() + msTill), null, this.client);
 
                     nextEvents.push({
                         name: event.name,
@@ -294,23 +294,15 @@ export default {
 
         let nextEventsName = 'Next Events';
 
-        const eventOption = interaction.options.get('event');
+        const eventOption = interaction.options.get('event')?.value;
 
         if (eventOption) {
-            let nextEventsFiltered = [];
-            const eventSearch = eventOption.value.split(" ");
+            nextEvents = nextEvents.filter(a => a.name == eventOption);
 
-            for (const search of eventSearch)
-                nextEventsFiltered = nextEvents.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
-
-            if (nextEventsFiltered.length > 0) {
-                nextEvents = nextEventsFiltered.filter(a => a.name == nextEventsFiltered[0].name);
-
-                embed.fields.push({
-                    name: nextEvents[0].name,
-                    value: `Duration: ${bold(DURATION_FORMAT(nextEvents[0].duration))}`
-                });
-            }
+            embed.fields.push({
+                name: nextEvents[0].name,
+                value: `Duration: ${bold(DURATION_FORMAT(nextEvents[0].duration))}`
+            });
         }
 
         let nextEventsText = '';
@@ -338,3 +330,5 @@ export default {
         await interaction.reply({ embeds: [embed] });
     }
 };
+
+export default CalendarCommand;
