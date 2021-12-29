@@ -82,7 +82,8 @@ const FORGE_TIMES = {
     LEGGINGS_OF_DIVAN: 23 * 60,
     BOOTS_OF_DIVAN: 23 * 60,
     DIVAN_DRILL: 2 * 24 * 60 + 12 * 60,
-    PET: 12 * 24 * 60
+    PET: 12 * 24 * 60,
+    DIAMONITE: 6 * 60
 };
 
 QUICK_FORGE_MULTIPLIER = {
