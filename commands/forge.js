@@ -187,6 +187,10 @@ class ForgeCommand extends Command {
             }
         }
 
+        embed.image = {
+            url: 'https://cdn.discordapp.com/attachments/572429763700981780/928597207773503548/footer-medium.png'
+        };
+
         return await interaction.editReply({ embeds: [{
             ...embed,
             description

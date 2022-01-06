@@ -52,6 +52,10 @@ class PurseCommand extends Command {
             }
         ];
 
+        embed.image = {
+            url: 'https://cdn.discordapp.com/attachments/572429763700981780/928334693865250876/footer-short-export.png'
+        };
+
         return await interaction.editReply({ embeds: [embed] });
     }
 };
