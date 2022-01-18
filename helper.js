@@ -132,16 +132,22 @@ const module = {
         return itemResults[0];
     },
 
-    getLeaderboard: (query, leaderboards) => {
+    getLeaderboard: (query, leaderboards, amount = 1) => {
         let resultMatch;
         let lbResults = [];
+
+        const exactMatch = leaderboards.find(a => a.key == query);
+
+        if (exactMatch && amount == 1) {
+            return exactMatch;
+        }
 
         for (const lb of leaderboards)
             lbResults.push({ ...lb });
 
         for (const lb of lbResults) {
             if (lb.name.toLowerCase() == query)
-                return lb;
+                return amount == 1 ? lb : [lb];
 
             lb.tagMatches = 0;
 
@@ -155,14 +161,12 @@ const module = {
         lbResults = lbResults.filter(a => a.tagMatches == lbResults[0].tagMatches);
 
         if (lbResults.length == 1)
-            return lbResults[0];
+            return amount == 1 ? lbResults[0] : lbResults;
 
         lbResults.forEach(a => a.distance = distance(a.name, query, { caseSensitive: false }));
         lbResults = lbResults.sort((a, b) => b.distance - a.distance);
 
-        resultMatch = lbResults[0];
-
-        return lbResults[0];
+        return amount == 1 ? lbResults[0] : lbResults.slice(0, amount);
     },
 
     /*commandHelp: async (commandName, prefix) => {
@@ -264,9 +268,13 @@ const module = {
         return emote;
     },
 
-    apiRequest: path => {
+    apiRequest: (path, params) => {
         const url = new URL(`${config.sky_api_base}${path}`);
         url.searchParams.append('key', config.credentials.sky_api_key);
+
+        for (const param in params) {
+            url.searchParams.append(param, params[param])
+        }
 
         return fetch(url);
     },
@@ -281,7 +289,7 @@ const module = {
             });
         }
 
-        const reply = await interaction.deferReply();
+        await interaction.deferReply();
 
         const response = await module.apiRequest(`/api/v2/profile/${username}`);
 
