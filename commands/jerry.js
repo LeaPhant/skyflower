@@ -11,16 +11,16 @@ const MONTH_MS = MONTH_LENGTH * DAY_MS;
 const YEAR_MS = 12 * MONTH_MS;
 
 const JERRY_CYCLE = [
-    "Paul",
-    "Cole",
-    "Diaz",
-    "Barry",
-    "Aatrox",
     "Diana",
-    "Marina"
+    "???",
+    "???",
+    "???",
+    "???",
+    "???",
+    "???",
 ];
 
-const JERRY_START = 1631805300_000;
+const JERRY_START = 1642518900_000;
 const JERRY_DURATION = 6 * 3600 * 1000;
 const JERRY_END = JERRY_START + YEAR_MS;
 
@@ -48,7 +48,44 @@ class JerryCommand extends Command {
         {
             name: 'mayor',
             description: 'Filter result to a specific mayor',
-            type: 3
+            type: 3,
+            options: [
+                {
+                    name: 'Aatrox',
+                    value: 'Aatrox',
+                    type: 3
+                },
+                {
+                    name: 'Barry',
+                    value: 'Barry',
+                    type: 3
+                },
+                {
+                    name: 'Cole',
+                    value: 'Cole',
+                    type: 3
+                },
+                {
+                    name: 'Diana',
+                    value: 'Diana',
+                    type: 3
+                },
+                {
+                    name: 'Diaz',
+                    value: 'Diaz',
+                    type: 3
+                },
+                {
+                    name: 'Marina',
+                    value: 'Marina',
+                    type: 3
+                },
+                {
+                    name: 'Paul',
+                    value: 'Paul',
+                    type: 3
+                },
+            ]
         }
     ];
 
