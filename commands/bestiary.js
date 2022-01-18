@@ -432,12 +432,12 @@ class BestiaryCommand extends Command {
         const buttons = [
             {
                 customId: 'left',
-                label: '🢀',
+                label: '<',
                 disabled: true,
                 style: 'SECONDARY'
             }, {
                 customId: 'right',
-                label: '🢂',
+                label: '>',
                 style: 'SECONDARY'
             },
             {
