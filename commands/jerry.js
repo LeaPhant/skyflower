@@ -49,7 +49,7 @@ class JerryCommand extends Command {
             name: 'mayor',
             description: 'Filter result to a specific mayor',
             type: 3,
-            options: [
+            choices: [
                 {
                     name: 'Aatrox',
                     value: 'Aatrox',
