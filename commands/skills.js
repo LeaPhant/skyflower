@@ -351,7 +351,7 @@ class SkillsCommand extends Command {
         if (customSkill) {
             currentSkill = customSkill;
 
-            await interaction.editReply({ embed: [skillEmbed(profile, customSkill, embed)], components: rows });
+            await interaction.editReply({ embeds: [skillEmbed(profile, customSkill, embed)], components: rows });
         } else {
             await interaction.editReply({ embeds: [embed], components: rows });
         }
