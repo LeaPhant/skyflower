@@ -12,7 +12,7 @@ const YEAR_MS = 12 * MONTH_MS;
 
 const JERRY_CYCLE = [
     "Diana",
-    "???",
+    "Barry",
     "Cole",
     "Marina",
     "???",
