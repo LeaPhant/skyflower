@@ -16,8 +16,8 @@ const JERRY_CYCLE = [
     "Cole",
     "Marina",
     "Paul",
-    "???",
-    "???",
+    "Aatrox",
+    "Diaz",
 ];
 
 const JERRY_START = 1642518900_000;
