@@ -15,7 +15,7 @@ const JERRY_CYCLE = [
     "Barry",
     "Cole",
     "Marina",
-    "???",
+    "Paul",
     "???",
     "???",
 ];
