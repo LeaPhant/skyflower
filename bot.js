@@ -34,7 +34,7 @@ client.on('interactionCreate', async interaction => {
             return;
 
         const extendedLayout = await helper.extendedLayout(interaction);
-        command.interact({ interaction, extendedLayout, client}).catch(console.error);
+        command.interact({ interaction, extendedLayout, client, db }).catch(console.error);
     } else if (interaction.isCommand()) {
         const command = commands.find(a => a.command == interaction.commandName);
 
@@ -43,7 +43,7 @@ client.on('interactionCreate', async interaction => {
 
         const extendedLayout = await helper.extendedLayout(interaction);
 
-        command.call({ interaction, extendedLayout, client }).catch(console.error);
+        command.call({ interaction, extendedLayout, client, commands, db }).catch(console.error);
     } else if (interaction.isAutocomplete()) {
         const command = commands.find(a => a.command == interaction.commandName);
 
