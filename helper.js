@@ -67,6 +67,8 @@ const module = {
     mainColor: 0xdf73af,
     errorColor: 0xf04a4a,
 
+    botName: config?.bot_name ?? 'Sky Flower',
+
     errorEmbed: e => {
         return {
             color: module.errorColor,

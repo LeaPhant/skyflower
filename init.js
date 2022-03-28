@@ -6,6 +6,7 @@ const configDefault = {
         "discord_client_id": "",
         "sky_api_key": ""
     },
+    "bot_name": "Sky Flower",
     "sky_api_base": "https://sky.lea.moe",
     "debug": false,
     "prefix": "s!",
