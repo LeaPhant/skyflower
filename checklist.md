@@ -10,7 +10,7 @@
 - [x] bazaar
 - [x] calendar
 - [x] forge
-- [ ] help
+- [x] help
 - [x] info
 - [x] jerry
 - [x] leaderboards
