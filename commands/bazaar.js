@@ -125,16 +125,7 @@ class BazaarCommand extends Command {
                 try {
                     amount = Math.ceil(math.evaluate(expression));
                 } catch (e) {
-                    throw {
-                        embed: {
-                            color: helper.errorColor,
-                            author: {
-                                name: 'Error'
-                            },
-                            footer: embed.footer,
-                            description: `Couldn't evaluate mathematical expression: \`${expression.replace(/\`/g, '')}\``
-                        }
-                    };
+                    throw new Error(`Couldn't evaluate mathematical expression: \`${expression.replace(/\`/g, '')}\``);
                 }
             }
 
@@ -142,16 +133,7 @@ class BazaarCommand extends Command {
                 return await helper.commandHelp(module.exports.command, prefix);
 
             if (amount !== undefined && argv_.length < 2 && !xpMode)
-                throw {
-                    embed: {
-                        color: helper.errorColor,
-                        author: {
-                            name: 'Error'
-                        },
-                        footer: embed.footer,
-                        description: "Please specify an item name."
-                    }
-                };
+                throw new Error("Please specify an item name.");
 
             if (!xpMode && amount !== undefined && ['stack', 'stacks'].includes(argv_[1].toLowerCase())) {
                 stacks = true;
@@ -198,8 +180,8 @@ class BazaarCommand extends Command {
                     buyText += `Buy ${itemsBuy.toLocaleString()}`;
                     sellText += `Sell ${itemsSell.toLocaleString()}`;
 
-                    let buyStacks = `${_.round(itemsBuy / 64, 1).toLocaleString()} × 64`;
-                    let sellStacks = `${_.round(itemsSell / 64, 1).toLocaleString()} × 64`;
+                    let buyStacks = `${round(itemsBuy / 64, 1).toLocaleString()} × 64`;
+                    let sellStacks = `${round(itemsSell / 64, 1).toLocaleString()} × 64`;
 
                     if (itemsBuy >= 128 && itemsSell >= 128) {
                         buyText += ` (${buyStacks})`;

@@ -4,6 +4,7 @@ import Keyv from 'keyv';
 import fs from 'fs/promises';
 import util from 'util';
 import { Client, Intents } from 'discord.js';
+import { DESTRUCTION } from 'dns';
 
 const db = new Keyv(config.dbUri, { namespace: config.dbNamespace });
 helper.init(db);
@@ -43,7 +44,20 @@ client.on('interactionCreate', async interaction => {
 
         const extendedLayout = await helper.extendedLayout(interaction);
 
-        command.call({ interaction, extendedLayout, client, commands, db }).catch(console.error);
+        command.call({ interaction, extendedLayout, client, commands, db }).catch(err => {
+            interaction.reply({ 
+                embeds: [
+                    {
+                        color: helper.errorColor,
+                        author: {
+                            name: 'Error'
+                        },
+                        description: err.message
+                    }
+                ],
+                ephemeral: true
+            }).catch(() => {}) // we tried
+        });
     } else if (interaction.isAutocomplete()) {
         const command = commands.find(a => a.command == interaction.commandName);
 
