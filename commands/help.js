@@ -24,7 +24,6 @@ class HelpCommand extends Command {
             color: helper.mainColor,
             title: "Commands for Sky Flower",
             description,
-            fields,
             image: {
                 url: 'https://cdn.discordapp.com/attachments/572429763700981780/928208027109183548/footer-wide.png'
             }
