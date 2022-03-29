@@ -1,6 +1,7 @@
 import Command from '../command.js';
-import { channelMention, inlineCode } from '@discordjs/builders';
+import { channelMention, inlineCode, bold, italic } from '@discordjs/builders';
 import helper from '../helper.js';
+import { capitalize } from 'lodash-es';
 
 const CHANNEL_OPTION = {
     type: 7,
@@ -139,9 +140,92 @@ class AdminCommand extends Command {
             color = helper.errorColor;
         }
 
+        const fields = [];
+
+        if (subCommand == 'info') {
+            const mode = configuration.mode ?? 'denylist';
+            response = `${bold('Mode')}: ${capitalize(mode)}`;
+
+            if (mode == 'denylist') {
+                response += ` (${helper.botName} enabled in all channels by default).`;
+            } else {
+                response += ` (${helper.botName} disabled in all channels by default).`;
+            }
+
+            let allowedIn = '';
+            let deniedIn = '';
+            let extendedIn = '';
+
+            if (Array.isArray(configuration?.allowlist) 
+            && configuration.allowlist.length > 0) {
+                for (const [index, channel] of configuration.allowlist.entries()) {
+                    if (index > 0) {
+                        allowedIn += '\n';
+                    }
+
+                    allowedIn += channelMention(channel);
+                }
+            } else {
+                allowedIn = italic('empty');
+            }
+
+            if (Array.isArray(configuration?.denylist) 
+            && configuration.denylist.length > 0) {
+                for (const [index, channel] of configuration.denylist.entries()) {
+                    if (index > 0) {
+                        deniedIn += '\n';
+                    }
+
+                    deniedIn += channelMention(channel);
+                }
+            } else {
+                deniedIn = italic('empty');
+            }
+
+            if (configuration?.layout !== undefined
+            && Object.keys(configuration.layout).length > 0) {
+                let index = 0;
+
+                for (const channel in configuration.layout) {
+                    if (configuration.layout[channel]?.type != 'extended') {
+                        continue;
+                    }
+
+                    if (index > 0) {
+                        extendedIn += '\n';
+                    }
+
+                    extendedIn += channelMention(channel);
+
+                    index++;
+                }
+            } else {
+                extendedIn = italic('empty');
+            }
+
+            fields.push({
+                name: mode == 'allowlist' ? '» Allowed in «' : 'Allowed in',
+                value: allowedIn,
+                inline: true
+            });
+
+            fields.push({
+                name: mode == 'denylist' ? '» Denied in «' : 'Denied in',
+                value: deniedIn,
+                inline: true
+            });
+
+            fields.push({
+                name: 'Extended layout',
+                value: extendedIn,
+                inline: true
+            });
+        }
+
         const embed = {
             color: color,
-            description: response
+            description: response,
+            fields
         }
 
         await db.set(`config_${guildId}`, JSON.stringify(configuration));
