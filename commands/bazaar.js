@@ -88,6 +88,7 @@ class BazaarCommand extends Command {
         let totalSell = 0;
 
         let coinsMode = false;
+        let xpMode = false;
 
         for (const [index, part] of summary.entries()) {
             let stacks = false;
@@ -110,6 +111,14 @@ class BazaarCommand extends Command {
                 }
 
                 coinsMode = true;
+            } else if (argv_[0].toLowerCase().endsWith('xp') && !isNaN(parseFloat(argv_[0]))) {
+                const xpAmount = parseFloat(argv_[0]);
+                const xpBoxes = Math.ceil(xpAmount / 20000);
+
+                amount = Math.ceil(xpBoxes / 0.1293);
+                itemSearch = ['Purple','Jerry','Box'];
+
+                xpMode = true;
             } else if (!isNaN(parseInt(argv_[0]))) {
                 const expression = argv_[0].replace(/x/g, '*');
 
@@ -132,8 +141,7 @@ class BazaarCommand extends Command {
             if (amount !== undefined && argv_.length < 1)
                 return await helper.commandHelp(module.exports.command, prefix);
 
-
-            if (amount !== undefined && argv_.length < 2)
+            if (amount !== undefined && argv_.length < 2 && !xpMode)
                 throw {
                     embed: {
                         color: helper.errorColor,
@@ -145,11 +153,11 @@ class BazaarCommand extends Command {
                     }
                 };
 
-            if (amount !== undefined && ['stack', 'stacks'].includes(argv_[1].toLowerCase())) {
+            if (!xpMode && amount !== undefined && ['stack', 'stacks'].includes(argv_[1].toLowerCase())) {
                 stacks = true;
 
                 itemSearch = argv_.slice(2);
-            } else {
+            } else if (!xpMode) {
                 itemSearch = argv_.slice(1);
             }
 
