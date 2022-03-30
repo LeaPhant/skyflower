@@ -107,8 +107,13 @@ const module = {
         let resultMatch;
         let itemResults = [];
 
-        for (const key in products)
+        for (const key in products) {
+            if (key === 'ENCHANTED_CARROT_ON_A_STICK') {
+                continue;
+            }
+
             itemResults.push({ ...products[key] });
+        }
 
         for (const product of itemResults) {
             if (product.name.toLowerCase() == query)
