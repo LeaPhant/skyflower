@@ -33,6 +33,18 @@ const updateProducts = async () => {
 updateProducts();
 setInterval(updateProducts, 60 * 1000);
 
+const normalizeCost = cost => {
+    if (cost === 0)
+        return 'Free';
+
+    const formattedCost = numeral(cost).format('0.00a');
+    
+    if (cost === Infinity || formattedCost === 'NaNt')
+        return Infinity.toLocaleString();
+
+    return formattedCost;
+};
+
 class BazaarCommand extends Command {
     command = 'bazaar';
     description = "Check prices for one or more items on Bazaar.";
@@ -211,32 +223,38 @@ class BazaarCommand extends Command {
                     if (stacks) {
                         const name = amount > 1 ? `Buy ${amount.toLocaleString()} × 64` : `Buy 64`;
 
-                        totalBuy += amount * 64 * bazaarProduct.buyPrice;
-                        totalSell += amount * 64 * bazaarProduct.sellPrice;
+                        let buyCost = amount * 64 * bazaarProduct.buyPrice;
+                        let sellCost = amount * 64 * bazaarProduct.sellPrice;
+
+                        totalBuy += buyCost;
+                        totalSell += sellCost;
 
                         if (index < 6) {
                             embed.fields.push({
                                 name: `Buy ${amount.toLocaleString()} × 64`,
-                                value: amount == 0 ? 'Free' : numeral(amount * 64 * bazaarProduct.buyPrice).format('0.00a'),
+                                value: normalizeCost(buyCost),
                                 inline: true
                             }, {
                                 name: `Sell ${amount.toLocaleString()} × 64`,
-                                value: amount == 0 ? 'Free' : numeral(amount * 64 * bazaarProduct.sellPrice).format('0.00a'),
+                                value: normalizeCost(sellCost),
                                 inline: true
                             });
                         }
                     } else {
-                        totalBuy += amount * bazaarProduct.buyPrice;
-                        totalSell += amount * bazaarProduct.sellPrice;
+                        let buyCost = amount * bazaarProduct.buyPrice;
+                        let sellCost = amount * bazaarProduct.sellPrice;
+
+                        totalBuy += buyCost;
+                        totalSell += sellCost;
 
                         if (index < 6) {
                             embed.fields.push({
                                 name: `Buy ${amount.toLocaleString()}`,
-                                value: amount == 0 ? 'Free' : numeral(amount * bazaarProduct.buyPrice).format('0.00a'),
+                                value: normalizeCost(buyCost),
                                 inline: true
                             }, {
                                 name: `Sell ${amount.toLocaleString()}`,
-                                value: amount == 0 ? 'Free' : numeral(amount * bazaarProduct.sellPrice).format('0.00a'),
+                                value: normalizeCost(sellCost),
                                 inline: true
                             });
                         }
