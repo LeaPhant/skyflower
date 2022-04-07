@@ -2,7 +2,7 @@ import distance from 'jaro-winkler';
 import fetch from 'node-fetch';
 
 import config from './config.json' assert { type: 'json' };
-import emotes from './emotes.json';
+import emotes from './emotes.json' assert { type: 'json' };
 
 const sep = ' ✦ ';
 const cmd_escape = "```";
