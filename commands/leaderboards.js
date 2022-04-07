@@ -194,7 +194,7 @@ const topPositionsCollector = async function (i, embed, row, topPositions) {
 };
 
 class LeaderboardsCommand extends Command {
-    command = 'leaderboards';
+    command = 'lb';
     description = "Check leaderboards.";
     example = [
         {
