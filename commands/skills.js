@@ -3,7 +3,7 @@ import Command from '../command.js';
 import helper from '../helper.js';
 import { bold } from '@discordjs/builders';
 import numeral from 'numeral';
-import config from '../config.json';
+import config from '../config.json' assert { type: 'json' };
 
 import { keys, capitalize, pickBy, upperFirst, startCase } from 'lodash-es';
 import { MessageActionRow } from 'discord.js';

@@ -1,7 +1,7 @@
 import Command from '../command.js';
 
 import helper from '../helper.js';
-import config from '../config.json';
+import config from '../config.json' assert { type: 'json' };
 import fetch from 'node-fetch';
 import numeral from 'numeral';
 import { bold } from '@discordjs/builders';

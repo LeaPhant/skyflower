@@ -1,7 +1,7 @@
 import distance from 'jaro-winkler';
 import fetch from 'node-fetch';
 
-import config from './config.json';
+import config from './config.json' assert { type: 'json' };
 import emotes from './emotes.json';
 
 const sep = ' ✦ ';

@@ -4,7 +4,7 @@ import { startCase, lowerCase } from 'lodash-es';
 import { MessageActionRow } from 'discord.js';
 import { bold, italic } from '@discordjs/builders';
 import helper from '../helper.js';
-import config from '../config.json';
+import config from '../config.json' assert { type: 'json' };
 
 const BESTIARY_LEVEL = {
     1: 10,

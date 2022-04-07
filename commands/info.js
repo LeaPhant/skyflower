@@ -1,6 +1,6 @@
 import Command from '../command.js';
 
-import config from '../config.json';
+import config from '../config.json' assert { type: 'json' };
 import helper from '../helper.js';
 import { bold } from '@discordjs/builders';
 
