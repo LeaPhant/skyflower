@@ -11,16 +11,16 @@ const MONTH_MS = MONTH_LENGTH * DAY_MS;
 const YEAR_MS = 12 * MONTH_MS;
 
 const JERRY_CYCLE = [
-    "Diana",
-    "Barry",
-    "Cole",
-    "Marina",
-    "Paul",
-    "Aatrox",
-    "Diaz",
+    "???",
+    "???",
+    "???",
+    "???",
+    "???",
+    "???",
+    "???",
 ];
 
-const JERRY_START = 1642518900_000;
+const JERRY_START = 1653232500_000;
 const JERRY_DURATION = 6 * 3600 * 1000;
 const JERRY_END = JERRY_START + YEAR_MS;
 
