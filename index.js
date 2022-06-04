@@ -65,12 +65,10 @@ manager.on('shardCreate', shard => {
 try {
     console.log('Started refreshing application (/) commands.');
 
-    for (const guild of config.test_guilds) {
-        await rest.put(
-            Routes.applicationGuildCommands(CLIENT_ID, guild),
-            { body: commandPayload },
-        );
-    }
+    await rest.put(
+        Routes.applicationCommands(CLIENT_ID),
+        { body: commandPayload },
+    );
 
     console.log('Successfully reloaded application (/) commands.');
 } catch (error) {
