@@ -34,58 +34,12 @@ class AdminCommand extends Command {
                     ],
                     required: true
                 },
-                CHANNEL_OPTION
-            ]
-        },
-        {
-            type: 1,
-            name: 'allow',
-            description: 'Allow the bot in a channel (only applies in allowlist mode).',
-            options: [
                 {
                     type: 5,
-                    name: 'allow',
-                    description: 'Whether commands should be enabled in this channel.',
-                    required: true,
+                    name: 'default',
+                    description: 'Set this as the default layout?'
                 },
                 CHANNEL_OPTION
-            ]
-        },
-        {
-            type: 1,
-            name: 'deny',
-            description: 'Deny the bot in a channel (only applies in denylist mode).',
-            options: [
-                {
-                    type: 5,
-                    name: 'deny',
-                    description: 'Whether commands should be disabled in this channel.',
-                    required: true
-                },
-                CHANNEL_OPTION
-            ]
-        },
-        {
-            type: 1,
-            name: 'mode',
-            description: 'Change bot mode between allowlist and denylist (default: denylist).',
-            options: [
-                {
-                    type: 3,
-                    name: 'mode',
-                    description: 'Mode for this server.',
-                    choices: [
-                        {
-                            name: 'Denylist – commands enabled in all channels by default',
-                            value: 'denylist'
-                        },
-                        {
-                            name: 'Allowlist – commands disabled in all channels by default',
-                            value: 'allowlist'
-                        }
-                    ],
-                    required: true
-                }
             ]
         },
         {
@@ -104,6 +58,10 @@ class AdminCommand extends Command {
             return await interaction.reply({ content: 'This command can only be used in servers.', ephemeral: true });
         }
 
+        if (!interaction.memberPermissions.has('ADMINISTRATOR')) {
+            return await interaction.reply({ content: 'Only server admins are allowed to run this command.', ephemeral: true });
+        }
+
         await interaction.deferReply({ ephemeral: true });
 
         let configuration;
@@ -116,7 +74,11 @@ class AdminCommand extends Command {
 
         const subCommand = interaction.options.getSubcommand();
         const channel = interaction.options.getChannel('channel') ?? interaction.channel;
-        const channelId = channel.id;
+        let channelId = channel.id;
+
+        if (interaction.options.getBoolean('default') === true) {
+            channelId = 'default';
+        }
 
         let response, color = helper.mainColor;
 
@@ -124,15 +86,6 @@ class AdminCommand extends Command {
             switch (subCommand) {
                 case 'layout':
                     response = this.layout(configuration, channelId, interaction);
-                    break;
-                case 'allow':
-                    response = this.allow(configuration, channelId, interaction);
-                    break;
-                case 'deny':
-                    response = this.deny(configuration, channelId, interaction);
-                    break;
-                case 'mode':
-                    response = this.mode(configuration, interaction);
                     break;
             }
         } catch(e) {
@@ -143,55 +96,25 @@ class AdminCommand extends Command {
         const fields = [];
 
         if (subCommand == 'info') {
-            const mode = configuration.mode ?? 'denylist';
-            response = `${bold('Mode')}: ${capitalize(mode)}`;
+            const defaultLayout = configuration.layout['default']?.type ?? 'compact';
+            response = `Default Layout: ${bold(capitalize(defaultLayout))}`;
 
-            if (mode == 'denylist') {
-                response += ` (${helper.botName} enabled in all channels by default).`;
-            } else {
-                response += ` (${helper.botName} disabled in all channels by default).`;
-            }
-
-            let allowedIn = '';
-            let deniedIn = '';
             let extendedIn = '';
-
-            if (Array.isArray(configuration?.allowlist) 
-            && configuration.allowlist.length > 0) {
-                for (const [index, channel] of configuration.allowlist.entries()) {
-                    if (index > 0) {
-                        allowedIn += '\n';
-                    }
-
-                    allowedIn += channelMention(channel);
-                }
-            } else {
-                allowedIn = italic('empty');
-            }
-
-            if (Array.isArray(configuration?.denylist) 
-            && configuration.denylist.length > 0) {
-                for (const [index, channel] of configuration.denylist.entries()) {
-                    if (index > 0) {
-                        deniedIn += '\n';
-                    }
-
-                    deniedIn += channelMention(channel);
-                }
-            } else {
-                deniedIn = italic('empty');
-            }
 
             if (configuration?.layout !== undefined
             && Object.keys(configuration.layout).length > 0) {
                 let index = 0;
 
                 for (const channel in configuration.layout) {
-                    if (configuration.layout[channel]?.type != 'extended') {
+                    if (channel == 'default') {
                         continue;
                     }
 
-                    if (index > 0) {
+                    if (configuration.layout[channel]?.type == defaultLayout) {
+                        continue;
+                    }
+
+                    if (extendedIn.length > 0) {
                         extendedIn += '\n';
                     }
 
@@ -203,34 +126,23 @@ class AdminCommand extends Command {
                 extendedIn = italic('empty');
             }
 
-            fields.push({
-                name: mode == 'allowlist' ? '» Allowed in «' : 'Allowed in',
-                value: allowedIn,
-                inline: true
-            });
-
-            fields.push({
-                name: mode == 'denylist' ? '» Denied in «' : 'Denied in',
-                value: deniedIn,
-                inline: true
-            });
-
-            fields.push({
-                name: 'Extended layout',
-                value: extendedIn,
-                inline: true
-            });
+            if (extendedIn.length > 0) {
+                fields.push({
+                    name: `${defaultLayout == 'compact' ? 'Extended' : 'Compact'} Layout in`,
+                    value: extendedIn,
+                    inline: true
+                });
+            }
         }
 
         const embed = {
             color: color,
             description: response,
             fields
-        }
+        };
 
         await db.set(`config_${guildId}`, JSON.stringify(configuration));
-        
-        console.log(configuration);
+
 
         return await interaction.editReply({ embeds: [embed] });
     }
@@ -243,124 +155,28 @@ class AdminCommand extends Command {
         }
 
         const layoutType = interaction.options.getString('layout');
+        const formattedChannel = channelId == 'default' ? 'Default' : channelMention(channelId);
 
         switch (layoutType) {
             case 'extended':
                 if (configuration?.layout[channelId]?.type == 'extended') {
-                    throw new Error(`${channelMention(channelId)} already in extended layout.`);
+                    throw new Error(`${formattedChannel} already in extended layout.`);
                 }
 
                 configuration.layout[channelId] = { type: 'extended' };
 
-                response = `${channelMention(channelId)} has been set to extended layout.`;
+                response = `${formattedChannel} has been set to extended layout.`;
 
                 break;
             case 'compact':
-                if (!Object.keys(configuration.layout).includes(channelId)) {
-                    throw new Error(`${channelMention(channelId)} already in compact layout.`);
+                if (configuration?.layout[channelId]?.type == 'compact') {
+                    throw new Error(`${formattedChannel} already in compact layout.`);
                     break;
                 }
 
-                response = `${channelMention(channelId)} has been set to compact layout.`;
+                configuration.layout[channelId] = { type: 'compact' };
 
-                delete configuration.layout[channelId];
-        }
-
-        return response;
-    }
-    
-    allow(configuration, channelId, interaction) {
-        let response;
-
-        if (Array.isArray(configuration?.allowlist) == false) {
-            configuration.allowlist = new Array();
-        }
-
-        const entryExists = configuration.allowlist.includes(channelId);
-        const allow = interaction.options.getBoolean('allow');
-
-        if (allow) {
-            if (entryExists) {
-                throw new Error(`${helper.botName} is already allowed in ${channelMention(channelId)}.`);
-            }
-
-            response = `${helper.botName} has been allowed in ${channelMention(channelId)}.`;
-
-            configuration.allowlist.push(channelId);
-        } else {
-            if (!entryExists) {
-                throw new Error(`${helper.botName} is already not allowed in ${channelMention(channelId)}.`);
-            }
-
-            response = `${helper.botName} is no longer allowed in ${channelMention(channelId)}.`;
-
-            const entryIndex = configuration.allowlist.indexOf(channelId);
-
-            configuration.allowlist.splice(entryIndex, 1);
-        }
-
-        if (configuration?.mode == 'denylist') {
-            response += '\n\nNote: this currently has no effect as the bot is in denylist mode.'
-        }
-
-        return response;
-    }
-
-    deny(configuration, channelId, interaction) {
-        let response;
-
-        if (Array.isArray(configuration?.denylist) == false) {
-            configuration.denylist = new Array();
-        }
-
-        const entryExists = configuration.denylist.includes(channelId);
-        const deny = interaction.options.getBoolean('deny');
-
-        if (deny) {
-            if (entryExists) {
-                throw new Error(`${helper.botName} is already denied in ${channelMention(channelId)}.`);
-            }
-
-            response = `${helper.botName} has been denied in ${channelMention(channelId)}.`
-
-            configuration.denylist.push(channelId);
-        } else {
-            if (!entryExists) {
-                throw new Error(`${helper.botName} is already not denied in ${channelMention(channelId)}.`);
-            }
-
-            response = `${helper.botName} is no longer denied in ${channelMention(channelId)}.`
-
-            const entryIndex = configuration.denylist.indexOf(channelId);
-
-            configuration.denylist.splice(entryIndex, 1);
-        }
-
-        if (configuration?.mode == 'allowlist') {
-            response += '\n\nNote: this currently has no effect as the bot is in allowlist mode.'
-        }
-
-        return response;
-    }
-
-    mode(configuration, interaction) {
-        const mode = interaction.options.getString('mode');
-        const currentMode = configuration?.mode ?? 'denylist';
-
-        if (currentMode == mode) {
-            throw new Error(`${helper.botName} is already in ${mode} mode.`);
-        }
-
-        configuration.mode = mode;
-
-        let response = `${helper.botName} has been set to ${mode} mode.`;
-
-        if (mode == 'allowlist') {
-            response += `\n\nCommands are now disabled by default in all channels.`;
-            response += `\nUse ${inlineCode('/admin allow')} to enable the bot in specific channels.`;
-        } else {
-            response += `\n\nCommands are now enabled by default in all channels.`;
-            response += `\nUse ${inlineCode('/admin deny')} to disable the bot in specific channels.`;
+                response = `${formattedChannel} has been set to compact layout.`;
         }
 
         return response;
