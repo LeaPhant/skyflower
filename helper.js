@@ -83,16 +83,15 @@ const module = {
         if (interaction.guildId == null)
             return true;
 
-        const layout = await db.get(`layout_${interaction.guildId}_${interaction.channelId}`) || 'basic';
+        const configuration = JSON.parse(await db.get(`config_${interaction.guildId}`));
+
+        let layout = configuration?.layout['default']?.type ?? 'compact';
+
+        if (interaction.channelId in configuration?.layout) {
+            layout = configuration.layout[interaction.channelId].type
+        }
 
         return layout == 'extended';
-    },
-
-    prefix: async guild => {
-        if (guild == null)
-            return config.prefix;
-
-        return (await db.get(`pfx_${guild.id}`)) || config.prefix;
     },
 
     log: (...params) => {
