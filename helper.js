@@ -83,15 +83,19 @@ const module = {
         if (interaction.guildId == null)
             return true;
 
-        const configuration = JSON.parse(await db.get(`config_${interaction.guildId}`));
+        try {
+            const configuration = JSON.parse(await db.get(`config_${interaction.guildId}`));
 
-        let layout = configuration?.layout['default']?.type ?? 'compact';
+            let layout = configuration?.layout['default']?.type ?? 'compact';
 
-        if (interaction.channelId in configuration?.layout) {
-            layout = configuration.layout[interaction.channelId].type
+            if (interaction.channelId in configuration?.layout) {
+                layout = configuration.layout[interaction.channelId].type
+            }
+
+            return layout == 'extended';
+        } catch(e) {
+            return false;
         }
-
-        return layout == 'extended';
     },
 
     log: (...params) => {
