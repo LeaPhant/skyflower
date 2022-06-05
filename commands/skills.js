@@ -190,24 +190,24 @@ const skillEmbed = (profile, skillName, embed) => {
 
     output.fields = [];
 
-    if (skill.level < skill.maxLevel && skill.maxLevel >= 50) {
+    if (skill.level < 60 && skill.maxLevel >= 50) {
         let levelKeys;
 
-        if (skill.maxLevel > 50) {
+        //if (skill.maxLevel > 50) {
             levelKeys = keys(
                 pickBy(xpMax, (value, key) => new Number(key) > skill.level)
             ).sort((a, b) => a - b);
 
             if (levelKeys.length > 3)
                 levelKeys = [levelKeys[0], levelKeys[levelKeys.length - 3], levelKeys.pop()];
-        } else {
+        /*} else {
             levelKeys = keys(
                 pickBy(xpMax, (value, key) => new Number(key) > skill.level && new Number(key) <= 50)
             ).sort((a, b) => a - b);
 
             if (levelKeys.length > 3)
                 levelKeys = [...levelKeys.slice(0, 2), levelKeys.pop()];
-        }
+        }*/
 
         for (const key of levelKeys)
             output.fields.push({
