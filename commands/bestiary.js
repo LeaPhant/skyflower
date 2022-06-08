@@ -32,7 +32,7 @@ const BESTIARY_BOSS_LEVEL = {
     12: 100
 };
 
-const BESTIARY_BOSS_MAX = 41;
+const BESTIARY_MAX = 41;
 
 const PER_PAGE = 9;
 
@@ -291,7 +291,7 @@ const extendEntry = e => {
         entry.name = startCase(entry.id[0]);
 
     entry.boss = e.boss == true;
-    entry.max = e.max ?? (entry.boss ? BESTIARY_BOSS_MAX : null);
+    entry.max = e.max ?? BESTIARY_MAX;
 
     return entry;
 };
