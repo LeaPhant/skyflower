@@ -18,7 +18,8 @@ const BESTIARY_LEVEL = {
     9: 5000,
     10: 15000,
     11: 25000,
-    12: 100000
+    12: 50000,
+    13: 100000
 };
 
 const BESTIARY_BOSS_LEVEL = {
@@ -42,9 +43,9 @@ const BESTIARY = {
             max: 5
         },
         {
-            id: 'enderman',
-            max: 5,
-            inaccurate: true
+            name: 'Enderman',
+            id: 'enderman_private',
+            max: 5
         },
         {
             id: 'skeleton',
@@ -64,8 +65,7 @@ const BESTIARY = {
         },
         {
             id: 'zombie',
-            max: 5,
-            inaccurate: true
+            max: 5
         }
     ],
     HUB: [
@@ -112,51 +112,63 @@ const BESTIARY = {
         'voracious_spider',
         'weaver_spider'
     ],
-    BLAZING_FORTRESS: [
-        'blaze',
-        'ghast',
+    CRIMSON_ISLE: [
         {
-            name: 'Magma Cube',
-            id: ['magma_cube', 'fireball_magma_cube']
+            id: 'ashfang',
+            boss: true
+        },
+        {
+            id: 'barbarian_duke_x',
+            boss: true
+        },
+        {
+            id: 'bladesoul',
+            boss: true
+        },
+        {
+            id: 'mage_outlaw',
+            boss: true
         },
         {
             id: 'magma_cube_boss',
             boss: true
         },
+        'flaming_spider',
+        'blaze',
+        'ghast',
+        'magma_cube',
+        'matcho',
+        {
+            name: 'Mushroom Bull',
+            id: 'charging_mushroom_cow',
+        },
         'pigman',
-        'wither_skeleton'
+        'wither_skeleton',
+        'wither_spectre'
     ],
     THE_END: [
         {
-            name: 'Dragon',
-            id: [
-                'young_dragon', 'protector_dragon', 'strong_dragon', 'old_dragon',
-                'unstable_dragon', 'wise_dragon', 'superior_dragon'
-            ],
+            name: 'Ender Dragon',
+            id: 'dragon',
             boss: true
         },
-        {
-            id: 'enderman',
-            inaccurate: true
-        },
+        'enderman',
         'endermite',
         {
             name: 'Endstone Protector',
             id: 'corrupted_protector',
             boss: true
         },
-        {
-            id: 'voidling_extremist',
-            inaccurate: true
-        },
-        {
-            id: 'voidling_fanatic',
-            inaccurate: true
-        },
+        'voidling_extremist',
+        'voidling_fanatic',
         'watcher',
         {
             name: 'Zealot',
             id: 'zealot_enderman'
+        },
+        {
+            name: 'Obsidian Defender',
+            id: 'obsidian_wither'
         }
     ],
     DEEP_CAVERNS: [
@@ -167,20 +179,10 @@ const BESTIARY = {
             name: 'Ghost',
             id: 'caverns_ghost'
         },
-        {
-            name: 'Goblin',
-            id: [
-                'goblin_knife_thrower', 'goblin_weakling_melee', 'goblin_weakling_bow',
-                'goblin', 'goblin_creepertamer', 'goblin_battler', 'goblin_golem',
-                'goblin_murderlover', 'goblin_flamethrower'
-            ]
-        },
+        'goblin',
         {
             name: 'Grunt',
-            id: [
-                'team_treasurite_grunt', 'team_treasurite_wendy', 'team_treasurite_viper',
-                'team_treasurite_corleone', 'team_treasurite_sebastian'
-            ]
+            id: 'team_treasurite'
         },
         'ice_walker',
         'lapis_zombie',
@@ -201,24 +203,15 @@ const BESTIARY = {
         'thyst',
         'treasure_hoarder',
         {
-            name: 'Worm',
-            id: ['worm', 'scatha']
+            id: 'worms',
+            name: 'Worm'
         },
         'yog'
     ],
     THE_PARK: [
-        {
-            id: 'howling_spirit',
-            inaccurate: true
-        },
-        {
-            id: 'pack_spirit',
-            inaccurate: true
-        },
-        {
-            id: 'soul_of_the_alpha',
-            inaccurate: true
-        }
+        'howling_spirit',
+        'pack_spirit',
+        'soul_of_the_alpha'
     ],
     SPOOKY_FESTIVAL: [
         {
@@ -264,14 +257,6 @@ const BESTIARY = {
             id: 'crypt_tank_zombie'
         },
         {
-            name: 'Crypt Undead',
-            id: [
-                'crypt_undead', 'crypt_undead_bernhard', 'crypt_undead_marius',
-                'crypt_undead_alexander', 'crypt_undead_friedrich', 'crypt_undead_christian',
-                'crypt_undead_nicholas', 'crypt_undead_valentin', 'crypt_undead_pieter'
-            ]
-        },
-        {
             name: 'Undead Skeleton',
             id: 'dungeon_respawning_skeleton'
         },
@@ -301,7 +286,6 @@ const extendEntry = e => {
         entry.name = startCase(entry.id[0]);
 
     entry.boss = e.boss == true;
-    entry.inaccurate = e.inaccurate == true || e.boss == true;
     entry.max = e.max ?? (entry.boss ? BESTIARY_BOSS_MAX : null);
 
     return entry;
@@ -405,11 +389,7 @@ class BestiaryCommand extends Command {
                 b.kills = 0;
 
                 for (const id of b.id) {
-                    b.kills += profile?.raw?.stats[`kills_${id}`] ?? 0;
-
-                    if (area == 'CATACOMBS') {
-                        b.kills += profile?.raw?.stats[`kills_master_${id}`] ?? 0;
-                    }
+                    b.kills += profile?.raw?.bestiary[`kills_family_${id}`] ?? 0;
                 }
 
                 b = { ...b, ...getBestiaryLevel(b) };
@@ -496,15 +476,8 @@ class BestiaryCommand extends Command {
 
             const maxPage = Math.floor(currentArray.length / PER_PAGE);
 
-            let inaccurateCount = 0;
-
             for (const b of currentArray.slice(startIndex, startIndex + PER_PAGE)) {
                 let name = `${b.name} ${b.level}`;
-
-                if (b.inaccurate) {
-                    name += '*';
-                    inaccurateCount++;
-                }
 
                 const value = b.max
                     ? `Total Kills: ${bold(b.kills)}`
@@ -517,11 +490,7 @@ class BestiaryCommand extends Command {
                 });
             }
 
-            if (inaccurateCount > 0) {
-                description += '\n' + italic('\\* = Possibly inaccurate due to mismatching API value');
-            }
-
-            const text = `Approximate Bestiary Milestone: ${Math.floor(totalLevel / 10)}`
+            const text = `Bestiary Milestone: ${(totalLevel / 10).toFixed(1)}`
                 + helper.sep
                 + `Page ${page + 1}/${maxPage + 1}`;
 
