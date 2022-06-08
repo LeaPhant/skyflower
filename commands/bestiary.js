@@ -264,6 +264,11 @@ const BESTIARY = {
             name: 'Withermancer',
             id: 'crypt_witherskeleton'
         },
+        'skeletor',
+        {
+            name: 'Undead',
+            id: 'watcher_summon_undead'
+        },
         'zombie_commander',
         'zombie_grunt',
         'zombie_knight',
