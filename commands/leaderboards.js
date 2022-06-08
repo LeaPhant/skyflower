@@ -78,6 +78,9 @@ const drawLeaderboard = async function (_embed, leaderboard, params, _self = {})
 
         embed.fields = [];
 
+        if (data.positions == null)
+            return { embed, self };
+
         for (const [index, position] of data.positions.entries()) {
             embed.fields.push({
                 name: `#${position.rank.toLocaleString()} – ${position.username.replace(/\_/g, '\\_')}`,
