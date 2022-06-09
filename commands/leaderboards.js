@@ -237,7 +237,7 @@ class LeaderboardsCommand extends Command {
             type: 3
         }, {
             name: 'guild',
-            description: 'Select guild to show',
+            description: 'Select user to show within a guild',
             type: 3
         }, {
             name: 'mode',
