@@ -25,9 +25,9 @@ class DailiesCommand extends Command {
         let description = `Last updated: ${time(new Date(profile.raw.last_save), 'R')}\n`;
 
         const questData = profile.raw?.nether_island_player_data?.quests?.quest_rewards;
-        const questList = profile.raw?.nether_island_player_data?.quests?.quest_data?.quest_list;
+        const questList = profile.raw?.nether_island_player_data?.quests?.quest_data?.quest_list ?? [];
 
-        if (questList == null) {
+        if (questList.length == 0) {
             description = 'Player has no available faction quests.';
         }
 
