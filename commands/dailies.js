@@ -22,7 +22,7 @@ class DailiesCommand extends Command {
 
         const embed = helper.profileEmbed(profile, 'Faction Dailies');
 
-        let description = `Last update: ${time(new Date(profile.raw.last_save), 'R')}\n`;
+        let description = `Last updated: ${time(new Date(profile.raw.last_save), 'R')}\n`;
 
         const questData = profile.raw?.nether_island_player_data?.quests?.quest_rewards;
         const questList = profile.raw?.nether_island_player_data?.quests?.quest_data?.quest_list;
@@ -46,13 +46,9 @@ class DailiesCommand extends Command {
             });
         }
 
-        console.log(quests);
-
         for (const quest of quests) {
             description += `\n${quest.quest} ${helper.sep} ${bold(quest.amount + 'x ' + quest.reward)}`
         }
-
-        console.log(description);
 
         return await interaction.editReply({ embeds: [{
             ...embed,
