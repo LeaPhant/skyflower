@@ -20,54 +20,58 @@ for (const file of commandFiles) {
 }
 
 client.on('interactionCreate', async interaction => {
-    if (interaction.isButton()) {
-        const oInteraction = interaction.message.interaction;
-
-        if (interaction.user.id != oInteraction.user.id)
-            return;
-
-        const command = commands.find(c => c.command == oInteraction.commandName);
-
-        if (command == null)
-            return;
-
-        if (command.interact !== 'function')
-            return;
-
-        const extendedLayout = await helper.extendedLayout(interaction);
-        command.interact({ interaction, extendedLayout, client, db }).catch(console.error);
-    } else if (interaction.isCommand()) {
-        const command = commands.find(a => a.command == interaction.commandName);
-
-        if (command == null)
-            return;
-
-        const extendedLayout = await helper.extendedLayout(interaction);
-
-        command.call({ interaction, extendedLayout, client, commands, db }).catch(err => {
-            interaction.reply({ 
-                embeds: [
-                    {
-                        color: helper.errorColor,
-                        author: {
-                            name: 'Error'
-                        },
-                        description: err.message
-                    }
-                ],
-                ephemeral: true
-            }).catch(() => {}) // we tried
-        });
-    } else if (interaction.isAutocomplete()) {
-        const command = commands.find(a => a.command == interaction.commandName);
-
-        if (command == null)
-            return;
-
-        if (typeof command.autocomplete !== 'function')
-            return;
-
-        command.autocomplete({ interaction, client }).catch(console.error);
+    try {
+        if (interaction.isButton()) {
+            const oInteraction = interaction.message.interaction;
+    
+            if (interaction.user.id != oInteraction.user.id)
+                return;
+    
+            const command = commands.find(c => c.command == oInteraction.commandName);
+    
+            if (command == null)
+                return;
+    
+            if (command.interact !== 'function')
+                return;
+    
+            const extendedLayout = await helper.extendedLayout(interaction);
+            command.interact({ interaction, extendedLayout, client, db }).catch(console.error);
+        } else if (interaction.isCommand()) {
+            const command = commands.find(a => a.command == interaction.commandName);
+    
+            if (command == null)
+                return;
+    
+            const extendedLayout = await helper.extendedLayout(interaction);
+    
+            command.call({ interaction, extendedLayout, client, commands, db }).catch(err => {
+                interaction.reply({ 
+                    embeds: [
+                        {
+                            color: helper.errorColor,
+                            author: {
+                                name: 'Error'
+                            },
+                            description: err.message
+                        }
+                    ],
+                    ephemeral: true
+                }).catch(() => {}) // we tried
+            });
+        } else if (interaction.isAutocomplete()) {
+            const command = commands.find(a => a.command == interaction.commandName);
+    
+            if (command == null)
+                return;
+    
+            if (typeof command.autocomplete !== 'function')
+                return;
+    
+            command.autocomplete({ interaction, client }).catch(console.error);
+        }
+    } catch(e) {
+        helper.error(e);
     }
 });
 
