@@ -245,7 +245,7 @@ const BESTIARY = {
         'skeleton_grunt',
         'skeleton_master',
         'skeleton_soldier',
-        'skeletor_prime',
+        // 'skeletor_prime',
         {
             name: 'Sniper',
             id: 'sniper_skeleton'
