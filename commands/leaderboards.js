@@ -335,7 +335,7 @@ class LeaderboardsCommand extends Command {
 
         if (leaderboard == null) {
             try {
-                const response = await helper.apiRequest(`/api/v2/leaderboards/${params.find}`);
+                const response = await helper.apiRequest(`/api/v2/leaderboards/${params.find}`, params);
                 const data = await response.json();
 
                 topPositions = { ...data, page: 1, count: params.count };
