@@ -65,6 +65,23 @@ manager.on('shardCreate', shard => {
 try {
     console.log('Started refreshing application (/) commands.');
 
+    const guildCommandPayload = [
+        ...commandPayload,
+        {
+            name: 'reload',
+            description: 'Reload command files',
+            type: 1,
+            defaultPermission: true
+        }
+    ];
+
+    if (config?.owner_guild != null) {
+        await rest.put(
+            Routes.applicationGuildCommands(CLIENT_ID, config.owner_guild),
+            { body: guildCommandPayload },
+        );
+    }
+
     await rest.put(
         Routes.applicationCommands(CLIENT_ID),
         { body: commandPayload },
@@ -74,3 +91,4 @@ try {
 } catch (error) {
     console.error(error);
 }
+
