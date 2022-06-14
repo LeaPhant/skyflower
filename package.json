@@ -23,7 +23,6 @@
     "@discordjs/builders": "^0.9.0",
     "@discordjs/rest": "^0.1.0-canary.0",
     "@keyv/redis": "^2.1.2",
-    "axios": "^0.21.2",
     "discord-api-types": "^0.25.2",
     "discord.js": "^13.8.0",
     "jaro-winkler": "^0.2.8",
@@ -31,6 +30,7 @@
     "lodash-es": "^4.17.21",
     "luxon": "^2.2.0",
     "mathjs": "^7.5.1",
+    "node-fetch": "^3.2.6",
     "numeral": "^2.0.6"
   }
 }
