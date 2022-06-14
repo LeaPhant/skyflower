@@ -1,27 +1,18 @@
 import Command from '../command.js';
 
 import helper from '../helper.js';
-import config from '../config.json' assert { type: 'json' };
 import { bold } from '@discordjs/builders';
-import LilyWeight from 'lilyweight';
 import numeral from 'numeral';
 
 const format = value => {
     return bold(numeral(value).format('0.0'))
 };
 
-const lily = new LilyWeight(config.credentials.hypixel_api_key);
-
 class WeightCommand extends Command {
     command = 'weight';
     description = "Calculate lily weight for a player.";
     options = [
-        {
-            name: 'username',
-            description: 'Player to retrieve weight for',
-            type: 3,
-            required: true
-        }
+        ...helper.profileOptions
     ];
     example = [
         {
@@ -33,20 +24,20 @@ class WeightCommand extends Command {
     async call(obj) {
         const { interaction } = obj;
 
-        const username = interaction.options.get('username').value;
+        let profile;
 
-        await interaction.deferReply();
+        try {
+            profile = await helper.fetchProfile(interaction);
+        } catch(e) {
+            return;
+        }
 
-        const weight = await lily.getWeight(username);
+        const { lilyweight: weight } = profile.data;
+
+        console.log(profile);
 
         const embed = {
-            color: helper.mainColor,
-            url: `https://sky.lea.moe/stats/${weight.uuid}`,
-            author: {
-                name: `${username}'s Lily Weight`,
-                url: `https://sky.lea.moe/stats/${weight.uuid}`,
-                icon_url: `https://minotar.net/helm/${weight.uuid}/128`
-            },
+            ...helper.profileEmbed(profile, 'Weight'),
             fields: []
         };
 
