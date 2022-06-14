@@ -1,19 +1,60 @@
-const moment = require('moment');
-const _ = require('lodash');
-const distance = require('jaro-winkler');
+import distance from 'jaro-winkler';
+import fetch from 'node-fetch';
 
-const config = require('./config.json');
-const emotes = require('./emotes.json');
+import config from './config.json' assert { type: 'json' };
+import emotes from './emotes.json' assert { type: 'json' };
 
-const sep = ' ✦ ';
+const sep = ' ✦ ';
 const cmd_escape = "```";
 const backtick = "`";
 
-let commands, db;
+let db;
 
-module.exports = {
-    init: (_commands, _db) => {
-        commands = _commands;
+const PROFILE_NAMES = [
+    "Apple",
+    "Banana",
+    "Blueberry",
+    "Coconut",
+    "Cucumber",
+    "Grapes",
+    "Kiwi",
+    "Lemon",
+    "Lime",
+    "Mango",
+    "Orange",
+    "Papaya",
+    "Peach",
+    "Pear",
+    "Pineapple",
+    "Pomegranate",
+    "Raspberry",
+    "Strawberry",
+    "Tomato",
+    "Watermelon",
+    "Zucchini"
+];
+
+const profileOptions = [
+    {
+        name: 'username',
+        description: 'Player to retrieve data for',
+        type: 3,
+        required: true
+    }, {
+        name: 'profile',
+        description: 'Profile to retrieve data for',
+        type: 3,
+        choices: PROFILE_NAMES.map(p => {
+            return {
+                name: p,
+                value: p
+            };
+        })
+    }
+];
+
+const module = {
+    init: ( _db) => {
         db = _db;
     },
 
@@ -21,106 +62,78 @@ module.exports = {
 
     cmd_escape: cmd_escape,
 
+    profileOptions,
+
     mainColor: 0xdf73af,
     errorColor: 0xf04a4a,
 
-    extendedLayout: async msg => {
-        if(msg.guild == null)
-            return true;
+    botName: config?.bot_name ?? 'Sky Flower',
 
-        const layout = await db.get(`layout_${msg.guild.id}_${msg.channel.id}`) || 'basic';
-
-        return layout == 'extended';
+    errorEmbed: e => {
+        return {
+            color: module.errorColor,
+            author: {
+                name: 'Error'
+            },
+            description: e.toString()
+        }
     },
 
-    prefix: async guild => {
-        if(guild == null)
-            return config.prefix;
+    extendedLayout: async interaction => {
+        if (interaction.guildId == null)
+            return true;
 
-        return (await db.get(`pfx_${guild.id}`)) || config.prefix;
+        try {
+            const configuration = JSON.parse(await db.get(`config_${interaction.guildId}`));
+
+            let layout = configuration?.layout['default']?.type ?? 'compact';
+
+            if (interaction.channelId in configuration?.layout) {
+                layout = configuration.layout[interaction.channelId].type
+            }
+
+            return layout == 'extended';
+        } catch(e) {
+            return false;
+        }
     },
 
     log: (...params) => {
-        console.log(`[${moment().toISOString()}]`, ...params);
+        console.log(`[${new Date().toISOString()}]`, ...params);
     },
 
     error: (...params) => {
-        console.error(`[${moment().toISOString()}]`, ...params);
+        console.error(`[${new Date().toISOString()}]`, ...params);
     },
-
-    checkCommand: async (prefix, msg, command) => {
-	    if(!msg.content.startsWith(prefix))
-	        return false;
-
-		if(msg.author.bot)
-			return false;
-
-	    const argv = msg.content.split(' ');
-		const msgCheck = msg.content.toLowerCase().substr(prefix.length).trim();
-
-	    let commandMatch = false;
-	    let commands = command.command;
-	    let startswith = false;
-
-	    if(command.startsWith)
-	        startswith = true;
-
-	    if(!Array.isArray(commands))
-	        commands = [commands];
-
-	    for(let i = 0; i < commands.length; i++){
-	        let commandPart = commands[i].toLowerCase().trim();
-	        if(startswith){
-	            if(msgCheck.startsWith(commandPart))
-	                commandMatch = true;
-	        }else{
-	            if(msgCheck.startsWith(commandPart + ' ')
-	            || msgCheck == commandPart)
-	                commandMatch = true;
-	        }
-	    }
-
-	    if(commandMatch){
-	        let hasPermission = true;
-
-	        if(command.permsRequired)
-	            hasPermission = command.permsRequired.length == 0 || command.permsRequired.some(perm => msg.member.hasPermission(perm));
-
-	        if(!hasPermission)
-	            return 'Insufficient permissions for running this command.';
-
-	        if(command.argsRequired !== undefined && argv.length <= command.argsRequired)
-                return await module.exports.commandHelp(command.command, prefix);
-
-	        return true;
-	    }
-
-	    return false;
-	},
 
     getBazaarProduct: (query, products) => {
         let resultMatch;
         let itemResults = [];
 
-        for(const key in products)
-            itemResults.push({...products[key]});
+        for (const key in products) {
+            if (key === 'ENCHANTED_CARROT_ON_A_STICK') {
+                continue;
+            }
 
-        for(const product of itemResults){
-            if(product.name.toLowerCase() == query)
+            itemResults.push({ ...products[key] });
+        }
+
+        for (const product of itemResults) {
+            if (product.name.toLowerCase() == query)
                 return product;
 
             product.tagMatches = 0;
 
-            for(const part of query.split(" "))
-                for(const tag of product.tag)
-                    if(tag == part)
+            for (const part of query.split(" "))
+                for (const tag of product.tag)
+                    if (tag == part)
                         product.tagMatches++;
         }
 
         itemResults = itemResults.sort((a, b) => b.tagMatches - a.tagMatches);
         itemResults = itemResults.filter(a => a.tagMatches == itemResults[0].tagMatches);
 
-        if(itemResults.length == 1)
+        if (itemResults.length == 1)
             return itemResults[0];
 
         itemResults.forEach(a => a.distance = distance(a.name, query, { caseSensitive: false }));
@@ -129,49 +142,54 @@ module.exports = {
         return itemResults[0];
     },
 
-    getLeaderboard: (query, leaderboards) => {
+    getLeaderboard: (query, leaderboards, amount = 1) => {
         let resultMatch;
         let lbResults = [];
 
-        for(const lb of leaderboards)
-            lbResults.push({...lb});
+        const exactMatch = leaderboards.find(a => a.key == query);
 
-        for(const lb of lbResults){
-            if(lb.name.toLowerCase() == query)
-                return lb;
+        if (exactMatch && amount == 1) {
+            return exactMatch;
+        }
+
+        for (const lb of leaderboards)
+            lbResults.push({ ...lb });
+
+        for (const lb of lbResults) {
+            if (lb.name.toLowerCase() == query)
+                return amount == 1 ? lb : [lb];
 
             lb.tagMatches = 0;
 
-            for(const queryPart of query.toLowerCase().split(" "))
-                for(const namePart of lb.name.toLowerCase().split(" "))
-                    if(namePart == queryPart)
+            for (const queryPart of query.toLowerCase().split(" "))
+                for (const namePart of lb.name.toLowerCase().split(" "))
+                    if (namePart == queryPart)
                         lb.tagMatches++;
         }
 
         lbResults = lbResults.sort((a, b) => b.tagMatches - a.tagMatches);
         lbResults = lbResults.filter(a => a.tagMatches == lbResults[0].tagMatches);
 
-        if(lbResults.length == 1)
-            return lbResults[0];
+        if (lbResults.length == 1)
+            return amount == 1 ? lbResults[0] : lbResults;
 
         lbResults.forEach(a => a.distance = distance(a.name, query, { caseSensitive: false }));
         lbResults = lbResults.sort((a, b) => b.distance - a.distance);
 
-        resultMatch = lbResults[0];
-
-        return lbResults[0];
+        return amount == 1 ? lbResults[0] : lbResults.slice(0, amount);
     },
 
-    commandHelp: async (commandName, prefix) => {
-        if(Array.isArray(commandName))
+    /*commandHelp: async (commandName, prefix) => {
+        if (Array.isArray(commandName))
             commandName = commandName[0];
 
-        for(let i = 0; i < commands.length; i++){
+        for (let i = 0; i < commands.length; i++) {
             let command = commands[i];
 
-            command.command = _.castArray(command.command);
+            if (!Array.isArray(command.command))
+                command.command = [command.command];
 
-            if(command.command.includes(commandName)){
+            if (command.command.includes(commandName)) {
                 let embed = {
                     fields: []
                 };
@@ -180,7 +198,7 @@ module.exports = {
                 const commandsName = "Aliases";
 
                 command.command.forEach((_command, index) => {
-                    if(index > 0)
+                    if (index > 0)
                         commandsValue += ", ";
 
                     commandsValue += `\`${prefix}${_command}\``;
@@ -191,38 +209,43 @@ module.exports = {
                     value: commandsValue + "\n"
                 });
 
-                command.description = _.castArray(command.description);
+                if (!Array.isArray(command.description))
+                    command.description = [command.description];
 
-                if(command.description){
+                if (command.description) {
                     embed.fields.push({
                         name: "Description",
                         value: command.description.join("\n") + "\n"
                     })
                 }
 
-                if(command.usage){
+                if (command.usage) {
                     embed.fields.push({
                         name: "Usage",
                         value: `${backtick}${prefix}${command.command[0]} ${command.usage}${backtick}\n`
                     });
                 }
 
-                if(command.example){
-                    let examples = _.castArray(command.example);
+                if (command.example) {
+                    let examples = command.example;
+
+                    if (!Array.isArray(examples))
+                        examples = [examples];
+
                     let examplesValue = "";
                     let examplesName = "Example";
 
-                    if(examples.length > 1)
+                    if (examples.length > 1)
                         examplesName += "s";
 
                     examples.forEach((example, index) => {
-                        if(index > 0)
+                        if (index > 0)
                             examplesValue += "\n";
 
-                        if(example.result != null){
+                        if (example.result != null) {
                             examplesValue += `${backtick}${prefix}${example.run}${backtick}: `;
                             examplesValue += example.result;
-                        }else{
+                        } else {
                             examplesValue += `${backtick}${prefix}${example}${backtick}`;
                         }
                     });
@@ -238,20 +261,115 @@ module.exports = {
         }
 
         return "Couldn't find command.";
-    },
+    },*/
 
     emote: (emoteName, guild, client) => {
-        if(emoteName in emotes)
+        if (emoteName in emotes)
             return client.emojis.cache.get(emotes[emoteName].id);
 
         let emote;
 
-        if(guild)
+        if (guild)
             emote = guild.emojis.cache.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
 
-        if(!emote)
+        if (!emote)
             emote = client.emojis.cache.find(emoji => emoji.name.toLowerCase() === emoteName.toLowerCase());
 
         return emote;
+    },
+
+    apiRequest: (path, params) => {
+        const url = new URL(`${config.sky_api_base}${path}`);
+        url.searchParams.append('key', config.credentials.sky_api_key);
+
+        for (const param in params) {
+            url.searchParams.append(param, params[param])
+        }
+
+        return fetch(url);
+    },
+
+    fetchProfile: async interaction => {
+        const username = interaction.options.get('username')?.value;
+
+        if (username === undefined) {
+            return await interaction.reply({
+                ephemeral: true,
+                embeds: [module.errorEmbed('No username specified.')]
+            });
+        }
+
+        await interaction.deferReply();
+
+        const response = await module.apiRequest(`/api/v2/profile/${username}`);
+
+        if (!response.ok) {
+            await interaction.editReply({
+                ephemeral: true,
+                embeds: [module.errorEmbed('Failed fetching profile.')]
+            });
+
+            throw 'Failed fetching profile';
+        }
+
+        const data = await response.json();
+
+        if (data.error !== undefined) {
+            await interaction.editReply({
+                ephemeral: true,
+                embeds: [module.errorEmbed(data.error)]
+            });
+
+            throw data.error;
+        }
+
+        let profile = Object.values(data.profiles).find(a => a.current);
+        const customProfile = interaction.options.get('profile')?.value.toLowerCase();
+
+        if (customProfile !== undefined) {
+            for (const key in data.profiles) {
+                if (data.profiles[key].cute_name.toLowerCase() == customProfile) {
+                    profile = data.profiles[key];
+                    break;
+                }
+            }
+        }
+
+        return profile;
+    },
+
+    profileEmbed: (profile, title) => {
+        let name = profile.data.display_name;
+
+        if (title != null) {
+            name += "'";
+
+            if (!profile.data.display_name.toLowerCase().endsWith('s'))
+                name += 's';
+
+            name += ` ${title}`;
+        }
+
+        let gamemodeIcon = '';
+
+        if (profile.game_mode == 'ironman')
+            gamemodeIcon = '♲ ';
+        else if (profile.game_mode == 'bingo')
+            gamemodeIcon = 'Ⓑ ';
+
+        name += ` (${gamemodeIcon}${profile.cute_name})`
+
+        return {
+            color: module.mainColor,
+            author: {
+                icon_url: `https://minotar.net/helm/${profile.data.uuid}/64`,
+                name,
+                url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
+            },
+        };
     }
-}
+
+    
+};
+
+export default module;

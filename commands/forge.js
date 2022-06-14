@@ -1,17 +1,19 @@
-const helper = require('../helper');
-const config = require('../config.json');
-const axios = require('axios');
-const { CancelToken } = axios;
-const _ = require('lodash');
+import Command from '../command.js';
+
+import helper from '../helper.js';
+import config from '../config.json' assert { type: 'json' };
+import fetch from 'node-fetch';
+import { time, bold } from '@discordjs/builders';
+import { findKey } from 'lodash-es';
 
 let items;
 
-const updateItems = async function(){
-    try{
-        const itemsResponse = await axios(`https://api.slothpixel.me/api/skyblock/items`);
+const updateItems = async function () {
+    try {
+        const itemsResponse = await fetch(`https://api.slothpixel.me/api/skyblock/items`);
 
-        items = itemsResponse.data;
-    }catch(e){
+        items = await itemsResponse.json();
+    } catch (e) {
         helper.error(e);
     }
 }
@@ -86,7 +88,7 @@ const FORGE_TIMES = {
     DIAMONITE: 6 * 60
 };
 
-QUICK_FORGE_MULTIPLIER = {
+const QUICK_FORGE_MULTIPLIER = {
     1: 0.985,
     2: 0.97,
     3: 0.955,
@@ -109,143 +111,92 @@ QUICK_FORGE_MULTIPLIER = {
     20: 0.7
 };
 
-module.exports = {
-    command: ['forge'],
-    argsRequired: 1,
-    description: [
-        "Check forge for a player.",
-    ],
-    example: [
+class ForgeCommand extends Command {
+    command = 'forge';
+    description = "Check forge for a player.";
+    example = [
         {
             run: "forge leaphant",
             result: "Returns forge for LeaPhant."
         }
-    ],
-    usage: '<username> [profile name]',
-    call: async obj => {
-        const { guildId, argv, client, msg, prefix, responseMsg, endEmitter } = obj;
+    ];
+    options = helper.profileOptions;
 
-        extendedLayout = obj.extendedLayout;
+    async call(obj) {
+        const { guildId, client, interaction } = obj;
 
-        const footer = {
-            icon_url: "https://cdn.discordapp.com/attachments/572429763700981780/726040184638144512/logo_round.png",
-            text: `sky.lea.moe${helper.sep}${prefix}forge <user> [profile]`
+        let profile;
+
+        try {
+            profile = await helper.fetchProfile(interaction);
+        } catch(e) {
+            return;
         }
 
-        const msgObj = {
-            embed: {
-                color: helper.mainColor,
-                author: {
-                    name: `${argv[1]}'s Forge`
-                },
-                footer,
-                description: `Awaiting API response... ${helper.emote('beespin', null, client)}`
+        const embed = helper.profileEmbed(profile, 'Forge');
+
+        if (!profile?.raw?.forge?.forge_processes?.forge_1) {
+            return await interaction.editReply({ embeds: [{
+                ...embed,
+                description: 'Player does not have forge unlocked.'
+            }] });
+        }
+
+        const forge = Object.values(profile.raw.forge.forge_processes.forge_1);
+
+        let description = '';
+
+        if (forge.length == 0)
+            description = 'Player has no items in forge.';
+
+        const groups = [];
+
+        for (const item of forge) {
+            const index = groups.findIndex(a => a.id == item.id && Math.abs(item.startTime - a.startTime) < 120 * 1000);
+
+            if (index > -1)
+                groups[index].amount++;
+            else
+                groups.push({ amount: 1, ...item });
+        }
+
+        for (const [index, item] of groups.entries()) {
+            if (index > 0)
+                description += '\n';
+
+            let name = item.id in items ? items[item.id].name : item.id;
+
+            if (item.id == 'PET')
+                name = '[Lvl 1] Ammonite';
+
+            if (item.amount > 1)
+                name = `${bold(item.amount)}x ${name}`;
+
+            description += `${name} ${helper.sep} `;
+
+            if (item.id in FORGE_TIMES) {
+                let forgeTime = FORGE_TIMES[item.id] * 60 * 1000;
+
+                const quickForge = profile.raw?.mining_core?.nodes?.forge_time;
+
+                if (quickForge != null)
+                    forgeTime *= QUICK_FORGE_MULTIPLIER[quickForge];
+
+                description += `Finished ${time(new Date(item.startTime + forgeTime), 'R')}`;
+            } else {
+                description += `Started ${time(new Date(item.startTime), 'R')}`;
             }
+        }
+
+        embed.image = {
+            url: 'https://cdn.discordapp.com/attachments/572429763700981780/928597207773503548/footer-medium.png'
         };
 
-        let message = responseMsg;
-
-        if(responseMsg)
-            await responseMsg.edit(msgObj);
-        else
-            message = await msg.channel.send(msgObj);
-
-        const source = CancelToken.source();
-
-        axios.get(
-            `${config.sky_api_base}/api/v2/profile/${argv[1]}`, 
-            { 
-                params: { key: config.credentials.sky_api_key },
-                cancelToken: source.token
-            }
-        ).then(async response => {
-            const { data } = response;
-
-            let profile = data.profiles[_.findKey(data.profiles, a => a.current)];
-            let customProfile;
-
-            if(argv.length > 2){
-                customProfile = argv[2].toLowerCase();
-
-                for(const key in data.profiles)
-                    if(data.profiles[key].cute_name.toLowerCase() == customProfile)
-                        profile = data.profiles[key];
-            }
-
-            if(!profile?.raw?.forge?.forge_processes?.forge_1){
-                await message.edit({
-                    embed: {
-                        color: helper.errorColor,
-                        author: {
-                            name: 'Error'
-                        },
-                        footer,
-                        description: 'Player does not have forge unlocked.'
-                    }
-                });
-            }
-
-            const forge = Object.values(profile.raw.forge.forge_processes.forge_1);
-
-            let description = '';
-
-            if(forge.length == 0)
-                description = 'Player has no items in forge.';
-
-            const groups = [];
-
-            for(const item of forge){
-                const index = groups.findIndex(a => a.id == item.id && Math.abs(item.startTime - a.startTime) < 120 * 1000);
-
-                if(index > -1)
-                    groups[index].amount++;
-                else
-                    groups.push({ amount: 1, ...item });
-            }
-
-            for(const [index, item] of groups.entries()){
-                if(index > 0)
-                    description += '\n';
-
-                let name = item.id in items ? items[item.id].name : item.id;
-
-                if(item.id == 'PET')
-                    name = '[Lvl 1] Ammonite';
-
-                if(item.amount > 1)
-                    name = `**${item.amount}x** ${name}`;
-
-                description += `${name} ${helper.sep} `;
-
-                if(item.id in FORGE_TIMES){
-                    let forgeTime = FORGE_TIMES[item.id] * 60;
-                    
-                    const quickForge = profile.raw?.mining_core?.nodes?.forge_time;
-
-                    if(quickForge != null)
-                        forgeTime *= QUICK_FORGE_MULTIPLIER[quickForge];
-
-                    description += `Finished <t:${Math.floor(item.startTime / 1000) + forgeTime}:R>`;
-                }else{
-                    description += `Started <t:${Math.floor(item.startTime / 1000)}:R>`;
-                }
-            }
-
-            const embed = {
-                color: helper.mainColor,
-                url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
-                author: {
-                    icon_url: `https://minotar.net/helm/${profile.data.uuid}/64`,
-                    name: `${profile.data.display_name}'s Forge (${profile.cute_name})`,
-                    url: `https://sky.lea.moe/stats/${profile.data.uuid}/${profile.data.profile.profile_id}`,
-                },
-                footer,
-                description
-            };
-
-            await message.edit({ embed });
-        }).catch(console.error);
-
-        return message;
+        return await interaction.editReply({ embeds: [{
+            ...embed,
+            description
+        }] });
     }
 };
+
+export default ForgeCommand;

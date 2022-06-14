@@ -1,3 +1,8 @@
+import Command from '../command.js';
+
+import { bold, time } from '@discordjs/builders';
+import helper from '../helper.js';
+
 const HOUR_MS = 50_000;
 const DAY_MS = 24 * HOUR_MS;
 const MONTH_LENGTH = 31;
@@ -21,10 +26,10 @@ const JERRY_END = JERRY_START + YEAR_MS;
 
 const JERRY_TIMES = [];
 
-let time = JERRY_START;
+let currentTime = JERRY_START;
 let i = 0;
 
-while(time < JERRY_END){
+while (currentTime < JERRY_END) {
     JERRY_TIMES.push({
         start: JERRY_START + i * JERRY_DURATION,
         end: JERRY_START + (i + 1) * JERRY_DURATION - 1,
@@ -33,19 +38,59 @@ while(time < JERRY_END){
 
     i++;
 
-    time += JERRY_DURATION;
+    currentTime += JERRY_DURATION;
 }
 
-const helper = require('../helper');
+class JerryCommand extends Command {
+    command = 'jerry';
+    description = "Check Perkpocalypse Calendar.";
+    options = [
+        {
+            name: 'mayor',
+            description: 'Filter result to a specific mayor',
+            type: 3,
+            choices: [
+                {
+                    name: 'Aatrox',
+                    value: 'Aatrox',
+                    type: 3
+                },
+                {
+                    name: 'Barry',
+                    value: 'Barry',
+                    type: 3
+                },
+                {
+                    name: 'Cole',
+                    value: 'Cole',
+                    type: 3
+                },
+                {
+                    name: 'Diana',
+                    value: 'Diana',
+                    type: 3
+                },
+                {
+                    name: 'Diaz',
+                    value: 'Diaz',
+                    type: 3
+                },
+                {
+                    name: 'Marina',
+                    value: 'Marina',
+                    type: 3
+                },
+                {
+                    name: 'Paul',
+                    value: 'Paul',
+                    type: 3
+                },
+            ]
+        }
+    ];
 
-module.exports = {
-    command: ['jerry'],
-    description: [
-        "Check Perkpocalypse Calendar.",
-    ],
-    usage: '',
-    call: async obj => {
-        const { prefix, argv } = obj;
+    async call(obj) {
+        const { interaction } = obj;
 
         let embed = {
             color: helper.mainColor,
@@ -59,9 +104,9 @@ module.exports = {
         const currentMayorIndex = JERRY_TIMES.findIndex(a => Date.now() >= a.start && Date.now() < a.end);
         let currentMayorValue = 'None';
 
-        if(currentMayorIndex > -1){
+        if (currentMayorIndex > -1) {
             const mayor = JERRY_TIMES[currentMayorIndex];
-            currentMayorValue = `${mayor.mayor} – ends <t:${Math.floor(mayor.end / 1000)}:R>`;
+            currentMayorValue = `${mayor.mayor} – ends ${time(new Date(mayor.end), 'R')}`;
         }
 
         embed.fields.push({
@@ -73,28 +118,32 @@ module.exports = {
 
         const cyclesLeft = nextMayors.length;
 
-        if(argv.length > 1)
-            nextMayors = nextMayors.filter(a => a.mayor.toLowerCase() == argv[1].toLowerCase());
+        const filterMayor = interaction.options.get('mayor')?.value;
+
+        if (filterMayor)
+            nextMayors = nextMayors.filter(a => a.mayor.toLowerCase() == filterMayor.toLowerCase());
 
         let nextMayorsValue = nextMayors.length > 0 ? '' : 'None';
 
-        for(let i = 0; i < 3; i++){
-            if(i > nextMayors.length - 1)
+        for (let i = 0; i < 3; i++) {
+            if (i > nextMayors.length - 1)
                 break;
 
-            if(i > 0)
+            if (i > 0)
                 nextMayorsValue += '\n';
 
-            nextMayorsValue += `${nextMayors[i].mayor} – starts <t:${Math.floor(nextMayors[i].start / 1000)}:R>`
+            nextMayorsValue += `${nextMayors[i].mayor} – starts ${time(new Date(nextMayors[i].start), 'R')}`;
         }
 
-        embed.footer.text = `${cyclesLeft} Mayor terms left${helper.sep}${prefix}jerry [mayor]`;
+        embed.footer.text = `${cyclesLeft} Mayor terms left`;
 
         embed.fields.push({
             name: 'Next Mayors',
             value: nextMayorsValue,
         });
 
-        return { embed };
+        await interaction.reply({ embeds: [embed] });
     }
 };
+
+export default JerryCommand;

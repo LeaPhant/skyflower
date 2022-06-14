@@ -1,63 +1,68 @@
-const helper = require('../helper');
-const config = require('../config.json');
-const LilyWeight = require("lilyweight");
-const numeral = require('numeral');
+import Command from '../command.js';
 
-const lily = new LilyWeight(config.credentials.hypixel_api_key);
+import helper from '../helper.js';
+import { bold } from '@discordjs/builders';
+import numeral from 'numeral';
 
-module.exports = {
-    command: ['weight', 'lilyweight'],
-    description: [
-        "Calculate lily weight for a player.",
-    ],
-    argsRequired: 1,
-    usage: '[username]',
-    example: [
+const format = value => {
+    return bold(numeral(value).format('0.0'))
+};
+
+class WeightCommand extends Command {
+    command = 'weight';
+    description = "Calculate lily weight for a player.";
+    options = [
+        ...helper.profileOptions
+    ];
+    example = [
         {
             run: "weight lappysheep",
             result: `Weight for LappySheep.`
         }
-    ],
-    call: async obj => {
-        const { argv, endEmitter } = obj;
+    ];
+    
+    async call(obj) {
+        const { interaction } = obj;
 
-        const username = argv[1];
+        let profile;
 
-        const weight = await lily.getWeight(username);
+        try {
+            profile = await helper.fetchProfile(interaction);
+        } catch(e) {
+            return;
+        }
+
+        const { lilyweight: weight } = profile.data;
+
+        console.log(profile);
 
         const embed = {
-            color: helper.mainColor,
-                url: `https://sky.lea.moe/stats/${weight.uuid}`,
-                author: {
-                    name: `${username}'s Lily Weight`,
-                    url: `https://sky.lea.moe/stats/${weight.uuid}}`,
-                    icon_url: `https://minotar.net/helm/${weight.uuid}/128`
-                },
-                fields: []
+            ...helper.profileEmbed(profile, 'Weight'),
+            fields: []
         };
 
         embed.fields.push(
             {
                 name: 'Skills',
-                value: `Base: **${numeral(weight.skill.base).format('0.0')}**
-Overflow: **${numeral(weight.skill.overflow).format('0.0')}**`,
+                value: `Base: ${format(weight.skill.base)}
+Overflow: ${format(weight.skill.overflow)}`,
                 inline: true
             },
             {
                 name: 'Catacombs',
-                value: `Regular: **${numeral(weight.catacombs.completion.base).format('0.0')}**
-Master: **${numeral(weight.catacombs.completion.master).format('0.0')}**
-Experience: **${numeral(weight.catacombs.experience).format('0.0')}**`,
+                value: `Regular: ${format(weight.catacombs.completion.base)}
+Master: ${format(weight.catacombs.completion.master)}
+Experience: ${format(weight.catacombs.experience)}`,
                 inline: true
             },
             {
                 name: 'Slayer',
-                value: `Total: **${numeral(weight.slayer).format('0.0')}**`,
+                value: `Total: ${format(weight.slayer)}`,
                 inline: true
             },
             {
                 name: 'Total',
-                value: `**${numeral(weight.total).format('0.0')}** Weight`
+                value: `${format(weight.total)} Weight`
             },
             {
                 name: 'Links',
@@ -65,6 +70,8 @@ Experience: **${numeral(weight.catacombs.experience).format('0.0')}**`,
             }
         );
 
-        return { embed };
+        await interaction.editReply({ embeds: [embed] });
     }
 };
+
+export default WeightCommand;

@@ -1,3 +1,11 @@
+import Command from '../command.js';
+
+import helper from '../helper.js';
+import { bold, time } from '@discordjs/builders';
+import { uniqBy } from 'lodash-es';
+import { Duration } from 'luxon';
+import { Interaction } from 'discord.js';
+
 const MONTHS = [
     "Early Spring", "Spring", "Late Spring",
     "Early Summer", "Summer", "Late Summer",
@@ -15,20 +23,17 @@ const YEAR_MS = YEAR_LENGTH * MONTH_MS;
 
 const YEAR_0 = 1560275700_000;
 
-const DURATION_FORMAT = function(){
-    return this.duration.asSeconds() >= 60 ? "d [days, ]h [hours, ]m [minutes]" : "s [seconds]";
-};
+const DURATION_FORMAT = ms => {
+    const d = Duration.fromObject({ hours: 0, minutes: 0, seconds: ms / 1000 }).normalize();
+    const o = d.toObject();
 
-const DURATION_FORMAT_SHORT = function(){
-    if (this.duration.asSeconds() < 60) {
-        return "s [seconds]";
-    } else if (this.duration.asSeconds() < 3600) {
-        return "m [minutes]";
-    } else if (this.duration.asSeconds() < 3600 * 48) {
-        return "h [hours]";
-    } else {
-        return "d [days]";
+    if (o.hours > 0) {
+        return d.toFormat("h 'hours' m 'minutes'");
+    } else if (o.minutes > 0) {
+        return d.toFormat("m 'minutes'");
     }
+
+    return d.toFormat("s 'seconds'");
 };
 
 const ZOO_START = YEAR_0 + YEAR_MS * 66;
@@ -43,8 +48,8 @@ const ZOO_CYCLE = [
 ];
 
 const getOffset = (month, day) => {
-    return MONTHS.indexOf(month) * MONTH_LENGTH * DAY_MS 
-    + (day - 1) * DAY_MS;
+    return MONTHS.indexOf(month) * MONTH_LENGTH * DAY_MS
+        + (day - 1) * DAY_MS;
 }
 
 const getZooPet = time => {
@@ -53,7 +58,7 @@ const getZooPet = time => {
     return ZOO_CYCLE[iterations % ZOO_CYCLE.length];
 }
 
-const nth = n => n + ['st','nd','rd'][((n + 90) % 100 - 10) % 10 - 1] || n + 'th';
+const nth = n => n + ['st', 'nd', 'rd'][((n + 90) % 100 - 10) % 10 - 1] || n + 'th';
 
 const EVENTS = [
     {
@@ -131,27 +136,36 @@ const FISHING_FESTIVAL = {
     times: []
 };
 
-for(const month of MONTHS)
+for (const month of MONTHS)
     FISHING_FESTIVAL.times.push(
         [getOffset(month, 1) + MONTH_MS * 3, getOffset(month, 3) + MONTH_MS * 3]
     );
 
 EVENTS.push(FISHING_FESTIVAL);
 
-const helper = require('../helper');
-const _ = require('lodash');
+const choices = [];
 
-const moment = require('moment');
-require('moment-duration-format');
+for (const event of EVENTS) {
+    choices.push({
+        name: event.name,
+        value: event.name
+    });
+}
 
-module.exports = {
-    command: ['calendar', 'cal'],
-    description: [
-        "Check SkyBlock Calendar.",
-    ],
-    usage: '',
-    call: async obj => {
-        const { client, prefix, argv, extendedLayout } = obj;
+class CalendarCommand extends Command {
+    command = 'calendar';
+    description = "Check SkyBlock Calendar.";
+    options = [
+        {
+            name: 'event',
+            description: 'Filter result to a specific event',
+            type: 3,
+            choices
+        }
+    ];
+    
+    async call(obj) {
+        const { interaction, extendedLayout } = obj;
 
         let embed = {
             color: helper.mainColor,
@@ -165,7 +179,7 @@ module.exports = {
         const currentOffset = (Date.now() - YEAR_0) % YEAR_MS;
 
         embed.footer = {
-            text: `SkyBlock Year ${currentYear + 1}${helper.sep}${prefix}cal [event]`
+            text: `SkyBlock Year ${currentYear + 1}`
         };
 
         const currentMonth = Math.floor(currentOffset / MONTH_MS);
@@ -178,48 +192,48 @@ module.exports = {
         let currentHour = Math.floor(currentDayOffset / HOUR_MS);
         let currentMinute = Math.floor((currentDayOffset - currentHour * HOUR_MS) / HOUR_MS * 60);
 
-        if(currentHour >= 12)
+        if (currentHour >= 12)
             suffix = 'pm';
 
-        if(currentHour > 12)
+        if (currentHour > 12)
             currentHour -= 12;
 
-        if(currentHour == 0)
+        if (currentHour == 0)
             currentHour = 12;
 
         const formattedTime = `${currentHour}:${(Math.floor(currentMinute / 10) * 10).toString().padStart(2, '0')}${suffix}`;
 
         let nextEvents = [];
 
-        for(let i = 0; i < 4; i++){
-            for(const event of EVENTS){
-                for(const _time of event.times){
+        for (let i = 0; i < 4; i++) {
+            for (const event of EVENTS) {
+                for (const _time of event.times) {
                     const time = [_time[0] + YEAR_MS * i, _time[1] + YEAR_MS * i];
 
                     const offset = currentOffset;
 
                     let year = Math.floor((currentYear * YEAR_MS + offset) / YEAR_MS) + 1 + i;
 
-                    if(time[1] < offset)
+                    if (time[1] < offset)
                         year++;
 
-                    if(Array.isArray(event.years) && 
-                    (time[0] < getOffset('Late Spring', 27) && !event.years.includes(year - 1) ||
-                    time[0] >= getOffset('Late Spring', 27) && !event.years.includes(year))
+                    if (Array.isArray(event.years) &&
+                        (time[0] < getOffset('Late Spring', 27) && !event.years.includes(year - 1) ||
+                            time[0] >= getOffset('Late Spring', 27) && !event.years.includes(year))
                     )
                         continue;
 
-                    const msTill = 
-                    time[1] < offset ? YEAR_MS - offset + time[0] // event is next year
-                    : time[0] - offset; // event is in current year
+                    const msTill =
+                        time[1] < offset ? YEAR_MS - offset + time[0] // event is next year
+                            : time[0] - offset; // event is in current year
 
                     const duration = time[1] - time[0] + DAY_MS;
 
                     let { emoji } = event;
 
-                    if(event.name == 'Traveling Zoo')
-                        emoji = helper.emote(getZooPet(Date.now() + msTill), null, client);
-                    
+                    if (event.name == 'Traveling Zoo')
+                        emoji = helper.emote(getZooPet(Date.now() + msTill), null, this.client);
+
                     nextEvents.push({
                         name: event.name,
                         emoji,
@@ -233,19 +247,19 @@ module.exports = {
 
         nextEvents = nextEvents.sort((a, b) => a.start - b.start);
 
-        nextEvents = _.uniqBy(nextEvents, a => a.name + a.start);
+        nextEvents = uniqBy(nextEvents, a => a.name + a.start);
 
         let currentEvents = [];
 
-        for(const event of nextEvents.filter(a => a.start < 0))
+        for (const event of nextEvents.filter(a => a.start < 0))
             currentEvents.push(nextEvents.shift());
 
-        if(nextEvents[0].start < 0)
+        if (nextEvents[0].start < 0)
             currentEvent = nextEvents.shift();
 
         embed.fields.push({
             name: 'Date',
-            value: `${MONTHS[currentMonth]} **${nth(currentDay + 1)}**`,
+            value: `${MONTHS[currentMonth]} ${bold(nth(currentDay + 1))}`,
             inline: true
         });
 
@@ -257,18 +271,19 @@ module.exports = {
 
         embed.fields.push({
             name: 'Next Month',
-            value: `<t:${Math.round(Date.now() / 1000) + Math.round((MONTH_MS - currentMonthOffset) / 1000)}:R>`,
+            value: `${time(new Date(Date.now() + MONTH_MS - currentMonthOffset), 'R')}`,
             inline: true
         });
 
-        if(currentEvents.length > 0){
+        if (currentEvents.length > 0) {
             let currentEventsText = '';
 
-            for(const [index, event] of currentEvents.entries()){
-                if(index > 0)
+            for (const [index, event] of currentEvents.entries()) {
+                if (index > 0)
                     currentEventsText += '\n';
-    
-                currentEventsText += `${event.emoji} ${event.name} – over <t:${Math.round(Date.now() / 1000) + Math.round((event.duration + event.start) / 1000)}:R>`;
+
+                currentEventsText += `${event.emoji} ${event.name} – `
+                + `over ${time(new Date(Date.now() + event.duration + event.start),'R')}`;
             }
 
             embed.fields.push({
@@ -279,30 +294,26 @@ module.exports = {
 
         let nextEventsName = 'Next Events';
 
-        if(argv.length > 1){
-            let nextEventsFiltered = [];
-            let eventSearch = argv.slice(1);
+        const eventOption = interaction.options.get('event')?.value;
 
-            for(const search of eventSearch)
-                nextEventsFiltered = nextEvents.filter(a => a.name.toLowerCase().includes(search.toLowerCase()));
+        if (eventOption) {
+            nextEvents = nextEvents.filter(a => a.name == eventOption);
 
-            if(nextEventsFiltered.length > 0){
-                nextEvents = nextEventsFiltered.filter(a => a.name == nextEventsFiltered[0].name);
-
-                embed.fields.push({
-                    name: nextEvents[0].name,
-                    value: `Duration: **${moment.duration(nextEvents[0].duration).format(DURATION_FORMAT, { trim: 'both' })}**`
-                });
-            }
+            embed.fields.push({
+                name: nextEvents[0].name,
+                value: `Duration: ${bold(DURATION_FORMAT(nextEvents[0].duration))}`
+            });
         }
 
         let nextEventsText = '';
 
-        for(const [index, event] of nextEvents.slice(0, extendedLayout ? 8 : 4).entries()){
-            if(index > 0)
+        for (const [index, event] of nextEvents.slice(0, extendedLayout ? 8 : 4).entries()) {
+            if (index > 0)
                 nextEventsText += '\n';
 
-            nextEventsText += `${event.emoji} ${event.name} – starts <t:${Math.round(Date.now() / 1000) + Math.round(event.start / 1000)}:R>`;
+            nextEventsText += 
+                  `${event.emoji} ${event.name} – `
+                + `starts ${time(new Date(Date.now() + event.start), 'R')}`;
         }
 
         embed.fields.push({
@@ -310,12 +321,14 @@ module.exports = {
             value: nextEventsText
         });
 
-        if(nextEventsName != 'Next Events')
+        if (nextEventsName != 'Next Events')
             embed.fields.push({
                 name: nextEventsName,
                 value: nextEventsText
             });
 
-        return { embed };
+        await interaction.reply({ embeds: [embed] });
     }
 };
+
+export default CalendarCommand;

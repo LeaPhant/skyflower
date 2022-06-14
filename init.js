@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from 'fs';
 
 const configDefault = {
     "credentials": {
@@ -6,6 +6,7 @@ const configDefault = {
         "discord_client_id": "",
         "sky_api_key": ""
     },
+    "bot_name": "Sky Flower",
     "sky_api_base": "https://sky.lea.moe",
     "debug": false,
     "prefix": "s!",
@@ -15,8 +16,8 @@ const configDefault = {
 
 const emotesDefault = {};
 
-if(!fs.existsSync('./config.json'))
+if (!fs.existsSync('./config.json'))
     fs.writeFileSync('./config.json', JSON.stringify(configDefault, null, 4));
 
-if(!fs.existsSync('./emotes.json'))
+if (!fs.existsSync('./emotes.json'))
     fs.writeFileSync('./emotes.json', JSON.stringify(emotesDefault, null, 4));
