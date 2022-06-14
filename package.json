@@ -1,8 +1,8 @@
 {
-  "name": "skybot",
+  "name": "Sky Flower",
   "type": "module",
-  "version": "1.0.0",
-  "description": "A cool bot for the sky.lea.moe Discord Server",
+  "version": "2.0.0",
+  "description": "Open-source Discord bot with cool SkyBlock features.",
   "main": "index.js",
   "scripts": {
     "postinstall": "node init",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LeaPhant/skybot.git"
+    "url": "git+https://github.com/LeaPhant/skyflower.git"
   },
   "author": "LeaPhant",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/LeaPhant/skybot/issues"
+    "url": "https://github.com/LeaPhant/skyflower/issues"
   },
-  "homepage": "https://github.com/LeaPhant/skybot#readme",
+  "homepage": "https://github.com/LeaPhant/skyflower#readme",
   "dependencies": {
     "@discordjs/builders": "^0.9.0",
     "@discordjs/rest": "^0.1.0-canary.0",
