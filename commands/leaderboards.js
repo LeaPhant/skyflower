@@ -36,7 +36,7 @@ const errorHandler = (e, embed) => {
     };
 };
 
-const formattedRank = rank => rank > (config.lbCap ?? Infinity) ? `${config.lbCap}+` : self.rank.toLocaleString();
+const formattedRank = rank => rank > (config.lbCap ?? Infinity) ? `${config.lbCap}+` : rank.toLocaleString();
 
 const drawLeaderboard = async function (_embed, leaderboard, params, _self = {}) {
     try {
