@@ -36,6 +36,8 @@ const errorHandler = (e, embed) => {
     };
 };
 
+const formattedRank = rank => rank > (config.lbCap ?? Infinity) ? `${config.lbCap}+` : self.rank.toLocaleString();
+
 const drawLeaderboard = async function (_embed, leaderboard, params, _self = {}) {
     try {
         const lb = helper.getLeaderboard(leaderboard, leaderboards);
@@ -62,7 +64,7 @@ const drawLeaderboard = async function (_embed, leaderboard, params, _self = {})
             if (self.guild)
                 embed.description += `Guild: **${self.guild}**\nGuild `;
 
-            embed.description += `Rank: **#${self.rank.toLocaleString()}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
+            embed.description += `Rank: **#${formattedRank(self.rank)}**\n-> **${typeof self.amount === 'number' ? self.amount.toLocaleString() : self.amount}**`
         }
 
         if (lb.thumbnail)
@@ -82,8 +84,9 @@ const drawLeaderboard = async function (_embed, leaderboard, params, _self = {})
             return { embed, self };
 
         for (const [index, position] of data.positions.entries()) {
+
             embed.fields.push({
-                name: `#${position.rank.toLocaleString()} – ${position.username.replace(/\_/g, '\\_')}`,
+                name: `#${formattedRank(position.rank)} – ${position.username.replace(/\_/g, '\\_')}`,
                 value: `[🔗](https://sky.lea.moe/stats/${position.uuid}) ${typeof position.amount === 'number' ? position.amount.toLocaleString() : position.amount}`,
                 inline: true
             });
