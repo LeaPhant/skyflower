@@ -284,9 +284,6 @@ class LeaderboardsCommand extends Command {
             footer: {}
         };
 
-        if (config.credentials.sky_api_key != null)
-            params.key = config.credentials.sky_api_key;
-
         const leaderboard = interaction.options.getString('leaderboard');
         const username = interaction.options.getString('username');
         const guild = interaction.options.getString('guild');
