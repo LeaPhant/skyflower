@@ -183,16 +183,16 @@ const drawTopPositions = function (_embed, topPositions) {
 };
 
 const topPositionsCollector = async function (i, embed, row, topPositions) {
-    switch (i.customId) {
-        case 'left':
-            topPositions.page = Math.max(1, topPositions.page - 1);
-            break;
-        case 'right':
-            topPositions.page = Math.min(topPositions.page + 1, Math.floor(topPositions.positions.length / topPositions.count) + 1);
-            break;
-    }
-
     try {
+        switch (i.customId) {
+            case 'left':
+                topPositions.page = Math.max(1, topPositions.page - 1);
+                break;
+            case 'right':
+                topPositions.page = Math.min(topPositions.page + 1, Math.floor(topPositions.positions.length / topPositions.count) + 1);
+                break;
+        }
+
         await i.update({ embeds: [drawTopPositions(embed, topPositions)], components: [row] });
     } catch (e) {
         helper.error(e);
@@ -388,7 +388,7 @@ class LeaderboardsCommand extends Command {
             });
 
         collector.on('end', async () => {
-            await interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ embeds: [embed], components: [] }).catch(helper.error);
         });
 
         return message;

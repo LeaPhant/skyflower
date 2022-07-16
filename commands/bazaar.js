@@ -11,22 +11,26 @@ import * as math from 'mathjs';
 let products = {};
 
 const updateProducts = async () => {
-    const bazaarResponse = await helper.apiRequest('/api/v2/bazaar');
+    try{
+        const bazaarResponse = await helper.apiRequest('/api/v2/bazaar');
 
-    if (!bazaarResponse.ok)
-        return;
+        if (!bazaarResponse.ok)
+            return;
 
-    products = await bazaarResponse.json();
+        products = await bazaarResponse.json();
 
-    for (const productId in products) {
-        const product = products[productId];
+        for (const productId in products) {
+            const product = products[productId];
 
-        if (product.tag != null)
-            product.tag = product.tag.split(" ");
-        else
-            product.tag = [];
+            if (product.tag != null)
+                product.tag = product.tag.split(" ");
+            else
+                product.tag = [];
 
-        product.tag.push(...product.name.toLowerCase().split(" "));
+            product.tag.push(...product.name.toLowerCase().split(" "));
+        }
+    } catch(e) {
+        helper.error(e);
     }
 }
 
